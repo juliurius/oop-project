@@ -23,7 +23,7 @@ public class GameManager {
     }
 
     public void update(double deltaTime) {
-        // TODO: physics.update(pawns, deltaTime);
+        physics.update(pawns, deltaTime);
     }
 
     public List<Pawn> getPawns() {
