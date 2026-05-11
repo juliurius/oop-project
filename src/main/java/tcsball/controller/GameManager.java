@@ -1,60 +1,28 @@
 package tcsball.controller;
 
-import tcsball.GameConfig;
-import tcsball.model.Ball;
-import tcsball.model.Pawn;
-import tcsball.model.PhysicsEngine;
-import tcsball.model.Vector2D;
-
-import java.util.ArrayList;
+import tcsball.model.*;
 import java.util.List;
 
 public class GameManager {
-    private List<Pawn> pawns;
-    private Ball ball;
-    private PhysicsEngine physics;
+    private final Match match;
+    private final PhysicsEngine physics;
+
     private Pawn selectedPawn = null;
     private Vector2D tensionVector;
     double mouseX = 0, mouseY = 0;
 
     public GameManager(double width, double height) {
-        this.pawns = new ArrayList<>();
-        this.physics = new PhysicsEngine(width, height);
+        match = new Match();
+        physics = new PhysicsEngine(width, height);
+
         tensionVector = new Vector2D(0, 0);
-
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 35, GameConfig.GOAL_CENTER_Y, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 125, GameConfig.PITCH_TOP_Y + 70, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 125, GameConfig.PITCH_TOP_Y + 185, 20,1 ));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 125, GameConfig.PITCH_BOTTOM_Y - 185, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 125, GameConfig.PITCH_BOTTOM_Y - 70, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 245, GameConfig.PITCH_TOP_Y + 70, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 245, GameConfig.PITCH_TOP_Y + 185, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 245, GameConfig.PITCH_BOTTOM_Y - 185, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 245, GameConfig.PITCH_BOTTOM_Y - 70, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 325, GameConfig.PITCH_TOP_Y + 185, 20, 1));
-        pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 325, GameConfig.PITCH_BOTTOM_Y - 185, 20, 1));
-
-        ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, 12);
-
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 35, GameConfig.GOAL_CENTER_Y, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 125, GameConfig.PITCH_TOP_Y + 70, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 125, GameConfig.PITCH_TOP_Y + 185, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 125, GameConfig.PITCH_BOTTOM_Y - 185, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 125, GameConfig.PITCH_BOTTOM_Y - 70, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 245, GameConfig.PITCH_TOP_Y + 70, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 245, GameConfig.PITCH_TOP_Y + 185, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 245, GameConfig.PITCH_BOTTOM_Y - 185, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 245, GameConfig.PITCH_BOTTOM_Y - 70, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 325, GameConfig.PITCH_TOP_Y + 185, 20, 2));
-        pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 325, GameConfig.PITCH_BOTTOM_Y - 185, 20, 2));
     }
 
     public void update(double deltaTime) {
-        physics.update(pawns, ball, deltaTime);
-    }
+        List<Pawn> pawns = match.getPawns();
+        Ball ball = match.getBall();
 
-    public List<Pawn> getPawns() {
-        return pawns;
+        physics.update(pawns, ball, deltaTime);
     }
 
     public void shootPawn() {
@@ -65,6 +33,8 @@ public class GameManager {
     }
 
     public void startAiming(double x, double y) {
+        List<Pawn> pawns = match.getPawns();
+
         for (Pawn pawn : pawns) {
             Vector2D position = pawn.getPosition();
             double pawnX = position.getX(), pawnY = position.getY(), pawnR = pawn.getRadius();
@@ -101,5 +71,17 @@ public class GameManager {
         if (selectedPawn != null)
             return selectedPawn.getPosition().getY() + tensionVector.getY();
         return 0;
+    }
+
+    public List<Pawn> getPawns() {
+        return match.getPawns();
+    }
+
+    public double getBallX() {
+        return match.getBall().getPosition().getX();
+    }
+
+    public double getBallY() {
+        return match.getBall().getPosition().getY();
     }
 }
