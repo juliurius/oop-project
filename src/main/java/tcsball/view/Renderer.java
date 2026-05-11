@@ -16,17 +16,28 @@ public class Renderer {
         this.height = height;
     }
 
-    public void render(List<Pawn> pawns) {
-        // 1. Czyszczenie tła z poprzedniej klatki
+    // Zaktualizowana sygnatura metody
+    public void render(List<Pawn> pawns, Pawn aimingPawn, double mouseX, double mouseY) {
         gc.setFill(Color.DARKGREEN);
         gc.fillRect(0, 0, width, height);
 
-        // 2. Rysowanie pionków
         for (Pawn pawn : pawns) {
-            // TODO 1: Pobierz pozycję i promień z obiektu 'pawn'
-            // TODO 2: Narysuj pionek używając gc.fillOval() (pamiętaj o wyrównaniu do środka, a nie rogu)
+            double x = pawn.getPosition().getX();
+            double y = pawn.getPosition().getY();
+            double radius = pawn.getRadius();
+
+            gc.setFill(Color.BLACK);
+            gc.fillOval(x - radius, y - radius, 2 * radius, 2 * radius);
         }
 
-        // TODO 3: Rysowanie strzałki celowania, gdy gracz naciąga strzał
+        if (aimingPawn != null) {
+            double startX = aimingPawn.getPosition().getX();
+            double startY = aimingPawn.getPosition().getY();
+
+            gc.setStroke(Color.WHITE);
+            gc.setLineWidth(3.0);
+
+            gc.strokeLine(startX, startY, mouseX, mouseY);
+        }
     }
 }

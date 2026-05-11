@@ -14,4 +14,12 @@ public class Vector2D {
     // TODO 3: getLength() -> długość wektora (przydatne do wygaszania prędkości)
 
     // Gettery i Settery dla x i y
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
 }

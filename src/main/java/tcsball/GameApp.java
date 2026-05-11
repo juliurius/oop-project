@@ -7,6 +7,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import tcsball.controller.GameManager;
+import tcsball.controller.InputHandler;
 import tcsball.view.Renderer;
 
 public class GameApp extends Application {
@@ -15,6 +17,7 @@ public class GameApp extends Application {
     private static final int HEIGHT = 600;
 
     private Renderer renderer;
+    private GameManager gameManager;
 
     public static void launchApp(String[] args) {
         launch(args);
@@ -29,6 +32,9 @@ public class GameApp extends Application {
         Scene scene = new Scene(root, WIDTH, HEIGHT);
 
         renderer = new Renderer(gc, WIDTH, HEIGHT);
+        gameManager = new GameManager(WIDTH, HEIGHT);
+
+        new InputHandler(gameManager, scene);
 
         AnimationTimer gameLoop = new AnimationTimer() {
             private long lastUpdate = 0;
@@ -43,7 +49,14 @@ public class GameApp extends Application {
                 double deltaTime = (now - lastUpdate) / 1_000_000_000.0;
                 lastUpdate = now;
 
-                renderer.render();
+                gameManager.update(deltaTime);
+
+                renderer.render(
+                        gameManager.getPawns(),
+                        gameManager.getAimingPawn(),
+                        gameManager.getCurrentMouseX(),
+                        gameManager.getCurrentMouseY()
+                );
             }
         };
 

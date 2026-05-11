@@ -15,4 +15,12 @@ public class Pawn {
     // TODO 2: updatePosition(double deltaTime) -> dodaje prędkość do pozycji
 
     // Gettery (position, radius) potrzebne dla Widoku
+
+    public Vector2D getPosition() {
+        return position;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
 }
