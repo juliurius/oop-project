@@ -20,10 +20,10 @@ public class GameManager {
         tensionVector = new Vector2D(0, 0);
 
         // MVP: Jeden pionek testowy na środku
-        pawns.add(new Pawn(width / 2, height / 2, 20));
-        pawns.add(new Pawn(width / 3, height / 3, 20));
-        pawns.add(new Pawn(width / 4, height / 4, 20));
-        pawns.add(new Pawn(width / 5, height / 5, 20));
+        pawns.add(new Pawn(width / 2, height / 2, 20, 1));
+        pawns.add(new Pawn(width / 3, height / 3, 20, 1));
+        pawns.add(new Pawn(width / 4, height / 4, 20, 2));
+        pawns.add(new Pawn(width / 5, height / 5, 20, 2));
     }
 
     public void update(double deltaTime) {

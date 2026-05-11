@@ -84,12 +84,22 @@ public class Renderer {
         gc.setFill(Color.color(0, 0, 0, 0.4));
         gc.fillOval(x - radius + 4, y - radius + 4, radius * 2, radius * 2);
 
-        gc.setFill(Color.web("#1e90ff"));
-        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+        if (pawn.getTeam() == 1) {
+            gc.setFill(Color.web("#1e90ff"));
+            gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
 
-        gc.setFill(Color.web("#4682b4"));
-        double innerRadius = radius * 0.7;
-        gc.fillOval(x - innerRadius, y - innerRadius, innerRadius * 2, innerRadius * 2);
+            gc.setFill(Color.web("#4682b4"));
+            double innerRadius = radius * 0.7;
+            gc.fillOval(x - innerRadius, y - innerRadius, innerRadius * 2, innerRadius * 2);
+
+        } else if (pawn.getTeam() == 2) {
+            gc.setFill(Color.web("#ff4c4c"));
+            gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+
+            gc.setFill(Color.web("#b30000"));
+            double innerRadius = radius * 0.7;
+            gc.fillOval(x - innerRadius, y - innerRadius, innerRadius * 2, innerRadius * 2);
+        }
 
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
