@@ -15,6 +15,8 @@ public class GameManager {
     private final Vector2D tensionVector = new Vector2D(0, 0);
     double mouseX = 0, mouseY = 0;
 
+    double goalTimer;
+
     public GameManager(double width, double height, Renderer renderer) {
         match = new Match();
         physics = new PhysicsEngine(width, height);
@@ -22,17 +24,21 @@ public class GameManager {
     }
 
     public void update(double deltaTime) {
-        List<Pawn> pawns = match.getPawns();
-        Ball ball = match.getBall();
+        if (goalTimer > 0) {
+            goalTimer -= deltaTime;
 
-        physics.update(pawns, ball, deltaTime);
+            if (goalTimer <= 0) {
+                renderer.setGoalMessageVisible(false);
+                match.resetGame();
+            }
+        } else {
+            physics.update(match.getPawns(), match.getBall(), deltaTime);
 
-        if (physics.wasGoalScored()) {
-            int teamScored = physics.getLastGoalScoredByTeam();
-            match.updateScore(teamScored);
-            renderer.setGoalMessageVisible(true);
-            match.resetGame();
-            renderer.setGoalMessageVisible(false);
+            if (physics.wasGoalScored()) {
+                goalTimer = 3.0;
+                match.updateScore(physics.getLastGoalScoredByTeam());
+                renderer.setGoalMessageVisible(true);
+            }
         }
     }
 
