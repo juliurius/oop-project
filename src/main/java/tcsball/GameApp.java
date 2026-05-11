@@ -58,10 +58,8 @@ public class GameApp extends Application {
                         //gameManager.getScore2(),
                         2,
                         1,
-                        //gameManager.getBallX(),
-                        //gameManager.getBallY(),
-                        200,
-                        200,
+                        gameManager.getBallX(),
+                        gameManager.getBallY(),
                         gameManager.getAimingPawn(),
                         gameManager.getArrowX(),
                         gameManager.getArrowY()
