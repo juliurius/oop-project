@@ -25,25 +25,37 @@ public class PhysicsEngine {
         resolvePawnCollisions(pawns);
     }
 
-    private void applyFriction(Pawn pawn, double deltaTime) {
+    public void update(List<Pawn> pawns, Ball ball, double deltaTime) {
+        update(pawns, deltaTime);
+
+        ball.updatePosition(deltaTime);
+        resolveWallCollision(ball);
+        applyFriction(ball, deltaTime);
+
+        for (Pawn pawn : pawns) {
+            resolveCollision(pawn, ball);
+        }
+    }
+
+    private void applyFriction(PhysicsBody body, double deltaTime) {
         double frictionFactor = FRICTION;
-        Vector2D velocity = pawn.getVelocity().multiply(frictionFactor);
+        Vector2D velocity = body.getVelocity().multiply(frictionFactor);
 
         if(velocity.length() < STOP_SPEED) {
             velocity = Vector2D.zero();
         }
 
-        pawn.setVelocity(velocity);
+        body.setVelocity(velocity);
     }
 
-    private void resolveWallCollision(Pawn pawn) {
-        Vector2D position = pawn.getPosition();
-        Vector2D velocity = pawn.getVelocity();
+    private void resolveWallCollision(PhysicsBody body) {
+        Vector2D position = body.getPosition();
+        Vector2D velocity = body.getVelocity();
 
         double x = position.getX();
         double y = position.getY();
-        double radius = pawn.getRadius();
-        double restitution = pawn.getRestitution();
+        double radius = body.getRadius();
+        double restitution = body.getRestitution();
 
         if (x - radius < GameConfig.PITCH_LEFT_X) {
             x = GameConfig.PITCH_LEFT_X + radius;
@@ -65,8 +77,8 @@ public class PhysicsEngine {
             velocity.setY(-velocity.getY() * restitution);
         }
 
-        pawn.setPosition(new Vector2D(x, y));
-        pawn.setVelocity(velocity);
+        body.setPosition(new Vector2D(x, y));
+        body.setVelocity(velocity);
     }
 
     private void resolvePawnCollisions(List<Pawn> pawns) {
@@ -77,10 +89,10 @@ public class PhysicsEngine {
         }
     }
 
-    private void resolveCollision(Pawn pawn1, Pawn pawn2) {
-        Vector2D difference = pawn2.getPosition().subtract(pawn1.getPosition());
+    private void resolveCollision(PhysicsBody body1, PhysicsBody body2) {
+        Vector2D difference = body2.getPosition().subtract(body1.getPosition());
         double distance = difference.length();
-        double minDistance = pawn1.getRadius() + pawn2.getRadius();
+        double minDistance = body1.getRadius() + body2.getRadius();
 
         if(distance == 0 || distance >= minDistance) {
             return;
@@ -89,17 +101,17 @@ public class PhysicsEngine {
         Vector2D normal = difference.normalized();
         double overlap = minDistance - distance;
 
-        Vector2D firstPosition = pawn1.getPosition().subtract(normal.multiply(overlap / 2));
-        Vector2D secondPosition = pawn2.getPosition().add(normal.multiply(overlap / 2));
+        Vector2D firstPosition = body1.getPosition().subtract(normal.multiply(overlap / 2));
+        Vector2D secondPosition = body2.getPosition().add(normal.multiply(overlap / 2));
 
-        pawn1.setPosition(firstPosition);
-        pawn2.setPosition(secondPosition);
+        body1.setPosition(firstPosition);
+        body2.setPosition(secondPosition);
 
-        Vector2D firstVelocity = pawn1.getVelocity();
-        Vector2D secondVelocity = pawn2.getVelocity();
+        Vector2D firstVelocity = body1.getVelocity();
+        Vector2D secondVelocity = body2.getVelocity();
 
-        pawn1.setVelocity(secondVelocity.multiply(pawn1.getRestitution()));
-        pawn2.setVelocity(firstVelocity.multiply(pawn2.getRestitution()));
+        body1.setVelocity(secondVelocity.multiply(body1.getRestitution()));
+        body2.setVelocity(firstVelocity.multiply(body2.getRestitution()));
     }
 
     public boolean isEverythingStopped(List<Pawn> pawns) {
