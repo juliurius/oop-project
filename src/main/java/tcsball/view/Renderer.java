@@ -16,7 +16,7 @@ public class Renderer {
     private final GraphicsContext gc;
 
     private final ConfettiSystem confetti = new ConfettiSystem();
-    private boolean goalMessageVisible = false;
+    private static boolean goalMessageVisible = false;
     private long goalStartTime = 0;
 
     public Renderer(GraphicsContext gc, int width, int height) {

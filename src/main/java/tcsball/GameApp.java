@@ -32,7 +32,7 @@ public class GameApp extends Application {
         Scene scene = new Scene(root, WIDTH, HEIGHT);
 
         renderer = new Renderer(gc, WIDTH, HEIGHT);
-        gameManager = new GameManager(WIDTH, HEIGHT);
+        gameManager = new GameManager(WIDTH, HEIGHT, renderer);
 
         new InputHandler(gameManager, scene);
 
@@ -54,10 +54,8 @@ public class GameApp extends Application {
 
                 renderer.render(
                         gameManager.getPawns(),
-                        //gameManager.getScore1(),
-                        //gameManager.getScore2(),
-                        2,
-                        1,
+                        gameManager.getTeamScore(1),
+                        gameManager.getTeamScore(2),
                         gameManager.getBallX(),
                         gameManager.getBallY(),
                         gameManager.getAimingPawn(),

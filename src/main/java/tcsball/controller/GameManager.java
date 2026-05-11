@@ -1,21 +1,24 @@
 package tcsball.controller;
 
 import tcsball.model.*;
+import tcsball.view.Renderer;
+
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class GameManager {
     private final Match match;
     private final PhysicsEngine physics;
+    private final Renderer renderer;
 
     private Pawn selectedPawn = null;
-    private Vector2D tensionVector;
+    private final Vector2D tensionVector = new Vector2D(0, 0);
     double mouseX = 0, mouseY = 0;
 
-    public GameManager(double width, double height) {
+    public GameManager(double width, double height, Renderer renderer) {
         match = new Match();
         physics = new PhysicsEngine(width, height);
-
-        tensionVector = new Vector2D(0, 0);
+        this.renderer = renderer;
     }
 
     public void update(double deltaTime) {
@@ -23,9 +26,19 @@ public class GameManager {
         Ball ball = match.getBall();
 
         physics.update(pawns, ball, deltaTime);
+
+        if (physics.wasGoalScored()) {
+            int teamScored = physics.getLastGoalScoredByTeam();
+            match.updateScore(teamScored);
+            renderer.setGoalMessageVisible(true);
+            match.resetGame();
+            renderer.setGoalMessageVisible(false);
+        }
     }
 
     public void shootPawn() {
+        if (selectedPawn == null) return;
+
         selectedPawn.applyForce(tensionVector);
         selectedPawn = null;
         tensionVector.setX(0);
@@ -48,8 +61,11 @@ public class GameManager {
     };
 
     public void updateMousePosition(double x, double y) {
+        if (selectedPawn == null) return;
+
         mouseX = x;
         mouseY = y;
+
         double newX = selectedPawn.getPosition().getX() - mouseX;
         double newY = selectedPawn.getPosition().getY() - mouseY;
 
@@ -83,5 +99,9 @@ public class GameManager {
 
     public double getBallY() {
         return match.getBall().getPosition().getY();
+    }
+
+    public int getTeamScore(int team) {
+        return match.getTeamScore(team);
     }
 }
