@@ -16,7 +16,6 @@ public class Renderer {
         this.height = height;
     }
 
-    // Zaktualizowana sygnatura metody
     public void render(List<Pawn> pawns, Pawn aimingPawn, double mouseX, double mouseY) {
         gc.setFill(Color.DARKGREEN);
         gc.fillRect(0, 0, width, height);
