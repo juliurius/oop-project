@@ -13,7 +13,7 @@ public class PhysicsBody {
         this.radius = radius;
         this.mass = mass;
         this.restitution = restitution;
-        this.velocity = Vector2D.ZERO;
+        this.velocity = new Vector2D(0, 0);
     }
 
     public void updatePosition(double deltaTime){

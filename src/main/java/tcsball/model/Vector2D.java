@@ -1,8 +1,8 @@
 package tcsball.model;
 
 public class Vector2D {
-    private final double x;
-    private final double y;
+    private double x;
+    private double y;
 
     public Vector2D(double x, double y) {
         this.x = x;
@@ -17,6 +17,19 @@ public class Vector2D {
         return y;
     }
 
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    public void setY(double y) {
+        this.y = y;
+    }
+
+    public void set(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public Vector2D add(Vector2D vector) {
         return new Vector2D(x + vector.getX(), y + vector.getY());
     }
@@ -27,6 +40,21 @@ public class Vector2D {
 
     public Vector2D multiply(double scalar) {
         return new Vector2D(x * scalar, y * scalar);
+    }
+
+    public void addInPlace(Vector2D vector) {
+        this.x += vector.getX();
+        this.y += vector.getY();
+    }
+
+    public void subtractInPlace(Vector2D vector) {
+        this.x -= vector.getX();
+        this.y -= vector.getY();
+    }
+
+    public void multiplyInPlace(double scalar) {
+        this.x *= scalar;
+        this.y *= scalar;
     }
 
     public double dot(Vector2D vector) {
@@ -55,5 +83,7 @@ public class Vector2D {
         return this.subtract(vector).length();
     }
 
-    public static final Vector2D ZERO = new Vector2D(0, 0);
+    public static Vector2D zero() {
+        return new Vector2D(0, 0);
+    }
 }
