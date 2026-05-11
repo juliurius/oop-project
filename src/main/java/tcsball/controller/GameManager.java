@@ -1,6 +1,7 @@
 package tcsball.controller;
 
 import tcsball.GameConfig;
+import tcsball.model.Ball;
 import tcsball.model.Pawn;
 import tcsball.model.PhysicsEngine;
 import tcsball.model.Vector2D;
@@ -10,6 +11,7 @@ import java.util.List;
 
 public class GameManager {
     private List<Pawn> pawns;
+    private Ball ball;
     private PhysicsEngine physics;
     private Pawn selectedPawn = null;
     private Vector2D tensionVector;
@@ -32,6 +34,8 @@ public class GameManager {
         pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 325, GameConfig.PITCH_TOP_Y + 185, 20, 1));
         pawns.add(new Pawn(GameConfig.PITCH_LEFT_X + 325, GameConfig.PITCH_BOTTOM_Y - 185, 20, 1));
 
+        ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, 12);
+
         pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 35, GameConfig.GOAL_CENTER_Y, 20, 2));
         pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 125, GameConfig.PITCH_TOP_Y + 70, 20, 2));
         pawns.add(new Pawn(GameConfig.PITCH_RIGHT_X - 125, GameConfig.PITCH_TOP_Y + 185, 20, 2));
@@ -46,7 +50,7 @@ public class GameManager {
     }
 
     public void update(double deltaTime) {
-        physics.update(pawns, deltaTime);
+        physics.update(pawns, ball, deltaTime);
     }
 
     public List<Pawn> getPawns() {

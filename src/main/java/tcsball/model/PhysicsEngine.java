@@ -4,7 +4,7 @@ import tcsball.GameConfig;
 import java.util.List;
 
 public class PhysicsEngine {
-    private static final double FRICTION = 0.9999; // Tarcie
+    private static final double FRICTION = 0.99; // Tarcie
     private static final double STOP_SPEED = 1; // !!!!!! predkosc "przygaszenia"
 
     private final double arenaWidth;
