@@ -2,31 +2,32 @@ package tcsball.controller;
 
 import javafx.scene.Scene;
 import tcsball.model.Pawn;
+import tcsball.model.Vector2D;
+import java.util.List;
+
+import java.lang.Math.*;
 
 public class InputHandler {
     private GameManager gameManager;
     private Pawn selectedPawn = null;
+    private Vector2D tensionVector;
+    double mouseX = 0, mouseY = 0;
 
     public InputHandler(GameManager gameManager, Scene scene) {
         this.gameManager = gameManager;
+        tensionVector = new Vector2D(0, 0);
 
-        // KROK 1: Kliknięcie myszką
         scene.setOnMousePressed(event -> {
-            // TODO: Zapisz punkt kliknięcia
-            // TODO: Znajdź, czy kliknięto wewnątrz któregoś pionka i przypisz go do selectedPawn
+           gameManager.startAiming(event.getSceneX(), event.getSceneY());
         });
 
-        // KROK 2: Przeciąganie myszki
         scene.setOnMouseDragged(event -> {
-            // TODO: Oblicz wektor naciągu (do rysowania strzałki)
+            gameManager.updateMousePosition(event.getSceneX(), event.getSceneY());
         });
 
-        // KROK 3: Puszczenie myszki (Strzał)
         scene.setOnMouseReleased(event -> {
             if (selectedPawn != null) {
-                // TODO: Oblicz siłę strzału (różnica między puszczeniem a kliknięciem)
-                // TODO: Przekaż do gameManager.shootPawn(...)
-                // TODO: selectedPawn = null (reset)
+                gameManager.shootPawn(selectedPawn, tensionVector);
             }
         });
     }
