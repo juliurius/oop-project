@@ -54,8 +54,8 @@ public class GameApp extends Application {
                 renderer.render(
                         gameManager.getPawns(),
                         gameManager.getAimingPawn(),
-                        gameManager.getCurrentMouseX(),
-                        gameManager.getCurrentMouseY()
+                        gameManager.getArrowX(),
+                        gameManager.getArrowY()
                 );
             }
         };

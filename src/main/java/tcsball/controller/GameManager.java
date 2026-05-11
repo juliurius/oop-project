@@ -48,7 +48,9 @@ public class GameManager {
         }
     };
 
-    public void updateMousePosition(double mouseX, double y) {
+    public void updateMousePosition(double x, double y) {
+        mouseX = x;
+        mouseY = y;
         double newX = selectedPawn.getPosition().getX() - mouseX;
         double newY = selectedPawn.getPosition().getY() - mouseY;
 
@@ -60,11 +62,15 @@ public class GameManager {
         return selectedPawn;
     }
 
-    public double getCurrentMouseX() {
-        return mouseX;
+    public double getArrowX() {
+        if (selectedPawn != null)
+            return selectedPawn.getPosition().getX() + tensionVector.getX();
+        return 0;
     }
 
-    public double getCurrentMouseY() {
-        return mouseY;
+    public double getArrowY() {
+        if (selectedPawn != null)
+            return selectedPawn.getPosition().getY() + tensionVector.getY();
+        return 0;
     }
 }
