@@ -9,6 +9,7 @@ public class PhysicsEngine {
 
     private final double arenaWidth;
     private final double arenaHeight;
+    private int lastGoalScoredByTeam = 0;
 
     public PhysicsEngine(double arenaWidth, double arenaHeight) {
         this.arenaWidth = arenaWidth;
@@ -26,15 +27,54 @@ public class PhysicsEngine {
     }
 
     public void update(List<Pawn> pawns, Ball ball, double deltaTime) {
+        lastGoalScoredByTeam = 0;
+
         update(pawns, deltaTime);
 
         ball.updatePosition(deltaTime);
+        lastGoalScoredByTeam = detectGoal(ball);
+
+        if (lastGoalScoredByTeam != 0) {
+            ball.setVelocity(Vector2D.zero());
+            return;
+        }
+
         resolveWallCollision(ball);
         applyFriction(ball, deltaTime);
 
         for (Pawn pawn : pawns) {
             resolveCollision(pawn, ball);
         }
+    }
+
+    private int detectGoal(Ball ball) {
+        double x = ball.getPosition().getX();
+        double y = ball.getPosition().getY();
+        double radius = ball.getRadius();
+
+        boolean insideGoalHeight = y >= GameConfig.GOAL_TOP_Y && y <= GameConfig.GOAL_BOTTOM_Y;
+
+        if (!insideGoalHeight) {
+            return 0;
+        }
+
+        if (x - radius <= GameConfig.PITCH_LEFT_X) {
+            return 2;
+        }
+
+        if (x + radius >= GameConfig.PITCH_RIGHT_X) {
+            return 1;
+        }
+
+        return 0;
+    }
+
+    public int getLastGoalScoredByTeam() {
+        return lastGoalScoredByTeam;
+    }
+
+    public boolean wasGoalScored() {
+        return lastGoalScoredByTeam != 0;
     }
 
     private void applyFriction(PhysicsBody body, double deltaTime) {
