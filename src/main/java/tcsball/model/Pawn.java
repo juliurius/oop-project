@@ -1,4 +1,5 @@
 package tcsball.model;
+import tcsball.physics.Vector2D;
 
 public class Pawn {
     private Vector2D position; // Pozycja X, Y na boisku
