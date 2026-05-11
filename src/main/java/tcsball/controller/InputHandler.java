@@ -9,13 +9,9 @@ import java.lang.Math.*;
 
 public class InputHandler {
     private GameManager gameManager;
-    private Pawn selectedPawn = null;
-    private Vector2D tensionVector;
-    double mouseX = 0, mouseY = 0;
 
     public InputHandler(GameManager gameManager, Scene scene) {
         this.gameManager = gameManager;
-        tensionVector = new Vector2D(0, 0);
 
         scene.setOnMousePressed(event -> {
            gameManager.startAiming(event.getSceneX(), event.getSceneY());
@@ -26,9 +22,7 @@ public class InputHandler {
         });
 
         scene.setOnMouseReleased(event -> {
-            if (selectedPawn != null) {
-                gameManager.shootPawn(selectedPawn, tensionVector);
-            }
+            gameManager.shootPawn();
         });
     }
 }

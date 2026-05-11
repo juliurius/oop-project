@@ -17,9 +17,13 @@ public class GameManager {
     public GameManager(double width, double height) {
         this.pawns = new ArrayList<>();
         this.physics = new PhysicsEngine(width, height);
+        tensionVector = new Vector2D(0, 0);
 
         // MVP: Jeden pionek testowy na środku
         pawns.add(new Pawn(width / 2, height / 2, 20));
+        pawns.add(new Pawn(width / 3, height / 3, 20));
+        pawns.add(new Pawn(width / 4, height / 4, 20));
+        pawns.add(new Pawn(width / 5, height / 5, 20));
     }
 
     public void update(double deltaTime) {
@@ -30,9 +34,11 @@ public class GameManager {
         return pawns;
     }
 
-    public void shootPawn(Pawn selectedPawn, Vector2D force) {
-        selectedPawn.applyForce(force);
+    public void shootPawn() {
+        selectedPawn.applyForce(tensionVector);
         selectedPawn = null;
+        tensionVector.setX(0);
+        tensionVector.setY(0);
     }
 
     public void startAiming(double x, double y) {
