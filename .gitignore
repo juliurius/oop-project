@@ -11,4 +11,4 @@ target/
 Thumbs.db
 
 **/RendererTestApp.java
-**/TestLauncher.java
+**/RendererTestLauncher.java

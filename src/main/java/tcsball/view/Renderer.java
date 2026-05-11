@@ -15,20 +15,31 @@ import java.util.List;
 public class Renderer {
     private final GraphicsContext gc;
 
+    private final ConfettiSystem confetti = new ConfettiSystem();
+    private boolean goalMessageVisible = false;
+    private long goalStartTime = 0;
+
     public Renderer(GraphicsContext gc, int width, int height) {
         this.gc = gc;
     }
 
-    public void render(List<Pawn> pawns, Pawn aimingPawn, double mouseX, double mouseY) {
-        drawScoreBoard();
+    public void render(List<Pawn> pawns, int score1, int score2, double ballX, double ballY, Pawn aimingPawn, double mouseX, double mouseY) {
+        drawScoreBoard(score1, score2);
         drawPitch();
+        drawBall(ballX, ballY);
+
         for (Pawn pawn : pawns) {
             drawPawn(pawn);
         }
+
         drawAimingLine(aimingPawn, mouseX, mouseY);
+
+        if (goalMessageVisible) {
+            drawGoalOverlay();
+        }
     }
 
-    private void drawScoreBoard() {
+    private void drawScoreBoard(int score1, int score2) {
         gc.setFill(Color.web("#1a1a1a"));
         gc.fillRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.SCORE_PANEL_HEIGHT);
 
@@ -36,7 +47,7 @@ public class Renderer {
         gc.setTextBaseline(VPos.CENTER);
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 36));
-        gc.fillText("WYNIK  0 : 0", GameConfig.WINDOW_WIDTH / 2.0, GameConfig.SCORE_PANEL_HEIGHT / 2.0);
+        gc.fillText("WYNIK  " + score1 + " : " + score2, GameConfig.WINDOW_WIDTH / 2.0, GameConfig.SCORE_PANEL_HEIGHT / 2.0);
     }
 
     private void drawPitch() {
@@ -62,6 +73,20 @@ public class Renderer {
         drawGoals();
 
         gc.setGlobalAlpha(1.0);
+    }
+
+    private void drawBall(double x, double y) {
+        double radius = 10.0;
+
+        gc.setFill(Color.color(0, 0, 0, 0.5));
+        gc.fillOval(x - radius + 3, y - radius + 3, radius * 2, radius * 2);
+
+        gc.setFill(Color.WHITE);
+        gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
+
+        gc.setFill(Color.color(1, 1, 1, 0.8));
+        double specularSize = radius * 0.4;
+        gc.fillOval(x - radius + 3, y - radius + 3, specularSize * 2, specularSize * 2);
     }
 
     private void drawGoals() {
@@ -144,5 +169,54 @@ public class Renderer {
                 gc.setLineCap(StrokeLineCap.SQUARE);
             }
         }
+    }
+
+    public void setGoalMessageVisible(boolean visible) {
+        if (visible && !this.goalMessageVisible) {
+            this.goalStartTime = System.currentTimeMillis();
+            confetti.spawn();
+        }
+
+        if (!visible && this.goalMessageVisible) {
+            confetti.stop();
+        }
+
+        this.goalMessageVisible = visible;
+    }
+
+    private void drawGoalOverlay() {
+        long elapsed = System.currentTimeMillis() - goalStartTime;
+        double seconds = elapsed / 1000.0;
+
+        gc.setGlobalAlpha(Math.min(0.7, seconds));
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
+        gc.setGlobalAlpha(1.0);
+
+        confetti.updateAndDraw(gc);
+
+        drawGoalText(seconds);
+    }
+
+    private void drawGoalText(double seconds) {
+        double scale = 0.8 + Math.sin(seconds * 10) * 0.1;
+        if (seconds < 0.5) scale = seconds * 2;
+
+        gc.save();
+        gc.translate(GameConfig.WINDOW_WIDTH / 2.0, GameConfig.WINDOW_HEIGHT / 2.0);
+        gc.scale(scale, scale);
+
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, 120));
+
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(10);
+        gc.strokeText("GOL !!", 0, 0);
+
+        gc.setFill((int)(seconds * 10) % 2 == 0 ? Color.YELLOW : Color.GOLD);
+        gc.fillText("GOL !!", 0, 0);
+
+        gc.restore();
     }
 }

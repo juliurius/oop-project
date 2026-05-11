@@ -50,9 +50,18 @@ public class GameApp extends Application {
                 lastUpdate = now;
 
                 gameManager.update(deltaTime);
+                //renderer.setGoalMessageVisible(true);
 
                 renderer.render(
                         gameManager.getPawns(),
+                        //gameManager.getScore1(),
+                        //gameManager.getScore2(),
+                        2,
+                        1,
+                        //gameManager.getBallX(),
+                        //gameManager.getBallY(),
+                        200,
+                        200,
                         gameManager.getAimingPawn(),
                         gameManager.getArrowX(),
                         gameManager.getArrowY()
