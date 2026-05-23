@@ -85,6 +85,10 @@ public class GameManager implements GameView {
     }
 
     public void startAiming(double x, double y) {
+        if (!physics.isEverythingStopped(match.getPawns(), match.getBall())) {
+            return;
+        }
+
         List<Pawn> pawns = match.getPawns();
 
         for (Pawn pawn : pawns) {

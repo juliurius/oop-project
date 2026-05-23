@@ -203,9 +203,15 @@ public class PhysicsEngine {
         }
     }
 
-    public boolean isEverythingStopped(List<Pawn> pawns) {
-        for(Pawn pawn : pawns) {
-            if(pawn.getVelocity().length() > STOP_SPEED) return false;
+    public boolean isEverythingStopped(List<Pawn> pawns, Ball ball) {
+        if (ball.getVelocity().length() > STOP_SPEED) {
+            return false;
+        }
+
+        for (Pawn pawn : pawns) {
+            if (pawn.getVelocity().length() > STOP_SPEED) {
+                return false;
+            }
         }
 
         return true;
