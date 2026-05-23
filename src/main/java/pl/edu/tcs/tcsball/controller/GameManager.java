@@ -68,7 +68,6 @@ public class GameManager implements GameView {
 
     private void startGame() {
         match.resetGame();
-        match.resetScore();
         gameState = GameState.PLAYING;
     }
 
@@ -135,7 +134,12 @@ public class GameManager implements GameView {
     public GameState getGameState() { return gameState; }
 
     public void dismissGoal() {
-        match.resetGame();
+        match.resetPitch();
         gameState = GameState.PLAYING;
+    }
+
+    @Override
+    public int getCurrentTurn() {
+        return match.getPlayerTurn();
     }
 }
