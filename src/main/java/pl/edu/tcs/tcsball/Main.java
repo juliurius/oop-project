@@ -5,4 +5,3 @@ public class Main {
         GameApp.launchApp(args);
     }
 }
-//TODO zmienic input handler zeby sie wywolywal w zaleznosci os stanu

@@ -8,6 +8,7 @@ import pl.edu.tcs.tcsball.model.Pawn;
 import pl.edu.tcs.tcsball.view.element.*;
 import pl.edu.tcs.tcsball.view.screen.GameScreen;
 import pl.edu.tcs.tcsball.view.screen.GoalScreen;
+import pl.edu.tcs.tcsball.view.screen.MenuScreen;
 import pl.edu.tcs.tcsball.view.screen.Screen;
 
 import java.util.List;
@@ -29,8 +30,10 @@ public class Renderer {
         GoalOverlayRenderer overlay = new GoalOverlayRenderer(gc, confetti);
 
         GameScreen gameScreen = new GameScreen(scoreBoard, pitch, ball, pawn, aiming);
+        MenuScreen menuScreen = new MenuScreen(gc);
 
         screens = Map.of(
+                GameState.MENU, menuScreen,
                 GameState.PLAYING, gameScreen,
                 GameState.GOAL_SCORED, new GoalScreen(overlay, gameScreen)
         );

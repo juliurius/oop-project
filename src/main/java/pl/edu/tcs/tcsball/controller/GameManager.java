@@ -2,13 +2,14 @@ package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.view.Renderer;
+import pl.edu.tcs.tcsball.view.screen.MenuScreen;
 
 import java.util.List;
 
 public class GameManager implements GameView {
     private final Match match;
     private final PhysicsEngine physics;
-    private GameState gameState = GameState.PLAYING;
+    private GameState gameState = GameState.MENU;
 
     private Pawn selectedPawn = null;
     private final Vector2D tensionVector = new Vector2D(0, 0);
@@ -20,6 +21,10 @@ public class GameManager implements GameView {
     }
 
     public void update(double deltaTime) {
+        if (gameState == GameState.MENU) {
+            return;
+        }
+
         physics.update(match.getPawns(), match.getBall(), deltaTime);
 
         if (physics.wasGoalScored()) {
@@ -28,6 +33,18 @@ public class GameManager implements GameView {
 
             gameState = GameState.GOAL_SCORED;
         }
+    }
+
+    public void handleMenuClick(double x, double y) {
+        if (x >= MenuScreen.BTN_X && x <= MenuScreen.BTN_X + MenuScreen.BTN_WIDTH &&
+                y >= MenuScreen.BTN_Y && y <= MenuScreen.BTN_Y + MenuScreen.BTN_HEIGHT) {
+            startGame();
+        }
+    }
+
+    private void startGame() {
+        match.resetGame();
+        gameState = GameState.PLAYING;
     }
 
     public Ball getBall() { return match.getBall(); }
