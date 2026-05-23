@@ -7,6 +7,7 @@ public class Match {
     private List<Pawn> pawns;
     private Ball ball;
     private int scoreTeam1 = 0, scoreTeam2 = 0;
+    private int turn = 1;
 
     public Match() {
         pawns = Formation.getFormation();

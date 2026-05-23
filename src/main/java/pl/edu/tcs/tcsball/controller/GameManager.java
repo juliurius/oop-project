@@ -21,9 +21,7 @@ public class GameManager implements GameView {
     }
 
     public void update(double deltaTime) {
-        if (gameState == GameState.MENU) {
-            return;
-        }
+        if (gameState == GameState.MENU) return;
 
         physics.update(match.getPawns(), match.getBall(), deltaTime);
 
