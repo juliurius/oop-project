@@ -22,13 +22,13 @@ public class GameManager implements GameView {
     }
 
     public void update(double deltaTime) {
-        if (gameState == GameState.MENU) return;
+        if (gameState == GameState.MENU || gameState == GameState.GOAL_SCORED) return;
+
 
         physics.update(match.getPawns(), match.getBall(), deltaTime);
 
         if (physics.wasGoalScored()) {
-            if (gameState != GameState.GOAL_SCORED)
-                match.updateScore(physics.getLastGoalScoredByTeam());
+            match.updateScore(physics.getLastGoalScoredByTeam());
 
             gameState = GameState.GOAL_SCORED;
         }
@@ -89,6 +89,7 @@ public class GameManager implements GameView {
 
     public void updateMousePosition(double x, double y) {
         if (selectedPawn == null) return;
+
 
         mouseX = x;
         mouseY = y;

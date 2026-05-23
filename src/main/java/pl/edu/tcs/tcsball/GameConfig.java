@@ -28,4 +28,21 @@ public class GameConfig {
     public static final double GOAL_CENTER_Y = SCORE_PANEL_HEIGHT + ((WINDOW_HEIGHT - SCORE_PANEL_HEIGHT) / 2.0);
     public static final double GOAL_TOP_Y = GOAL_CENTER_Y - (GOAL_HEIGHT / 2.0);    // Górny słupek
     public static final double GOAL_BOTTOM_Y = GOAL_CENTER_Y + (GOAL_HEIGHT / 2.0); // Dolny słupek
+
+    // --- PIONKI ---
+    // Promień każdego pionka (do rysowania i kolizji)
+    public static final double PAWN_RADIUS = 25.0;
+
+    // Pozycje pionków drużyny 1 (lewa strona) jako offsety:
+    //   [0] = X liczone od bandy PITCH_LEFT_X w głąb boiska
+    //   [1] = Y liczone od GOAL_CENTER_Y (ujemne = wyżej, dodatnie = niżej)
+    // Drużyna 2 powstaje jako lustrzane odbicie tych pozycji po prawej stronie.
+    // Liczba wierszy = liczba pionków na drużynę. Tu: 5 (bramkarz + 2 obrońców + 2 napastników).
+    public static final double[][] TEAM_FORMATION_OFFSETS = {
+            {  35,    0 },   // bramkarz
+            { 125, -100 },   // obrońca góra
+            { 125,  100 },   // obrońca dół
+            { 245,  -80 },   // napastnik góra
+            { 245,   80 },   // napastnik dół
+    };
 }

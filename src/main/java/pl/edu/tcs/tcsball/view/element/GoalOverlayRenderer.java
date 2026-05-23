@@ -26,7 +26,7 @@ public class GoalOverlayRenderer {
     }
 
     public void stop() {
-        // confetti.stop();
+         confetti.stop();
     }
 
     public void drawGoalOverlay() {
