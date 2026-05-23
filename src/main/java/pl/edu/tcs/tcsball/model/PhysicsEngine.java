@@ -4,8 +4,9 @@ import pl.edu.tcs.tcsball.GameConfig;
 import java.util.List;
 
 public class PhysicsEngine {
-    private static final double FRICTION = 0.99; // Tarcie
-    private static final double STOP_SPEED = 1; // !!!!!! predkosc "przygaszenia"
+    private static final double REFERENCE_FPS = 120.0;
+    private static final double FRICTION = 0.9925; // Tarcie na klatke przy 120 FPS
+    private static final double STOP_SPEED = 6.0; // px/s
 
     private final double arenaWidth;
     private final double arenaHeight;
@@ -78,10 +79,10 @@ public class PhysicsEngine {
     }
 
     private void applyFriction(PhysicsBody body, double deltaTime) {
-        double frictionFactor = FRICTION;
+        double frictionFactor = Math.pow(FRICTION, deltaTime * REFERENCE_FPS);
         Vector2D velocity = body.getVelocity().multiply(frictionFactor);
 
-        if(velocity.length() < STOP_SPEED) {
+        if (velocity.length() < STOP_SPEED) {
             velocity = Vector2D.zero();
         }
 
@@ -150,8 +151,18 @@ public class PhysicsEngine {
         Vector2D firstVelocity = body1.getVelocity();
         Vector2D secondVelocity = body2.getVelocity();
 
-        body1.setVelocity(secondVelocity.multiply(body1.getRestitution()));
-        body2.setVelocity(firstVelocity.multiply(body2.getRestitution()));
+        Vector2D velocityDifference = firstVelocity.subtract(secondVelocity);
+        double speedTowardEachOther = velocityDifference.dot(normal);
+
+        if (speedTowardEachOther <= 0) {
+            return;
+        }
+
+        double bounce = Math.min(body1.getRestitution(), body2.getRestitution());
+        Vector2D bounceImpulse = normal.multiply(speedTowardEachOther * bounce);
+
+        body1.setVelocity(firstVelocity.subtract(bounceImpulse));
+        body2.setVelocity(secondVelocity.add(bounceImpulse));
     }
 
     public boolean isEverythingStopped(List<Pawn> pawns) {
