@@ -1,11 +1,6 @@
-package tcsball.controller;
+package pl.edu.tcs.tcsball.controller;
 
 import javafx.scene.Scene;
-import tcsball.model.Pawn;
-import tcsball.model.Vector2D;
-import java.util.List;
-
-import java.lang.Math.*;
 
 public class InputHandler {
     private GameManager gameManager;

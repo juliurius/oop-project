@@ -1,8 +1,8 @@
-package tcsball.view;
+package pl.edu.tcs.tcsball.view;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import tcsball.GameConfig;
+import pl.edu.tcs.tcsball.GameConfig;
 import java.util.ArrayList;
 import java.util.List;
 

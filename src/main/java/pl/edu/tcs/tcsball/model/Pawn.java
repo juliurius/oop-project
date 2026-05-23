@@ -1,4 +1,4 @@
-package tcsball.model;
+package pl.edu.tcs.tcsball.model;
 
 public class Pawn extends PhysicsBody {
     private static final double DEFAULT_MASS = 1.0;

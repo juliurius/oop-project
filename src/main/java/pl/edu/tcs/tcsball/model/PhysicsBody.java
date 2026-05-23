@@ -1,4 +1,4 @@
-package tcsball.model;
+package pl.edu.tcs.tcsball.model;
 
 public class PhysicsBody {
     private Vector2D position;

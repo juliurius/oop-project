@@ -1,4 +1,4 @@
-package tcsball;
+package pl.edu.tcs.tcsball;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -7,9 +7,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import tcsball.controller.GameManager;
-import tcsball.controller.InputHandler;
-import tcsball.view.Renderer;
+import pl.edu.tcs.tcsball.controller.GameManager;
+import pl.edu.tcs.tcsball.controller.InputHandler;
+import pl.edu.tcs.tcsball.view.Renderer;
 
 public class GameApp extends Application {
 
@@ -32,7 +32,7 @@ public class GameApp extends Application {
         Scene scene = new Scene(root, WIDTH, HEIGHT);
 
         renderer = new Renderer(gc, WIDTH, HEIGHT);
-        gameManager = new GameManager(WIDTH, HEIGHT, renderer);
+        gameManager = new GameManager(WIDTH, HEIGHT);
 
         new InputHandler(gameManager, scene);
 
@@ -50,18 +50,8 @@ public class GameApp extends Application {
                 lastUpdate = now;
 
                 gameManager.update(deltaTime);
-                //renderer.setGoalMessageVisible(true);
 
-                renderer.render(
-                        gameManager.getPawns(),
-                        gameManager.getTeamScore(1),
-                        gameManager.getTeamScore(2),
-                        gameManager.getBallX(),
-                        gameManager.getBallY(),
-                        gameManager.getAimingPawn(),
-                        gameManager.getArrowX(),
-                        gameManager.getArrowY()
-                );
+                renderer.render(gameManager);
             }
         };
 

@@ -1,4 +1,4 @@
-package tcsball;
+package pl.edu.tcs.tcsball;
 
 public class GameConfig {
     // Całkowita szerokość i wysokość okna aplikacji

@@ -1,46 +1,36 @@
-package tcsball.controller;
+package pl.edu.tcs.tcsball.controller;
 
-import tcsball.model.*;
-import tcsball.view.Renderer;
+import pl.edu.tcs.tcsball.model.*;
+import pl.edu.tcs.tcsball.view.Renderer;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-public class GameManager {
+public class GameManager implements GameView {
     private final Match match;
     private final PhysicsEngine physics;
-    private final Renderer renderer;
+    private GameState gameState = GameState.PLAYING;
 
     private Pawn selectedPawn = null;
     private final Vector2D tensionVector = new Vector2D(0, 0);
     double mouseX = 0, mouseY = 0;
 
-    double goalTimer;
-
-    public GameManager(double width, double height, Renderer renderer) {
+    public GameManager(double width, double height) {
         match = new Match();
         physics = new PhysicsEngine(width, height);
-        this.renderer = renderer;
     }
 
     public void update(double deltaTime) {
-        if (goalTimer > 0) {
-            goalTimer -= deltaTime;
+        physics.update(match.getPawns(), match.getBall(), deltaTime);
 
-            if (goalTimer <= 0) {
-                renderer.setGoalMessageVisible(false);
-                match.resetGame();
-            }
-        } else {
-            physics.update(match.getPawns(), match.getBall(), deltaTime);
-
-            if (physics.wasGoalScored()) {
-                goalTimer = 3.0;
+        if (physics.wasGoalScored()) {
+            if (gameState != GameState.GOAL_SCORED)
                 match.updateScore(physics.getLastGoalScoredByTeam());
-                renderer.setGoalMessageVisible(true);
-            }
+
+            gameState = GameState.GOAL_SCORED;
         }
     }
+
+    public Ball getBall() { return match.getBall(); }
 
     public void shootPawn() {
         if (selectedPawn == null) return;
@@ -79,9 +69,7 @@ public class GameManager {
         tensionVector.setY(newY);
     }
 
-    public Pawn getAimingPawn() {
-        return selectedPawn;
-    }
+    public Pawn getAimingPawn() { return selectedPawn; }
 
     public double getArrowX() {
         if (selectedPawn != null)
@@ -95,19 +83,9 @@ public class GameManager {
         return 0;
     }
 
-    public List<Pawn> getPawns() {
-        return match.getPawns();
-    }
+    public List<Pawn> getPawns() { return match.getPawns(); }
 
-    public double getBallX() {
-        return match.getBall().getPosition().getX();
-    }
+    public int getTeamScore(int team) { return match.getTeamScore(team); }
 
-    public double getBallY() {
-        return match.getBall().getPosition().getY();
-    }
-
-    public int getTeamScore(int team) {
-        return match.getTeamScore(team);
-    }
+    public GameState getGameState() { return gameState; }
 }

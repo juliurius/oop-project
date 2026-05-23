@@ -1,6 +1,6 @@
-package tcsball.model;
+package pl.edu.tcs.tcsball.model;
 
-import tcsball.GameConfig;
+import pl.edu.tcs.tcsball.GameConfig;
 import java.util.List;
 
 public class PhysicsEngine {

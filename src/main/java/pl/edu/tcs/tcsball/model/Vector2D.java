@@ -1,4 +1,4 @@
-package tcsball.model;
+package pl.edu.tcs.tcsball.model;
 
 public class Vector2D {
     private double x;
