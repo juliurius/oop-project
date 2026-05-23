@@ -5,6 +5,9 @@ public class GameConfig {
     public static final int WINDOW_WIDTH = 800;
     public static final int WINDOW_HEIGHT = 600;
 
+    // --- STEROWANIE ---
+    public static final double MAX_PULL_DISTANCE = 150.0;
+
     // Wysokość górnego paska na wynik (boisko zaczyna się poniżej)
     public static final double SCORE_PANEL_HEIGHT = 80.0;
 

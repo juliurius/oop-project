@@ -1,5 +1,6 @@
 package pl.edu.tcs.tcsball.controller;
 
+import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.view.Renderer;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
@@ -110,8 +111,14 @@ public class GameManager implements GameView {
         double newX = selectedPawn.getPosition().getX() - mouseX;
         double newY = selectedPawn.getPosition().getY() - mouseY;
 
-        tensionVector.setX(newX);
-        tensionVector.setY(newY);
+        Vector2D newTension = new Vector2D(newX, newY);
+
+        if (newTension.length() > GameConfig.MAX_PULL_DISTANCE) {
+            newTension = newTension.normalized().multiply(GameConfig.MAX_PULL_DISTANCE);
+        }
+
+        tensionVector.setX(newTension.getX());
+        tensionVector.setY(newTension.getY());
     }
 
     public Pawn getAimingPawn() { return selectedPawn; }

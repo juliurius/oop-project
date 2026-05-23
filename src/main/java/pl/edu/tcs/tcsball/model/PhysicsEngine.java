@@ -6,7 +6,8 @@ import java.util.List;
 public class PhysicsEngine {
     private static final double REFERENCE_FPS = 120.0;
     private static final double FRICTION = 0.9925; // Tarcie na klatke przy 120 FPS
-    private static final double STOP_SPEED = 6.0; // px/s
+    private static final double PAWN_STOP_SPEED = 9.0; // px/s
+    private static final double BALL_STOP_SPEED = 7.0; // px/s
 
     private static final double SPIN_TURN_POWER = 0.35;
     private static final double SPIN_FRICTION = 0.985;
@@ -89,7 +90,7 @@ public class PhysicsEngine {
         double frictionFactor = Math.pow(FRICTION, deltaTime * REFERENCE_FPS);
         Vector2D velocity = body.getVelocity().multiply(frictionFactor);
 
-        if (velocity.length() < STOP_SPEED) {
+        if (velocity.length() < getStopSpeed(body)) {
             velocity = Vector2D.zero();
         }
 
@@ -109,6 +110,10 @@ public class PhysicsEngine {
 
         double spinFactor = Math.pow(SPIN_FRICTION, deltaTime * REFERENCE_FPS);
         ball.setSpin(ball.getSpin() * spinFactor);
+    }
+
+    private double getStopSpeed(PhysicsBody body) {
+        return body instanceof Ball ? BALL_STOP_SPEED : PAWN_STOP_SPEED;
     }
 
     private void resolveWallCollision(PhysicsBody body) {
@@ -204,12 +209,12 @@ public class PhysicsEngine {
     }
 
     public boolean isEverythingStopped(List<Pawn> pawns, Ball ball) {
-        if (ball.getVelocity().length() > STOP_SPEED) {
+        if (ball.getVelocity().length() > BALL_STOP_SPEED) {
             return false;
         }
 
         for (Pawn pawn : pawns) {
-            if (pawn.getVelocity().length() > STOP_SPEED) {
+            if (pawn.getVelocity().length() > PAWN_STOP_SPEED) {
                 return false;
             }
         }
