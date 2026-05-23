@@ -153,7 +153,7 @@ public class GameManager implements GameView {
         transitionTo(returnAfterSettings);
     }
 
-    public void transitionTo(GameState nextState) {
+    private void transitionTo(GameState nextState) {
         gameState = nextState;
     }
 
