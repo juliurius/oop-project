@@ -17,7 +17,7 @@ public class Renderer {
     private GameState lastState = null;
 
 
-    public Renderer(GraphicsContext gc, int width, int height) {
+    public Renderer(GraphicsContext gc) {
         ScoreBoardRenderer scoreBoard = new ScoreBoardRenderer(gc);
         PitchRenderer pitch = new PitchRenderer(gc);
         BallRenderer ball = new BallRenderer(gc);

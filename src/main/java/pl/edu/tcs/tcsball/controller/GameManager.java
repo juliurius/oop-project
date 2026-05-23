@@ -1,7 +1,6 @@
 package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.model.*;
-import pl.edu.tcs.tcsball.view.Renderer;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.MenuScreen;
 import pl.edu.tcs.tcsball.view.screen.SettingsScreen;
@@ -11,11 +10,13 @@ import java.util.List;
 public class GameManager implements GameView {
     private final Match match;
     private final PhysicsEngine physics;
+
     private GameState gameState = GameState.MENU;
+    private GameState returnAfterSettings = GameState.MENU;
 
     private Pawn selectedPawn = null;
     private final Vector2D tensionVector = new Vector2D(0, 0);
-    double mouseX = 0, mouseY = 0;
+    private double mouseX = 0, mouseY = 0;
 
     public GameManager(double width, double height) {
         match = new Match();
@@ -25,13 +26,10 @@ public class GameManager implements GameView {
     public void update(double deltaTime) {
         if (gameState == GameState.MENU || gameState == GameState.GOAL_SCORED) return;
 
-
         physics.update(match.getPawns(), match.getBall(), deltaTime);
 
         if (physics.wasGoalScored()) {
-            match.updateScore(physics.getLastGoalScoredByTeam());
-
-            gameState = GameState.GOAL_SCORED;
+            scoreGoal(physics.getLastGoalScoredByTeam());
         }
     }
 
@@ -42,7 +40,7 @@ public class GameManager implements GameView {
                 startGame();
             }
             else if (y >= MenuScreen.SETTINGS_BTN_Y && y <= MenuScreen.SETTINGS_BTN_Y + MenuScreen.BTN_HEIGHT) {
-                gameState = GameState.SETTINGS;
+                transitionTo(GameState.SETTINGS);
             }
         }
     }
@@ -51,7 +49,7 @@ public class GameManager implements GameView {
         if (x >= SettingsScreen.BACK_BTN_X && x <= SettingsScreen.BACK_BTN_X + SettingsScreen.BACK_BTN_WIDTH &&
                 y >= SettingsScreen.BACK_BTN_Y && y <= SettingsScreen.BACK_BTN_Y + SettingsScreen.BACK_BTN_HEIGHT) {
 
-            gameState = GameState.MENU;
+            transitionTo(GameState.SETTINGS);
         }
     }
 
@@ -59,7 +57,7 @@ public class GameManager implements GameView {
         if (x >= ScoreBoardRenderer.BACK_BTN_X && x <= ScoreBoardRenderer.BACK_BTN_X + ScoreBoardRenderer.BACK_BTN_WIDTH &&
                 y >= ScoreBoardRenderer.BACK_BTN_Y && y <= ScoreBoardRenderer.BACK_BTN_Y + ScoreBoardRenderer.BACK_BTN_HEIGHT) {
 
-            gameState = GameState.MENU;
+            transitionTo(GameState.MENU);
 
             return true;
         }
@@ -69,7 +67,7 @@ public class GameManager implements GameView {
     private void startGame() {
         match.resetGame();
         match.resetScore();
-        gameState = GameState.PLAYING;
+        transitionTo(GameState.PLAYING);
     }
 
     public Ball getBall() { return match.getBall(); }
@@ -98,7 +96,7 @@ public class GameManager implements GameView {
                 break;
             }
         }
-    };
+    }
 
     public void updateMousePosition(double x, double y) {
         if (selectedPawn == null) return;
@@ -136,6 +134,25 @@ public class GameManager implements GameView {
 
     public void dismissGoal() {
         match.resetGame();
-        gameState = GameState.PLAYING;
+        transitionTo(GameState.PLAYING);
+    }
+
+    public void scoreGoal(int team) {
+        match.updateScore(team);
+
+        transitionTo(GameState.GOAL_SCORED);
+    }
+
+    public void openSettings() {
+        returnAfterSettings = gameState;
+        transitionTo(GameState.SETTINGS);
+    }
+
+    public void closeSettings() {
+        transitionTo(returnAfterSettings);
+    }
+
+    public void transitionTo(GameState nextState) {
+        gameState = nextState;
     }
 }

@@ -13,8 +13,8 @@ import pl.edu.tcs.tcsball.view.Renderer;
 
 public class GameApp extends Application {
 
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
+    private static final int WIDTH = GameConfig.WINDOW_WIDTH;
+    private static final int HEIGHT = GameConfig.WINDOW_HEIGHT;
 
     private Renderer renderer;
     private GameManager gameManager;
@@ -32,7 +32,7 @@ public class GameApp extends Application {
 
         Scene scene = new Scene(root, WIDTH, HEIGHT);
 
-        renderer = new Renderer(gc, WIDTH, HEIGHT);
+        renderer = new Renderer(gc);
         gameManager = new GameManager(WIDTH, HEIGHT);
 
         new InputHandler(gameManager, scene);

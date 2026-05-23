@@ -2,8 +2,8 @@ package pl.edu.tcs.tcsball;
 
 public class GameConfig {
     // Całkowita szerokość i wysokość okna aplikacji
-    public static final double WINDOW_WIDTH = 800.0;
-    public static final double WINDOW_HEIGHT = 600.0;
+    public static final int WINDOW_WIDTH = 800;
+    public static final int WINDOW_HEIGHT = 600;
 
     // Wysokość górnego paska na wynik (boisko zaczyna się poniżej)
     public static final double SCORE_PANEL_HEIGHT = 80.0;

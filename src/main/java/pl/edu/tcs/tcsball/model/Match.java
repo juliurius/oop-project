@@ -39,8 +39,5 @@ public class Match {
 
     public int getPlayerTurn() { return playerTurn; }
 
-    public void changeTurn() {
-        if (playerTurn == 1) playerTurn = 2;
-        else if (playerTurn == 2) playerTurn = 1;
-    }
+    public void changeTurn() { playerTurn = 3 - playerTurn; }
 }
