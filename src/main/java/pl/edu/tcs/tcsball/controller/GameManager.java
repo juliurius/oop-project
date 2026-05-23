@@ -25,7 +25,7 @@ public class GameManager implements GameView {
     }
 
     public void update(double deltaTime) {
-        if (gameState == GameState.MENU || gameState == GameState.GOAL_SCORED) return;
+        if (gameState != GameState.PLAYING) return;
 
 
         physics.update(match.getPawns(), match.getBall(), deltaTime);
@@ -42,7 +42,7 @@ public class GameManager implements GameView {
                 startGame();
             }
             else if (y >= MenuScreen.SETTINGS_BTN_Y && y <= MenuScreen.SETTINGS_BTN_Y + MenuScreen.BTN_HEIGHT) {
-                transitionTo(GameState.SETTINGS);
+                openSettings();
             }
         }
     }
@@ -51,7 +51,7 @@ public class GameManager implements GameView {
         if (x >= SettingsScreen.BACK_BTN_X && x <= SettingsScreen.BACK_BTN_X + SettingsScreen.BACK_BTN_WIDTH &&
                 y >= SettingsScreen.BACK_BTN_Y && y <= SettingsScreen.BACK_BTN_Y + SettingsScreen.BACK_BTN_HEIGHT) {
 
-            transitionTo(GameState.SETTINGS);
+            closeSettings();
         }
     }
 
@@ -68,7 +68,6 @@ public class GameManager implements GameView {
 
     private void startGame() {
         match.resetGame();
-        match.resetScore();
         transitionTo(GameState.PLAYING);
     }
 
