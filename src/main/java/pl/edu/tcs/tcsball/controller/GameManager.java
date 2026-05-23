@@ -105,4 +105,9 @@ public class GameManager implements GameView {
     public int getTeamScore(int team) { return match.getTeamScore(team); }
 
     public GameState getGameState() { return gameState; }
+
+    public void dismissGoal() {
+        match.resetGame();
+        gameState = GameState.PLAYING;
+    }
 }

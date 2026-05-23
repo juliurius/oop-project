@@ -4,10 +4,12 @@ import javafx.scene.Scene;
 import pl.edu.tcs.tcsball.model.GameState;
 
 public class InputHandler {
-    private GameManager gameManager;
-
     public InputHandler(GameManager gameManager, Scene scene) {
-        this.gameManager = gameManager;
+        scene.setOnMouseClicked(mouseEvent -> {
+            if (gameManager.getGameState() == GameState.GOAL_SCORED) {
+                gameManager.dismissGoal();
+            }
+        });
 
         scene.setOnMousePressed(event -> {
             if (gameManager.getGameState() == GameState.MENU) {
