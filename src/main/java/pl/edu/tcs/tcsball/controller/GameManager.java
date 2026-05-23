@@ -2,6 +2,7 @@ package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.view.Renderer;
+import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.MenuScreen;
 import pl.edu.tcs.tcsball.view.screen.SettingsScreen;
 
@@ -54,8 +55,20 @@ public class GameManager implements GameView {
         }
     }
 
+    public boolean handleBackToMenuClick(double x, double y) {
+        if (x >= ScoreBoardRenderer.BACK_BTN_X && x <= ScoreBoardRenderer.BACK_BTN_X + ScoreBoardRenderer.BACK_BTN_WIDTH &&
+                y >= ScoreBoardRenderer.BACK_BTN_Y && y <= ScoreBoardRenderer.BACK_BTN_Y + ScoreBoardRenderer.BACK_BTN_HEIGHT) {
+
+            gameState = GameState.MENU;
+
+            return true;
+        }
+        return false;
+    }
+
     private void startGame() {
         match.resetGame();
+        match.resetScore();
         gameState = GameState.PLAYING;
     }
 
