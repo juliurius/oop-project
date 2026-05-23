@@ -16,7 +16,9 @@ public class MenuScreen implements Screen {
     public static final double BTN_WIDTH = 200;
     public static final double BTN_HEIGHT = 60;
     public static final double BTN_X = (GameConfig.WINDOW_WIDTH - BTN_WIDTH) / 2.0;
-    public static final double BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0;
+
+    public static final double START_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 - 40;
+    public static final double SETTINGS_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 + 50;
 
     public MenuScreen(GraphicsContext gc) {
         this.gc = gc;
@@ -34,10 +36,16 @@ public class MenuScreen implements Screen {
         gc.fillText("TCS BALL", GameConfig.WINDOW_WIDTH / 2.0, GameConfig.WINDOW_HEIGHT / 3.0);
 
         gc.setFill(Color.web("#1e90ff"));
-        gc.fillRoundRect(BTN_X, BTN_Y, BTN_WIDTH, BTN_HEIGHT, 20, 20);
+        gc.fillRoundRect(BTN_X, START_BTN_Y, BTN_WIDTH, BTN_HEIGHT, 20, 20);
 
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        gc.fillText("START", GameConfig.WINDOW_WIDTH / 2.0, BTN_Y + BTN_HEIGHT / 2.0);
+        gc.fillText("START", GameConfig.WINDOW_WIDTH / 2.0, START_BTN_Y + BTN_HEIGHT / 2.0);
+
+        gc.setFill(Color.web("#708090"));
+        gc.fillRoundRect(BTN_X, SETTINGS_BTN_Y, BTN_WIDTH, BTN_HEIGHT, 20, 20);
+
+        gc.setFill(Color.WHITE);
+        gc.fillText("USTAWIENIA", GameConfig.WINDOW_WIDTH / 2.0, SETTINGS_BTN_Y + BTN_HEIGHT / 2.0);
     }
 }

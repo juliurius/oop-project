@@ -10,10 +10,16 @@ public class InputHandler {
         this.gameManager = gameManager;
 
         scene.setOnMousePressed(event -> {
-            if (gameManager.getGameState() == GameState.MENU) {
-                gameManager.handleMenuClick(event.getSceneX(), event.getSceneY());
-            } else if (gameManager.getGameState() == GameState.PLAYING) {
-                gameManager.startAiming(event.getSceneX(), event.getSceneY());
+            GameState state = gameManager.getGameState();
+            double mouseX = event.getSceneX();
+            double mouseY = event.getSceneY();
+
+            if (state == GameState.MENU) {
+                gameManager.handleMenuClick(mouseX, mouseY);
+            } else if (state == GameState.SETTINGS) {
+                gameManager.handleSettingsClick(mouseX, mouseY);
+            } else if (state == GameState.PLAYING) {
+                gameManager.startAiming(mouseX, mouseY);
             }
         });
 

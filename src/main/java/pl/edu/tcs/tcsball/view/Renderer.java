@@ -6,10 +6,7 @@ import pl.edu.tcs.tcsball.model.GameState;
 import pl.edu.tcs.tcsball.model.GameView;
 import pl.edu.tcs.tcsball.model.Pawn;
 import pl.edu.tcs.tcsball.view.element.*;
-import pl.edu.tcs.tcsball.view.screen.GameScreen;
-import pl.edu.tcs.tcsball.view.screen.GoalScreen;
-import pl.edu.tcs.tcsball.view.screen.MenuScreen;
-import pl.edu.tcs.tcsball.view.screen.Screen;
+import pl.edu.tcs.tcsball.view.screen.*;
 
 import java.util.List;
 import java.util.Map;
@@ -31,9 +28,11 @@ public class Renderer {
 
         GameScreen gameScreen = new GameScreen(scoreBoard, pitch, ball, pawn, aiming);
         MenuScreen menuScreen = new MenuScreen(gc);
+        SettingsScreen settingsScreen = new SettingsScreen(gc); // Dodane
 
         screens = Map.of(
                 GameState.MENU, menuScreen,
+                GameState.SETTINGS, settingsScreen,
                 GameState.PLAYING, gameScreen,
                 GameState.GOAL_SCORED, new GoalScreen(overlay, gameScreen)
         );
