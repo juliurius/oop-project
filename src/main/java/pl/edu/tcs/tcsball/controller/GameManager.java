@@ -3,6 +3,7 @@ package pl.edu.tcs.tcsball.controller;
 import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.view.Renderer;
 import pl.edu.tcs.tcsball.view.screen.MenuScreen;
+import pl.edu.tcs.tcsball.view.screen.SettingsScreen;
 
 import java.util.List;
 
@@ -34,9 +35,22 @@ public class GameManager implements GameView {
     }
 
     public void handleMenuClick(double x, double y) {
-        if (x >= MenuScreen.BTN_X && x <= MenuScreen.BTN_X + MenuScreen.BTN_WIDTH &&
-                y >= MenuScreen.BTN_Y && y <= MenuScreen.BTN_Y + MenuScreen.BTN_HEIGHT) {
-            startGame();
+        if (x >= MenuScreen.BTN_X && x <= MenuScreen.BTN_X + MenuScreen.BTN_WIDTH) {
+
+            if (y >= MenuScreen.START_BTN_Y && y <= MenuScreen.START_BTN_Y + MenuScreen.BTN_HEIGHT) {
+                startGame();
+            }
+            else if (y >= MenuScreen.SETTINGS_BTN_Y && y <= MenuScreen.SETTINGS_BTN_Y + MenuScreen.BTN_HEIGHT) {
+                gameState = GameState.SETTINGS;
+            }
+        }
+    }
+
+    public void handleSettingsClick(double x, double y) {
+        if (x >= SettingsScreen.BACK_BTN_X && x <= SettingsScreen.BACK_BTN_X + SettingsScreen.BACK_BTN_WIDTH &&
+                y >= SettingsScreen.BACK_BTN_Y && y <= SettingsScreen.BACK_BTN_Y + SettingsScreen.BACK_BTN_HEIGHT) {
+
+            gameState = GameState.MENU;
         }
     }
 

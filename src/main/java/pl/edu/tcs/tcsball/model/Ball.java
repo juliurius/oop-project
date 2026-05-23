@@ -1,8 +1,8 @@
 package pl.edu.tcs.tcsball.model;
 
 public class Ball extends PhysicsBody {
-    private static final double DEFAULT_MASS = 1;
-    private static final double DEFAULT_RESTITUTION = 0.8;
+    private static final double DEFAULT_MASS = 0.55;
+    private static final double DEFAULT_RESTITUTION = 0.90;
 
     public Ball(double startX, double startY, double radius) {
         super(
