@@ -27,7 +27,6 @@ public class GameManager implements GameView {
     public void update(double deltaTime) {
         if (gameState != GameState.PLAYING) return;
 
-
         physics.update(match.getPawns(), match.getBall(), deltaTime);
 
         if (physics.wasGoalScored()) {
@@ -59,8 +58,7 @@ public class GameManager implements GameView {
         if (x >= ScoreBoardRenderer.BACK_BTN_X && x <= ScoreBoardRenderer.BACK_BTN_X + ScoreBoardRenderer.BACK_BTN_WIDTH &&
                 y >= ScoreBoardRenderer.BACK_BTN_Y && y <= ScoreBoardRenderer.BACK_BTN_Y + ScoreBoardRenderer.BACK_BTN_HEIGHT) {
 
-            transitionTo(GameState.MENU);
-
+            quitToMenu();
             return true;
         }
         return false;
@@ -157,6 +155,9 @@ public class GameManager implements GameView {
         transitionTo(returnAfterSettings);
     }
 
+    public void quitToMenu () {
+        transitionTo(GameState.MENU);
+    }
     private void transitionTo(GameState nextState) {
         gameState = nextState;
     }
