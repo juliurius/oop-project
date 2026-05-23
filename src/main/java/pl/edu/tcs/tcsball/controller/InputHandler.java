@@ -40,5 +40,9 @@ public class InputHandler {
                 gameManager.shootPawn();
             }
         });
+
+        scene.setOnMouseMoved(event -> {
+            gameManager.updateActualMousePosition(event.getSceneX(), event.getSceneY());
+        });
     }
 }

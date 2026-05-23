@@ -12,4 +12,7 @@ public interface GameView {
     Pawn getAimingPawn();
     double getArrowX();
     double getArrowY();
+
+    double getActualMouseX();
+    double getActualMouseY();
 }

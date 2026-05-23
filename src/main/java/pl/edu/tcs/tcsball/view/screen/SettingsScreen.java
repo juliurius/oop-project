@@ -8,18 +8,21 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
 public class SettingsScreen implements Screen {
 
     private final GraphicsContext gc;
+    private final ButtonRenderer buttonRenderer;
 
     public static final double BACK_BTN_WIDTH = 150;
     public static final double BACK_BTN_HEIGHT = 50;
     public static final double BACK_BTN_X = 20;
     public static final double BACK_BTN_Y = GameConfig.WINDOW_HEIGHT - 70;
 
-    public SettingsScreen(GraphicsContext gc) {
+    public SettingsScreen(GraphicsContext gc, ButtonRenderer buttonRenderer) {
         this.gc = gc;
+        this.buttonRenderer = buttonRenderer;
     }
 
     @Override
@@ -33,11 +36,6 @@ public class SettingsScreen implements Screen {
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 50));
         gc.fillText("USTAWIENIA", GameConfig.WINDOW_WIDTH / 2.0, 80);
 
-        gc.setFill(Color.web("#d9534f"));
-        gc.fillRoundRect(BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT, 15, 15);
-
-        gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 20));
-        gc.fillText("POWRÓT", BACK_BTN_X + BACK_BTN_WIDTH / 2.0, BACK_BTN_Y + BACK_BTN_HEIGHT / 2.0);
-    }
+        buttonRenderer.drawButton("POWRÓT", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT, game.getActualMouseX(), game.getActualMouseY(), Color.web("#d9534f"), Color.web("#c9302c"));
+   }
 }

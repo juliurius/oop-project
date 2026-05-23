@@ -18,7 +18,8 @@ public class Renderer {
 
 
     public Renderer(GraphicsContext gc) {
-        ScoreBoardRenderer scoreBoard = new ScoreBoardRenderer(gc);
+        ButtonRenderer buttonRenderer = new ButtonRenderer(gc);
+        ScoreBoardRenderer scoreBoard = new ScoreBoardRenderer(gc, buttonRenderer);
         PitchRenderer pitch = new PitchRenderer(gc);
         BallRenderer ball = new BallRenderer(gc);
         PawnRenderer pawn = new PawnRenderer(gc);
@@ -27,8 +28,8 @@ public class Renderer {
         GoalOverlayRenderer overlay = new GoalOverlayRenderer(gc, confetti);
 
         GameScreen gameScreen = new GameScreen(scoreBoard, pitch, ball, pawn, aiming);
-        MenuScreen menuScreen = new MenuScreen(gc);
-        SettingsScreen settingsScreen = new SettingsScreen(gc); // Dodane
+        MenuScreen menuScreen = new MenuScreen(gc, buttonRenderer);
+        SettingsScreen settingsScreen = new SettingsScreen(gc, buttonRenderer);
 
         screens = Map.of(
                 GameState.MENU, menuScreen,

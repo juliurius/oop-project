@@ -106,7 +106,6 @@ public class GameManager implements GameView {
     public void updateMousePosition(double x, double y) {
         if (selectedPawn == null) return;
 
-
         mouseX = x;
         mouseY = y;
 
@@ -165,4 +164,15 @@ public class GameManager implements GameView {
     public int getCurrentTurn() {
         return match.getPlayerTurn();
     }
+
+    public void updateActualMousePosition(double x, double y) {
+        this.mouseX = x;
+        this.mouseY = y;
+    }
+
+    @Override
+    public double getActualMouseX() { return mouseX; }
+
+    @Override
+    public double getActualMouseY() { return mouseY; }
 }
