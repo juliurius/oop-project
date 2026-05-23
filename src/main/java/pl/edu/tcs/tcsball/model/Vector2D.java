@@ -42,6 +42,16 @@ public class Vector2D {
         return new Vector2D(x * scalar, y * scalar);
     }
 
+    public Vector2D rotate(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+
+        double newX = x * cos - y * sin;
+        double newY = x * sin + y * cos;
+
+        return new Vector2D(newX, newY);
+    }
+
     public void addInPlace(Vector2D vector) {
         this.x += vector.getX();
         this.y += vector.getY();
@@ -61,14 +71,6 @@ public class Vector2D {
         return x * vector.getX() + y * vector.getY();
     }
 
-    public double length() {
-        return Math.sqrt(x * x + y * y);
-    }
-
-    public double lengthSquared() {
-        return x * x + y * y;
-    }
-
     public Vector2D normalized() {
         double length = length();
 
@@ -77,6 +79,14 @@ public class Vector2D {
         }
 
         return new Vector2D(x / length, y / length);
+    }
+
+    public double length() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    public double lengthSquared() {
+        return x * x + y * y;
     }
 
     public double distanceTo(Vector2D vector) {

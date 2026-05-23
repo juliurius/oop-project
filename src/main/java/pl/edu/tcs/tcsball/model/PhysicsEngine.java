@@ -8,6 +8,12 @@ public class PhysicsEngine {
     private static final double FRICTION = 0.9925; // Tarcie na klatke przy 120 FPS
     private static final double STOP_SPEED = 6.0; // px/s
 
+    private static final double SPIN_TURN_POWER = 0.35;
+    private static final double SPIN_FRICTION = 0.985;
+    private static final double MIN_SPEED_FOR_SPIN = 30.0;
+    private static final double SPIN_FROM_HIT = 0.010;
+    private static final double FULL_SPIN_HIT_SPEED = 450.0;
+
     private final double arenaWidth;
     private final double arenaHeight;
     private int lastGoalScoredByTeam = 0;
@@ -32,6 +38,7 @@ public class PhysicsEngine {
 
         update(pawns, deltaTime);
 
+        applySpin(ball, deltaTime);
         ball.updatePosition(deltaTime);
         lastGoalScoredByTeam = detectGoal(ball);
 
@@ -87,6 +94,21 @@ public class PhysicsEngine {
         }
 
         body.setVelocity(velocity);
+    }
+
+    private void applySpin(Ball ball, double deltaTime) {
+        Vector2D velocity = ball.getVelocity();
+
+        if (velocity.length() < MIN_SPEED_FOR_SPIN) {
+            ball.setSpin(0);
+            return;
+        }
+
+        double angle = ball.getSpin() * SPIN_TURN_POWER * deltaTime;
+        ball.setVelocity(velocity.rotate(angle));
+
+        double spinFactor = Math.pow(SPIN_FRICTION, deltaTime * REFERENCE_FPS);
+        ball.setSpin(ball.getSpin() * spinFactor);
     }
 
     private void resolveWallCollision(PhysicsBody body) {
@@ -154,6 +176,13 @@ public class PhysicsEngine {
         Vector2D velocityDifference = firstVelocity.subtract(secondVelocity);
         double speedTowardEachOther = velocityDifference.dot(normal);
 
+        // Tangent jest prostopadly do normalnej, czyli idzie "po boku" zderzenia.
+        Vector2D tangent = new Vector2D(-normal.getY(), normal.getX());
+        // Im wieksza predkosc po tangencie, tym bardziej uderzenie nadaje pilce spin.
+        double sideHitSpeed = velocityDifference.dot(tangent);
+        double hitSpeed = velocityDifference.length();
+        double sideHitRatio = hitSpeed == 0 ? 0 : Math.abs(sideHitSpeed) / hitSpeed;
+
         if (speedTowardEachOther <= 0) {
             return;
         }
@@ -163,6 +192,15 @@ public class PhysicsEngine {
 
         body1.setVelocity(firstVelocity.subtract(bounceImpulse));
         body2.setVelocity(secondVelocity.add(bounceImpulse));
+
+        if (body1 instanceof Pawn && body2 instanceof Ball ball) {
+            double hitPower = Math.min(hitSpeed / FULL_SPIN_HIT_SPEED, 1.0);
+            double sidePower = sideHitRatio * sideHitRatio;
+            // Kazde boczne trafienie nadaje spin, ale slabe/centralne strzaly daja prawie zerowy efekt.
+            double spinPower = hitPower * sidePower;
+
+            ball.setSpin(ball.getSpin() - sideHitSpeed * SPIN_FROM_HIT * spinPower);
+        }
     }
 
     public boolean isEverythingStopped(List<Pawn> pawns) {
