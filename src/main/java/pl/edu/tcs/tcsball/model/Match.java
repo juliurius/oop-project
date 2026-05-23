@@ -7,7 +7,7 @@ public class Match {
     private List<Pawn> pawns;
     private Ball ball;
     private int scoreTeam1 = 0, scoreTeam2 = 0;
-    private int turn = 1;
+    private int playerTurn = 1;
 
     public Match() {
         pawns = Formation.getFormation();
@@ -30,5 +30,12 @@ public class Match {
     public void resetGame() {
         pawns = Formation.getFormation();
         ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, 12);
+    }
+
+    public int getPlayerTurn() { return playerTurn; }
+
+    public void changeTurn() {
+        if (playerTurn == 1) playerTurn = 2;
+        else if (playerTurn == 2) playerTurn = 1;
     }
 }

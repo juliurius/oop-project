@@ -68,6 +68,8 @@ public class GameManager implements GameView {
         selectedPawn = null;
         tensionVector.setX(0);
         tensionVector.setY(0);
+
+        match.changeTurn();
     }
 
     public void startAiming(double x, double y) {
@@ -78,7 +80,7 @@ public class GameManager implements GameView {
             double pawnX = position.getX(), pawnY = position.getY(), pawnR = pawn.getRadius();
             double distance = Math.sqrt(Math.pow((pawnX - x), 2) + Math.pow((pawnY - y), 2));
 
-            if (pawnR >= distance) {
+            if (pawnR >= distance && pawn.getTeam() == match.getPlayerTurn()) {
                 selectedPawn = pawn;
                 break;
             }
