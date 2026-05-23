@@ -21,7 +21,11 @@ public class InputHandler {
             } else if (state == GameState.SETTINGS) {
                 gameManager.handleSettingsClick(mouseX, mouseY);
             } else if (state == GameState.PLAYING) {
-                gameManager.startAiming(mouseX, mouseY);
+                boolean backToMenu = gameManager.handleBackToMenuClick(mouseX, mouseY);
+
+                if (!backToMenu) {
+                    gameManager.startAiming(mouseX, mouseY);
+                }
             }
         });
 

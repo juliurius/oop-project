@@ -27,6 +27,11 @@ public class Match {
         else scoreTeam2 += 1;
     }
 
+    public void resetScore() {
+        scoreTeam1 = 0;
+        scoreTeam2 = 0;
+    }
+
     public void resetGame() {
         pawns = Formation.getFormation();
         ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, 12);
