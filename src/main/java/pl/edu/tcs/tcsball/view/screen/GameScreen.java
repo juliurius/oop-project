@@ -36,7 +36,7 @@ public class GameScreen implements Screen {
 
         List<Pawn> pawns = game.getPawns();
 
-        scoreBoardRenderer.drawScoreBoard(score1, score2);
+        scoreBoardRenderer.drawScoreBoard(score1, score2, game.getCurrentTurn());
         pitchRenderer.drawPitch();
         ballRenderer.drawBall(ballX, ballY);
 

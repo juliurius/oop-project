@@ -32,9 +32,16 @@ public class Match {
         scoreTeam2 = 0;
     }
 
-    public void resetGame() {
+    public void resetPitch() {
         pawns = Formation.getFormation();
         ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, 12);
+    }
+
+    public void resetGame() {
+        resetPitch();
+        resetScore();
+
+        playerTurn = 1;
     }
 
     public int getPlayerTurn() { return playerTurn; }

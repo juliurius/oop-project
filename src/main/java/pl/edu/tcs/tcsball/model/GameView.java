@@ -7,6 +7,7 @@ public interface GameView {
     List<Pawn> getPawns();
     Ball getBall();
     int getTeamScore(int team);
+    int getCurrentTurn();
 
     Pawn getAimingPawn();
     double getArrowX();

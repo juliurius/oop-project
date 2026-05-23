@@ -1,6 +1,7 @@
 package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.model.*;
+import pl.edu.tcs.tcsball.view.Renderer;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.MenuScreen;
 import pl.edu.tcs.tcsball.view.screen.SettingsScreen;
@@ -25,6 +26,7 @@ public class GameManager implements GameView {
 
     public void update(double deltaTime) {
         if (gameState == GameState.MENU || gameState == GameState.GOAL_SCORED) return;
+
 
         physics.update(match.getPawns(), match.getBall(), deltaTime);
 
@@ -133,7 +135,7 @@ public class GameManager implements GameView {
     public GameState getGameState() { return gameState; }
 
     public void dismissGoal() {
-        match.resetGame();
+        match.resetPitch();
         transitionTo(GameState.PLAYING);
     }
 
@@ -154,5 +156,10 @@ public class GameManager implements GameView {
 
     public void transitionTo(GameState nextState) {
         gameState = nextState;
+    }
+
+    @Override
+    public int getCurrentTurn() {
+        return match.getPlayerTurn();
     }
 }
