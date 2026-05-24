@@ -183,4 +183,9 @@ public class GameManager implements GameView {
 
     @Override
     public double getActualMouseY() { return mouseY; }
+
+    @Override
+    public boolean isEverythingStopped() {
+        return physics.isEverythingStopped(match.getPawns(), match.getBall());
+    }
 }

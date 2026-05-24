@@ -30,15 +30,17 @@ public class GameScreen implements Screen {
 
         double ballX = game.getBall().getPosition().getX();
         double ballY = game.getBall().getPosition().getY();
+        double ballRadius = game.getBall().getRadius();
+        double ballAngle = game.getBall().getAngle();
 
         double arrowX = game.getArrowX();
         double arrowY = game.getArrowY();
 
         List<Pawn> pawns = game.getPawns();
 
-        scoreBoardRenderer.drawScoreBoard(score1, score2, game.getCurrentTurn(), game.getActualMouseX(), game.getActualMouseY());
+        scoreBoardRenderer.drawScoreBoard(score1, score2, game.getCurrentTurn(), game.getActualMouseX(), game.getActualMouseY(), game.isEverythingStopped());
         pitchRenderer.drawPitch();
-        ballRenderer.drawBall(ballX, ballY);
+        ballRenderer.drawBall(ballX, ballY, ballRadius, ballAngle);
 
         for (Pawn pawn : pawns) {
             pawnRenderer.drawPawn(pawn);

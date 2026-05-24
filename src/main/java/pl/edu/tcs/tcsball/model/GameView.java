@@ -4,15 +4,24 @@ import java.util.List;
 
 public interface GameView {
     GameState getGameState();
+
     List<Pawn> getPawns();
+
     Ball getBall();
+
     int getTeamScore(int team);
+
     int getCurrentTurn();
 
     Pawn getAimingPawn();
+
     double getArrowX();
+
     double getArrowY();
 
     double getActualMouseX();
+
     double getActualMouseY();
+
+    boolean isEverythingStopped();
 }

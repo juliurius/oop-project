@@ -22,7 +22,7 @@ public class ScoreBoardRenderer {
         this.buttonRenderer = buttonRenderer;
     }
 
-    public void drawScoreBoard(int score1, int score2, int currentTurn, double mouseX, double mouseY) {
+    public void drawScoreBoard(int score1, int score2, int currentTurn, double mouseX, double mouseY, boolean everythingStopped) {
         graphicsContext.setFill(Color.web("#1a1a1a"));
         graphicsContext.fillRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.SCORE_PANEL_HEIGHT);
 
@@ -44,10 +44,19 @@ public class ScoreBoardRenderer {
         graphicsContext.fillOval(dotX - dotRadius + 2, dotY - dotRadius + 2, dotRadius * 2, dotRadius * 2);
 
         if (currentTurn == 1) {
-            graphicsContext.setFill(Color.web("#1e90ff"));
+            if(everythingStopped) {
+                graphicsContext.setFill(Color.web("#1e90ff"));
+            } else {
+                graphicsContext.setFill(Color.web("#1e90ff", 0.4));
+            }
         } else {
-            graphicsContext.setFill(Color.web("#ff4c4c"));
+            if(everythingStopped) {
+                graphicsContext.setFill(Color.web("#ff4c4c"));
+            } else {
+                graphicsContext.setFill(Color.web("#ff4c4c", 0.4));
+            }
         }
+
         graphicsContext.fillOval(dotX - dotRadius, dotY - dotRadius, dotRadius * 2, dotRadius * 2);
 
         graphicsContext.setFill(Color.color(1, 1, 1, 0.4));

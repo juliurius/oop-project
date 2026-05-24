@@ -110,6 +110,8 @@ public class PhysicsEngine {
 
         double spinFactor = Math.pow(SPIN_FRICTION, deltaTime * REFERENCE_FPS);
         ball.setSpin(ball.getSpin() * spinFactor);
+
+        ball.setAngle(ball.getAngle() + (ball.getSpin() * 1500.0 * deltaTime));
     }
 
     private double getStopSpeed(PhysicsBody body) {

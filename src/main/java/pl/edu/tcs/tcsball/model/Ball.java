@@ -5,6 +5,7 @@ public class Ball extends PhysicsBody {
     private static final double DEFAULT_RESTITUTION = 0.90;
     private static final double MAX_SPIN = 3.0;
     private double spin;
+    private double angle = 0;
 
     public Ball(double startX, double startY, double radius) {
         super(
@@ -26,4 +27,11 @@ public class Ball extends PhysicsBody {
         this.spin = spin;
     }
 
+    public double getAngle() {
+        return angle;
+    }
+
+    public void setAngle(double angle) {
+        this.angle = angle % 360.0;
+    }
 }
