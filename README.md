@@ -60,6 +60,7 @@ src/main/java/pl/edu/tcs/tcsball/
     │   ├── PitchRenderer.java
     │   ├── ScoreBoardRenderer.java
     │   ├── BallRenderer.java
+    │   ├── ButtonRenderer.java
     │   ├── PawnRenderer.java
     │   ├── AimingRenderer.java
     │   └── GoalOverlayRenderer.java

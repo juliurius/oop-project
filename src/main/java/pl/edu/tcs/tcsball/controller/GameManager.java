@@ -2,7 +2,6 @@ package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.*;
-import pl.edu.tcs.tcsball.view.Renderer;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.MenuScreen;
 import pl.edu.tcs.tcsball.view.screen.SettingsScreen;
