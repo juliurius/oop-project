@@ -45,7 +45,11 @@ src/main/java/pl/edu/tcs/tcsball/
 │   ├── Ball.java              Physics body with spin
 │   ├── Formation.java         Builds the starting line-up from GameConfig
 │   ├── Match.java             Aggregate state: pawns, ball, score, turn
-│   ├── PhysicsEngine.java     Movement, collisions, friction, goal detection, spin
+│   ├── PhysicsEngine.java     Coordinates each physics update
+│   ├── physics/
+│   │   ├── MotionUpdater.java       Movement, friction, spin
+│   │   ├── CollisionResolver.java   Walls and body collisions
+│   │   └── GoalDetector.java        Goal-mouth detection
 │   ├── GameState.java         enum: MENU, PLAYING, GOAL_SCORED, SETTINGS
 │   └── GameView.java          Read-only interface exposed to the view layer
 │
