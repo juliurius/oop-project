@@ -13,7 +13,8 @@ Two players take turns flicking their pawns to knock the ball into the opponent'
 - **Physics from scratch** — circular-body collisions, friction, restitution, ball spin (Magnus-like effect)
 - **State-driven UI** — menu, gameplay, settings, and goal celebration are separate screens
 - **Goal celebration** — animated *GOL!!* overlay with falling confetti, dismissed by clicking
-- **5v5 formation** — goalkeeper + 2 defenders + 2 forwards, fully configurable via `GameConfig`
+- **JSON gameplay config** — board size, physics values, pawn/ball parameters, and formation live in `game-config.json`
+- **5v5 formation** — goalkeeper + 2 defenders + 2 forwards, loaded from the JSON config
 
 ---
 
@@ -36,14 +37,14 @@ No external game engine, no physics library — everything is hand-rolled for ed
 src/main/java/pl/edu/tcs/tcsball/
 ├── Main.java                  Entry point
 ├── GameApp.java               JavaFX app: canvas, scene, AnimationTimer (game loop)
-├── GameConfig.java            Layout & formation constants
+├── GameConfig.java            Loads gameplay constants from src/main/resources/game-config.json
 │
 ├── model/                     ── DATA + RULES (knows nothing about the window)
 │   ├── Vector2D.java          2D math (add, multiply, dot, normalize…)
 │   ├── PhysicsBody.java       Base class: position, velocity, mass, restitution
 │   ├── Pawn.java              Team-tagged physics body
 │   ├── Ball.java              Physics body with spin
-│   ├── Formation.java         Builds the starting line-up from GameConfig
+│   ├── Formation.java         Builds the starting line-up from GameConfig / JSON
 │   ├── Match.java             Aggregate state: pawns, ball, score, turn
 │   ├── PhysicsEngine.java     Coordinates each physics update
 │   ├── physics/
@@ -75,6 +76,14 @@ src/main/java/pl/edu/tcs/tcsball/
         ├── GoalScreen.java
         └── SettingsScreen.java
 ```
+
+Gameplay-related constants are stored in:
+
+```
+src/main/resources/game-config.json
+```
+
+This includes window and pitch dimensions, goal size, pawn and ball physics, stop-speed thresholds, collision tuning, and team formation offsets. Small view-only constants, such as button sizes and colors, remain local to the renderer classes.
 
 ---
 
@@ -142,6 +151,7 @@ public void handle(long now) {
 
 - **Frame-rate independent friction** — `Math.pow(FRICTION, dt * REFERENCE_FPS)` keeps deceleration identical at 60 Hz and 144 Hz
 - **Normal-only collision response** — only the velocity component along the collision normal is exchanged; tangential motion is preserved, so glancing hits look natural
+- **Iterative pawn separation** — pawn-pawn collision resolution runs several short passes per frame, reducing visible overlap between nearby pawns
 - **Ball spin** — off-center pawn hits impart spin to the ball, which then bends its trajectory mid-flight via per-frame velocity rotation
 - **Goal detection** — the ball is checked against goal-mouth bounds before wall collision response, so it passes through the goal line cleanly
 
