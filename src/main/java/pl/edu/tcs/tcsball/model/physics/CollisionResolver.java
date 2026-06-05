@@ -9,6 +9,8 @@ import pl.edu.tcs.tcsball.model.Vector2D;
 import java.util.List;
 
 public class CollisionResolver {
+    private static final int COLLISION_PASSES = GameConfig.COLLISION_PASSES;
+    private static final double MIN_DISTANCE = GameConfig.COLLISION_MIN_DISTANCE;
     private static final double SPIN_FROM_HIT = GameConfig.SPIN_FROM_HIT;
     private static final double FULL_SPIN_HIT_SPEED = GameConfig.FULL_SPIN_HIT_SPEED;
 
@@ -46,9 +48,11 @@ public class CollisionResolver {
     }
 
     public void resolvePawnCollisions(List<Pawn> pawns) {
-        for (int i = 0; i < pawns.size(); i++) {
-            for (int j = i + 1; j < pawns.size(); j++) {
-                resolveCollision(pawns.get(i), pawns.get(j));
+        for (int pass = 0; pass < COLLISION_PASSES; pass++) {
+            for (int i = 0; i < pawns.size(); i++) {
+                for (int j = i + 1; j < pawns.size(); j++) {
+                    resolveCollision(pawns.get(i), pawns.get(j));
+                }
             }
         }
     }
@@ -64,11 +68,11 @@ public class CollisionResolver {
         double distance = difference.length();
         double minDistance = body1.getRadius() + body2.getRadius();
 
-        if (distance == 0 || distance >= minDistance) {
+        if (distance >= minDistance) {
             return;
         }
 
-        Vector2D normal = difference.normalized();
+        Vector2D normal = distance < MIN_DISTANCE ? new Vector2D(1, 0) : difference.normalized();
         double overlap = minDistance - distance;
 
         Vector2D firstPosition = body1.getPosition().subtract(normal.multiply(overlap / 2));

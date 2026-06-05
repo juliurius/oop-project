@@ -65,6 +65,8 @@ public final class GameConfig {
     public static final double MIN_SPEED_FOR_SPIN = doubleValue("minSpeedForSpin");
     public static final double SPIN_FROM_HIT = doubleValue("spinFromHit");
     public static final double FULL_SPIN_HIT_SPEED = doubleValue("fullSpinHitSpeed");
+    public static final int COLLISION_PASSES = intValue("collisionPasses");
+    public static final double COLLISION_MIN_DISTANCE = doubleValue("collisionMinDistance");
 
     // Pozycje pionkow druzyny 1 (lewa strona) jako offsety:
     //   [0] = X liczone od bandy PITCH_LEFT_X w glab boiska
