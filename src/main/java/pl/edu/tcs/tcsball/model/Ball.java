@@ -1,9 +1,11 @@
 package pl.edu.tcs.tcsball.model;
 
+import pl.edu.tcs.tcsball.GameConfig;
+
 public class Ball extends PhysicsBody {
-    private static final double DEFAULT_MASS = 0.55;
-    private static final double DEFAULT_RESTITUTION = 0.90;
-    private static final double MAX_SPIN = 3.0;
+    private static final double DEFAULT_MASS = GameConfig.BALL_MASS;
+    private static final double DEFAULT_RESTITUTION = GameConfig.BALL_RESTITUTION;
+    private static final double MAX_SPIN = GameConfig.BALL_MAX_SPIN;
     private double spin;
     private double angle = 0;
 
@@ -32,6 +34,6 @@ public class Ball extends PhysicsBody {
     }
 
     public void setAngle(double angle) {
-        this.angle = angle % 360.0;
+        this.angle = angle % GameConfig.BALL_FULL_ROTATION_DEGREES;
     }
 }

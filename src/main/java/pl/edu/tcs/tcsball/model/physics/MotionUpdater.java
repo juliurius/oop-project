@@ -1,5 +1,6 @@
 package pl.edu.tcs.tcsball.model.physics;
 
+import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.Ball;
 import pl.edu.tcs.tcsball.model.Pawn;
 import pl.edu.tcs.tcsball.model.PhysicsBody;
@@ -8,14 +9,14 @@ import pl.edu.tcs.tcsball.model.Vector2D;
 import java.util.List;
 
 public class MotionUpdater {
-    private static final double REFERENCE_FPS = 120.0;
-    private static final double FRICTION = 0.9925; // Tarcie na klatke przy 120 FPS
-    private static final double PAWN_STOP_SPEED = 9.0; // px/s
-    private static final double BALL_STOP_SPEED = 7.0; // px/s
+    private static final double REFERENCE_FPS = GameConfig.REFERENCE_FPS;
+    private static final double FRICTION = GameConfig.FRICTION;
+    private static final double PAWN_STOP_SPEED = GameConfig.PAWN_STOP_SPEED;
+    private static final double BALL_STOP_SPEED = GameConfig.BALL_STOP_SPEED;
 
-    private static final double SPIN_TURN_POWER = 0.35;
-    private static final double SPIN_FRICTION = 0.985;
-    private static final double MIN_SPEED_FOR_SPIN = 30.0;
+    private static final double SPIN_TURN_POWER = GameConfig.SPIN_TURN_POWER;
+    private static final double SPIN_FRICTION = GameConfig.SPIN_FRICTION;
+    private static final double MIN_SPEED_FOR_SPIN = GameConfig.MIN_SPEED_FOR_SPIN;
 
     public void updatePosition(PhysicsBody body, double deltaTime) {
         body.updatePosition(deltaTime);
@@ -46,7 +47,7 @@ public class MotionUpdater {
         double spinFactor = Math.pow(SPIN_FRICTION, deltaTime * REFERENCE_FPS);
         ball.setSpin(ball.getSpin() * spinFactor);
 
-        ball.setAngle(ball.getAngle() + (ball.getSpin() * 1500.0 * deltaTime));
+        ball.setAngle(ball.getAngle() + (ball.getSpin() * GameConfig.BALL_SPIN_ROTATION_SPEED * deltaTime));
     }
 
     public boolean isEverythingStopped(List<Pawn> pawns, Ball ball) {

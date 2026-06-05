@@ -15,11 +15,14 @@ public class MenuScreen implements Screen {
     private final GraphicsContext gc;
     private final ButtonRenderer buttonRenderer;
 
-    public static final double BTN_WIDTH = 200;
-    public static final double BTN_HEIGHT = 60;
+    private static final double START_BUTTON_OFFSET_Y = -40.0;
+    private static final double SETTINGS_BUTTON_OFFSET_Y = 50.0;
+
+    public static final double BTN_WIDTH = 200.0;
+    public static final double BTN_HEIGHT = 60.0;
     public static final double BTN_X = (GameConfig.WINDOW_WIDTH - BTN_WIDTH) / 2.0;
-    public static final double START_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 - 40;
-    public static final double SETTINGS_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 + 50;
+    public static final double START_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 + START_BUTTON_OFFSET_Y;
+    public static final double SETTINGS_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 + SETTINGS_BUTTON_OFFSET_Y;
 
     public MenuScreen(GraphicsContext gc, ButtonRenderer buttonRenderer) {
         this.gc = gc;

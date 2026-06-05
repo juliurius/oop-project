@@ -6,6 +6,7 @@ import javafx.scene.shape.StrokeLineCap;
 import pl.edu.tcs.tcsball.model.Pawn;
 
 public class AimingRenderer {
+    private static final double ARROW_LENGTH = 15.0;
 
     GraphicsContext graphicsContext;
 
@@ -29,7 +30,7 @@ public class AimingRenderer {
                 graphicsContext.setLineCap(StrokeLineCap.ROUND);
                 graphicsContext.strokeLine(edgeX, edgeY, mouseX, mouseY);
 
-                double arrowLength = 15.0;
+                double arrowLength = ARROW_LENGTH;
                 double arrowAngle = Math.PI / 6;
 
                 double x1 = mouseX - arrowLength * Math.cos(lineAngle - arrowAngle);

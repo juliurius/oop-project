@@ -11,7 +11,7 @@ public class Match {
 
     public Match() {
         pawns = Formation.getFormation();
-        ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, 12);
+        ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, GameConfig.BALL_RADIUS);
     }
 
     public List<Pawn> getPawns() { return pawns; }
@@ -34,7 +34,7 @@ public class Match {
 
     public void resetPitch() {
         pawns = Formation.getFormation();
-        ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, 12);
+        ball = new Ball((GameConfig.PITCH_RIGHT_X + GameConfig.PITCH_LEFT_X)/2, (GameConfig.PITCH_TOP_Y + GameConfig.PITCH_BOTTOM_Y)/2, GameConfig.BALL_RADIUS);
     }
 
     public void resetGame() {

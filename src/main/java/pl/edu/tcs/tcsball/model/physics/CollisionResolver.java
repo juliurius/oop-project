@@ -9,8 +9,8 @@ import pl.edu.tcs.tcsball.model.Vector2D;
 import java.util.List;
 
 public class CollisionResolver {
-    private static final double SPIN_FROM_HIT = 0.010;
-    private static final double FULL_SPIN_HIT_SPEED = 450.0;
+    private static final double SPIN_FROM_HIT = GameConfig.SPIN_FROM_HIT;
+    private static final double FULL_SPIN_HIT_SPEED = GameConfig.FULL_SPIN_HIT_SPEED;
 
     public void resolveWallCollision(PhysicsBody body) {
         Vector2D position = body.getPosition();

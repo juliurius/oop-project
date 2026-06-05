@@ -12,10 +12,13 @@ public class ScoreBoardRenderer {
     private final GraphicsContext graphicsContext;
     private final ButtonRenderer buttonRenderer;
 
-    public static final double BACK_BTN_WIDTH = 100;
-    public static final double BACK_BTN_HEIGHT = 40;
-    public static final double BACK_BTN_X = 20;
-    public static final double BACK_BTN_Y = 20;
+    private static final double TURN_DOT_RADIUS = 12.0;
+    private static final double TURN_DOT_OFFSET_X = 40.0;
+
+    public static final double BACK_BTN_WIDTH = 100.0;
+    public static final double BACK_BTN_HEIGHT = 40.0;
+    public static final double BACK_BTN_X = 20.0;
+    public static final double BACK_BTN_Y = 20.0;
 
     public ScoreBoardRenderer(GraphicsContext graphicsContext, ButtonRenderer buttonRenderer) {
         this.graphicsContext = graphicsContext;
@@ -36,8 +39,8 @@ public class ScoreBoardRenderer {
                 mouseX, mouseY,
                 Color.web("#d9534f"), Color.web("#c9302c"));
 
-        double dotRadius = 12.0;
-        double dotX = GameConfig.WINDOW_WIDTH - 40.0;
+        double dotRadius = TURN_DOT_RADIUS;
+        double dotX = GameConfig.WINDOW_WIDTH - TURN_DOT_OFFSET_X;
         double dotY = GameConfig.SCORE_PANEL_HEIGHT / 2.0;
 
         graphicsContext.setFill(Color.color(0, 0, 0, 0.5));

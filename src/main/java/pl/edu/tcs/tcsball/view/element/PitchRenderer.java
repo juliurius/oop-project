@@ -5,6 +5,9 @@ import javafx.scene.paint.Color;
 import pl.edu.tcs.tcsball.GameConfig;
 
 public class PitchRenderer {
+    private static final double LINE_WIDTH = 3.0;
+    private static final double LINE_ALPHA = 0.6;
+
     GraphicsContext graphicsContext;
     
     public PitchRenderer(GraphicsContext graphicsContext) { this.graphicsContext = graphicsContext; }
@@ -16,8 +19,8 @@ public class PitchRenderer {
         graphicsContext.fillRect(0, GameConfig.SCORE_PANEL_HEIGHT, GameConfig.WINDOW_WIDTH, pitchHeight);
 
         graphicsContext.setStroke(Color.WHITE);
-        graphicsContext.setLineWidth(3);
-        graphicsContext.setGlobalAlpha(0.6);
+        graphicsContext.setLineWidth(LINE_WIDTH);
+        graphicsContext.setGlobalAlpha(LINE_ALPHA);
 
         graphicsContext.strokeRect(
                 GameConfig.PITCH_LEFT_X,
@@ -27,7 +30,12 @@ public class PitchRenderer {
         );
 
         graphicsContext.strokeLine(GameConfig.WINDOW_WIDTH / 2.0, GameConfig.PITCH_TOP_Y, GameConfig.WINDOW_WIDTH / 2.0, GameConfig.PITCH_BOTTOM_Y);
-        graphicsContext.strokeOval(GameConfig.WINDOW_WIDTH / 2.0 - 50, GameConfig.SCORE_PANEL_HEIGHT + pitchHeight / 2.0 - 50, 100, 100);
+        graphicsContext.strokeOval(
+                GameConfig.WINDOW_WIDTH / 2.0 - GameConfig.PITCH_CENTER_CIRCLE_RADIUS,
+                GameConfig.SCORE_PANEL_HEIGHT + pitchHeight / 2.0 - GameConfig.PITCH_CENTER_CIRCLE_RADIUS,
+                GameConfig.PITCH_CENTER_CIRCLE_RADIUS * 2.0,
+                GameConfig.PITCH_CENTER_CIRCLE_RADIUS * 2.0
+        );
 
         drawGoals();
 
@@ -36,7 +44,7 @@ public class PitchRenderer {
 
     private void drawGoals() {
         graphicsContext.setStroke(Color.WHITE);
-        graphicsContext.setLineWidth(3);
+        graphicsContext.setLineWidth(LINE_WIDTH);
         graphicsContext.setFill(Color.web("#1c5936"));
 
         graphicsContext.fillRect(GameConfig.PITCH_LEFT_X - GameConfig.GOAL_WIDTH, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);

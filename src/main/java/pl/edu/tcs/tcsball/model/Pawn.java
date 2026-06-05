@@ -1,9 +1,11 @@
 package pl.edu.tcs.tcsball.model;
 
+import pl.edu.tcs.tcsball.GameConfig;
+
 public class Pawn extends PhysicsBody {
-    private static final double DEFAULT_MASS = 2.0;
-    private static final double DEFAULT_RESTITUTION = 0.78;
-    private static final double SHOT_POWER = 16.0;
+    private static final double DEFAULT_MASS = GameConfig.PAWN_MASS;
+    private static final double DEFAULT_RESTITUTION = GameConfig.PAWN_RESTITUTION;
+    private static final double SHOT_POWER = GameConfig.PAWN_SHOT_POWER;
     private final int team;
 
     public Pawn(double startX, double startY, double radius, int team) {
