@@ -8,9 +8,12 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.model.LobbyView;
+import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
+// MOCK: brak prawdziwego połączenia — tylko lokalnie zapamiętany wybrany host
 public class ClientLobbyScreen implements Screen {
 
     private final GraphicsContext gc;
@@ -34,11 +37,23 @@ public class ClientLobbyScreen implements Screen {
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 50));
-        gc.fillText("LOBBY", GameConfig.WINDOW_WIDTH / 2.0, 80);
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 44));
+        gc.fillText("LOBBY", GameConfig.WINDOW_WIDTH / 2.0, 72);
 
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 22));
-        gc.fillText("(czekam na start — wkrótce)", GameConfig.WINDOW_WIDTH / 2.0, 160);
+        String hostLabel = "nieznany host";
+        if (game instanceof LobbyView lobbyView) {
+            DiscoveredHost joined = lobbyView.getJoinedHost();
+            if (joined != null) {
+                hostLabel = joined.getHostName();
+            }
+        }
+
+        gc.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+        gc.fillText("Host: " + hostLabel, GameConfig.WINDOW_WIDTH / 2.0, 160);
+
+        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
+        gc.setFill(Color.web("#cccccc"));
+        gc.fillText("[MOCK] czekam na start od hosta…", GameConfig.WINDOW_WIDTH / 2.0, 210);
 
         buttonRenderer.drawButton("OPUŚĆ", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
                 game.getActualMouseX(), game.getActualMouseY(),

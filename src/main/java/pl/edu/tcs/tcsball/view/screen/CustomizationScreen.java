@@ -11,6 +11,7 @@ import pl.edu.tcs.tcsball.model.GameView;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
+// MOCK: placeholder UI — docelowo CustomizationManager + wybór flagi/formacji
 public class CustomizationScreen implements Screen {
 
     private final GraphicsContext gc;
@@ -38,7 +39,7 @@ public class CustomizationScreen implements Screen {
         gc.fillText("CUSTOMIZACJA", GameConfig.WINDOW_WIDTH / 2.0, 80);
 
         gc.setFont(Font.font("Arial", FontWeight.NORMAL, 22));
-        gc.fillText("(profil gracza — wkrótce)", GameConfig.WINDOW_WIDTH / 2.0, 160);
+        gc.fillText("[MOCK] profil gracza — wkrótce", GameConfig.WINDOW_WIDTH / 2.0, 160);
 
         buttonRenderer.drawButton("POWRÓT", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
                 game.getActualMouseX(), game.getActualMouseY(),

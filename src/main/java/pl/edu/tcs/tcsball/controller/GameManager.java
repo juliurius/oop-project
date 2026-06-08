@@ -2,14 +2,17 @@ package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.*;
+import pl.edu.tcs.tcsball.model.lobby.LobbyState;
+import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.*;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-public class GameManager implements GameView {
+public class GameManager implements LobbyView {
     private final Match match;
     private final PhysicsEngine physics;
 
@@ -21,6 +24,13 @@ public class GameManager implements GameView {
 
     private final EnumSet<DomainEvent> pendingEvents = EnumSet.noneOf(DomainEvent.class);
     private final InputDelta inputDelta = new InputDelta();
+
+    // MOCK: zastąpić LanHostScanner + LobbyManager przy prawdziwym multiplayerze
+    private final List<DiscoveredHost> discoveredHosts = new ArrayList<>();
+    // MOCK: ustawiane lokalnie w joinHost(); docelowo po GameClient.connect()
+    private DiscoveredHost joinedHost = null;
+    // MOCK: przełącznik wariantów listy testowej w refreshDiscoveredHosts()
+    private int mockHostVariant = 0;
 
     public GameManager(double width, double height) {
         match = new Match();
@@ -78,12 +88,23 @@ public class GameManager implements GameView {
     public void handleJoinLobbyClick(double x, double y) {
         if (JoinLobbyScreen.isBackButtonHit(x, y)) {
             quitToMenu();
+            return;
+        }
+
+        if (JoinLobbyScreen.isRefreshButtonHit(x, y)) {
+            refreshDiscoveredHosts();
+            return;
+        }
+
+        int index = JoinLobbyScreen.hostIndexAt(x, y, discoveredHosts.size());
+        if (index >= 0) {
+            joinHost(index);
         }
     }
 
     public void handleClientLobbyClick(double x, double y) {
         if (ClientLobbyScreen.isBackButtonHit(x, y)) {
-            quitToMenu();
+            leaveClientLobby();
         }
     }
 
@@ -103,12 +124,59 @@ public class GameManager implements GameView {
         transitionTo(GameState.PLAYING);
     }
 
+    // MOCK: docelowo LobbyManager.hostLobby() + GameHostServer + LanHostAnnouncer
     public void openHostLobby() {
         transitionTo(GameState.HOST_LOBBY);
     }
 
     public void openJoinLobby() {
+        joinedHost = null;
+        refreshDiscoveredHosts();
         transitionTo(GameState.JOIN_LOBBY);
+    }
+
+    // MOCK: docelowo LanHostScanner.getDiscoveredHosts()
+    public void refreshDiscoveredHosts() {
+        mockHostVariant = (mockHostVariant + 1) % 2;
+        discoveredHosts.clear();
+        discoveredHosts.addAll(createMockHosts(mockHostVariant));
+        inputDelta.markMouseMoved();
+    }
+
+    // MOCK: sztywna lista hostów do testów UI — usunąć po podpięciu sieci
+    private List<DiscoveredHost> createMockHosts(int variant) {
+        if (variant == 0) {
+            return List.of(
+                    new DiscoveredHost("lobby-1", "Janek", "192.168.0.10", 7777, 1, LobbyState.WAITING_FOR_PLAYER),
+                    new DiscoveredHost("lobby-2", "TCS-Room", "192.168.0.22", 7777, 2, LobbyState.WAITING_FOR_READY),
+                    new DiscoveredHost("lobby-3", "QuickMatch", "192.168.0.5", 7777, 1, LobbyState.WAITING_FOR_PLAYER)
+            );
+        }
+        return List.of(
+                new DiscoveredHost("lobby-4", "Kuba", "192.168.0.15", 7777, 1, LobbyState.WAITING_FOR_PLAYER),
+                new DiscoveredHost("lobby-5", "PO-Projekt", "192.168.0.30", 7777, 2, LobbyState.IN_GAME)
+        );
+    }
+
+    // MOCK: docelowo LobbyManager.joinLobby() + GameClient.connect()
+    public void joinHost(int index) {
+        if (index < 0 || index >= discoveredHosts.size()) {
+            return;
+        }
+
+        DiscoveredHost host = discoveredHosts.get(index);
+        if (!host.isJoinable()) {
+            return;
+        }
+
+        joinedHost = host;
+        transitionTo(GameState.CLIENT_LOBBY);
+    }
+
+    // MOCK: docelowo LobbyManager.leaveLobby() + zamknięcie połączenia
+    public void leaveClientLobby() {
+        joinedHost = null;
+        quitToMenu();
     }
 
     public void openCustomization() {
@@ -203,6 +271,8 @@ public class GameManager implements GameView {
     }
 
     public void quitToMenu () {
+        joinedHost = null;
+        discoveredHosts.clear();
         transitionTo(GameState.MENU);
     }
     private void transitionTo(GameState nextState) {
@@ -229,5 +299,15 @@ public class GameManager implements GameView {
     @Override
     public boolean isEverythingStopped() {
         return physics.isEverythingStopped(match.getPawns(), match.getBall());
+    }
+
+    @Override
+    public List<DiscoveredHost> getDiscoveredHosts() {
+        return List.copyOf(discoveredHosts);
+    }
+
+    @Override
+    public DiscoveredHost getJoinedHost() {
+        return joinedHost;
     }
 }

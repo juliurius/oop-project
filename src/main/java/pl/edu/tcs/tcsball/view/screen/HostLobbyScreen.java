@@ -11,6 +11,7 @@ import pl.edu.tcs.tcsball.model.GameView;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
+// MOCK: placeholder UI — docelowo LobbyManager + synchronizacja z gościem
 public class HostLobbyScreen implements Screen {
 
     private final GraphicsContext gc;
@@ -38,7 +39,7 @@ public class HostLobbyScreen implements Screen {
         gc.fillText("TWOJE LOBBY", GameConfig.WINDOW_WIDTH / 2.0, 80);
 
         gc.setFont(Font.font("Arial", FontWeight.NORMAL, 22));
-        gc.fillText("(czekam na gracza — wkrótce)", GameConfig.WINDOW_WIDTH / 2.0, 160);
+        gc.fillText("[MOCK] czekam na gracza", GameConfig.WINDOW_WIDTH / 2.0, 160);
 
         buttonRenderer.drawButton("ANULUJ", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
                 game.getActualMouseX(), game.getActualMouseY(),

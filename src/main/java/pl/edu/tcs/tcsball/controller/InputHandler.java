@@ -16,6 +16,8 @@ public class InputHandler {
             double mouseX = event.getSceneX();
             double mouseY = event.getSceneY();
 
+            gameManager.updateActualMousePosition(mouseX, mouseY);
+
             switch (state) {
                 case MENU -> gameManager.handleMenuClick(mouseX, mouseY);
                 case CUSTOMIZATION -> gameManager.handleCustomizationClick(mouseX, mouseY);
