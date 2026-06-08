@@ -1,45 +1,112 @@
 package pl.edu.tcs.tcsball.net.connection;
 
+import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;
 import pl.edu.tcs.tcsball.net.protocol.NetworkMessage;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class GameHostServer implements AutoCloseable {
-    private int gamePort;
+    private int gamePort = GameConfig.NETWORK_GAME_PORT;
     private Lobby lobby;
     private NetworkConnection clientConnection;
-    private boolean running;
+    private ServerSocket serverSocket;
+    private Thread acceptThread;
+    private volatile boolean running;
 
     public void start(Lobby lobby) throws IOException {
-        // TODO: uruchomic serwer hosta i czekac na klienta.
-        throw new UnsupportedOperationException("TODO");
+        Objects.requireNonNull(lobby, "lobby");
+
+        if (running) {
+            return;
+        }
+
+        this.lobby = lobby;
+        serverSocket = new ServerSocket(gamePort);
+        running = true;
+
+        acceptThread = new Thread(this::acceptClient, "tcsball-host-server");
+        acceptThread.setDaemon(true);
+        acceptThread.start();
     }
 
     public void sendToClient(NetworkMessage message) throws IOException {
-        // TODO: wyslac wiadomosc do klienta.
-        throw new UnsupportedOperationException("TODO");
+        if (clientConnection == null || !clientConnection.isOpen()) {
+            throw new IOException("Client is not connected");
+        }
+        clientConnection.send(message);
     }
 
     public List<NetworkMessage> drainIncomingMessages() {
-        // TODO: odebrac wiadomosci od klienta.
-        throw new UnsupportedOperationException("TODO");
+        if (clientConnection == null) {
+            return new ArrayList<>();
+        }
+        return clientConnection.drainIncomingMessages();
     }
 
     public boolean isRunning() {
-        // TODO: zwrocic, czy serwer hosta dziala.
-        throw new UnsupportedOperationException("TODO");
+        return running;
     }
 
     public void stop() {
-        // TODO: zatrzymac serwer hosta.
-        throw new UnsupportedOperationException("TODO");
+        running = false;
+
+        if (acceptThread != null) {
+            acceptThread.interrupt();
+        }
+
+        closeClientConnection();
+        closeServerSocket();
     }
 
     @Override
     public void close() {
-        // TODO: zwolnic zasoby serwera.
-        throw new UnsupportedOperationException("TODO");
+        stop();
+    }
+
+    private void acceptClient() {
+        try {
+            Socket clientSocket = serverSocket.accept();
+            if (running) {
+                clientConnection = new NetworkConnection(clientSocket);
+            } else {
+                clientSocket.close();
+            }
+        } catch (IOException exception) {
+            if (running) {
+                running = false;
+            }
+        }
+    }
+
+    private void closeClientConnection() {
+        if (clientConnection == null) {
+            return;
+        }
+
+        try {
+            clientConnection.close();
+        } catch (IOException ignored) {
+            // Zamykamy serwer, wiec ignorujemy blad sprzatania polaczenia.
+        }
+        clientConnection = null;
+    }
+
+    private void closeServerSocket() {
+        if (serverSocket == null) {
+            return;
+        }
+
+        try {
+            serverSocket.close();
+        } catch (IOException ignored) {
+            // Zamykamy serwer, wiec ignorujemy blad sprzatania socketu.
+        }
+        serverSocket = null;
     }
 }
