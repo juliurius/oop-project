@@ -20,6 +20,8 @@ import java.util.Set;
 public class GameManager implements LobbyView, CustomizationView {
     private final Match match;
     private final PhysicsEngine physics;
+    // private final LobbyManager lobbyManager = new LobbyManager();
+    // private final CustomizationManager customizationManager = new CustomizationManager();
 
     private final FormationFactory formationFactory = new FormationFactory();
     private final CustomizationManager customization;
@@ -39,6 +41,14 @@ public class GameManager implements LobbyView, CustomizationView {
     private DiscoveredHost joinedHost = null;
     // MOCK: przełącznik wariantów listy testowej w refreshDiscoveredHosts()
     private int mockHostVariant = 0;
+
+    // MOCK: stan lobby — docelowo LobbyManager.getLobby() + LobbyPlayer.isReady()
+    private boolean mockLocalReady = false;
+    private boolean mockOpponentReady = false;
+    private boolean mockHasOpponent = false;
+    private static final String MOCK_OPPONENT_NAME = "Kuba";
+    private static final String MOCK_OPPONENT_FLAG_NAME = "Ukraina";
+    private static final String MOCK_OPPONENT_FLAG_COLOR = "#005bbb";
 
     public GameManager(double width, double height) {
         List<PlayerFlag> flags = List.of(
@@ -197,7 +207,17 @@ public class GameManager implements LobbyView, CustomizationView {
 
     public void handleHostLobbyClick(double x, double y) {
         if (HostLobbyScreen.isBackButtonHit(x, y)) {
-            quitToMenu();
+            leaveLobby();
+            return;
+        }
+
+        if (HostLobbyScreen.isReadyButtonHit(x, y)) {
+            toggleLocalReady();
+            return;
+        }
+
+        if (HostLobbyScreen.isStartButtonHit(x, y, canStartGame())) {
+            startMultiplayerFromLobby();
         }
     }
 
@@ -221,6 +241,11 @@ public class GameManager implements LobbyView, CustomizationView {
     public void handleClientLobbyClick(double x, double y) {
         if (ClientLobbyScreen.isBackButtonHit(x, y)) {
             leaveClientLobby();
+            return;
+        }
+
+        if (ClientLobbyScreen.isReadyButtonHit(x, y)) {
+            toggleLocalReady();
         }
     }
 
@@ -244,6 +269,15 @@ public class GameManager implements LobbyView, CustomizationView {
 
     // MOCK: docelowo LobbyManager.hostLobby() + GameHostServer + LanHostAnnouncer
     public void openHostLobby() {
+        resetMockLobbyState();
+        // try {
+        //     lobbyManager.hostLobby(customizationManager.getCurrentProfile());
+        // } catch (IOException e) {
+        //     // obsługa błędu sieci
+        //     return;
+        // }
+        // MOCK: odkomentuj, żeby przetestować UI hosta z dołączonym gościem:
+        // mockHasOpponent = true;
         transitionTo(GameState.HOST_LOBBY);
     }
 
@@ -288,13 +322,50 @@ public class GameManager implements LobbyView, CustomizationView {
         }
 
         joinedHost = host;
+        resetMockLobbyState();
+        // try {
+        //     lobbyManager.joinLobby(host, customizationManager.getCurrentProfile());
+        // } catch (IOException e) {
+        //     joinedHost = null;
+        //     return;
+        // }
         transitionTo(GameState.CLIENT_LOBBY);
     }
 
     // MOCK: docelowo LobbyManager.leaveLobby() + zamknięcie połączenia
     public void leaveClientLobby() {
+        leaveLobby();
+    }
+
+    private void leaveLobby() {
+        // lobbyManager.leaveLobby();
         joinedHost = null;
+        resetMockLobbyState();
         quitToMenu();
+    }
+
+    private void toggleLocalReady() {
+        // PlayerSide side = isLocalPlayerHost() ? PlayerSide.HOST : PlayerSide.GUEST;
+        // lobbyManager.setReady(side, !isLocalPlayerReady());
+        mockLocalReady = !mockLocalReady;
+        inputDelta.markMouseMoved();
+    }
+
+    private void startMultiplayerFromLobby() {
+        // if (!lobbyManager.canStartGame()) {
+        //     return;
+        // }
+        // lobbyManager.getLobby().ifPresent(Lobby::startGame);
+        match.resetGame();
+        pendingEvents.add(DomainEvent.MATCH_RESET);
+        resetMockLobbyState();
+        transitionTo(GameState.PLAYING);
+    }
+
+    private void resetMockLobbyState() {
+        mockLocalReady = false;
+        mockOpponentReady = false;
+        mockHasOpponent = false;
     }
 
     public void openCustomization() {
@@ -389,8 +460,10 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public void quitToMenu () {
+        // lobbyManager.leaveLobby();
         joinedHost = null;
         discoveredHosts.clear();
+        resetMockLobbyState();
         transitionTo(GameState.MENU);
     }
     private void transitionTo(GameState nextState) {
@@ -427,5 +500,94 @@ public class GameManager implements LobbyView, CustomizationView {
     @Override
     public DiscoveredHost getJoinedHost() {
         return joinedHost;
+    }
+
+    @Override
+    public boolean isLocalPlayerHost() {
+        // return lobbyManager.getLobby()
+        //         .map(lobby -> lobby.getHost().getSide() == PlayerSide.HOST)
+        //         .orElse(gameState == GameState.HOST_LOBBY);
+        return gameState == GameState.HOST_LOBBY;
+    }
+
+    @Override
+    public String getLocalPlayerName() {
+        // return customizationManager.getCurrentProfile().getName();
+        return CustomizationScreen.getMockPlayerName();
+    }
+
+    @Override
+    public String getLocalPlayerFlagName() {
+        // return customizationManager.getCurrentProfile().getPawnFlag().getDisplayName();
+        return CustomizationScreen.getMockFlagDisplayName();
+    }
+
+    @Override
+    public String getLocalPlayerFlagColor() {
+        // return customizationManager.getCurrentProfile().getPawnFlag().getAccentColor();
+        return CustomizationScreen.getMockFlagAccentColor();
+    }
+
+    @Override
+    public boolean hasOpponent() {
+        // return lobbyManager.getLobby().flatMap(Lobby::getGuest).isPresent();
+        return mockHasOpponent;
+    }
+
+    @Override
+    public String getOpponentName() {
+        // Lobby lobby = lobbyManager.getLobby().orElse(null);
+        // if (lobby == null) return null;
+        // if (isLocalPlayerHost()) {
+        //     return lobby.getGuest().map(g -> g.getProfile().getName()).orElse(null);
+        // }
+        // return lobby.getHost().getProfile().getName();
+        if (gameState == GameState.CLIENT_LOBBY && joinedHost != null) {
+            return joinedHost.getHostName();
+        }
+        return mockHasOpponent ? MOCK_OPPONENT_NAME : null;
+    }
+
+    @Override
+    public String getOpponentFlagName() {
+        // ... lobby.getHost().getProfile().getPawnFlag() / guest ...
+        if (gameState == GameState.CLIENT_LOBBY) {
+            return "?"; // MOCK: brak flagi hosta w DiscoveredHost — docelowo z profilu przez sieć
+        }
+        return mockHasOpponent ? MOCK_OPPONENT_FLAG_NAME : "";
+    }
+
+    @Override
+    public String getOpponentFlagColor() {
+        if (gameState == GameState.CLIENT_LOBBY) {
+            return "#4682b4"; // MOCK: patrz getOpponentFlagName()
+        }
+        return mockHasOpponent ? MOCK_OPPONENT_FLAG_COLOR : "#666666";
+    }
+
+    @Override
+    public boolean isLocalPlayerReady() {
+        // PlayerSide side = isLocalPlayerHost() ? PlayerSide.HOST : PlayerSide.GUEST;
+        // return lobbyManager.getLobby()
+        //         .map(lobby -> side == PlayerSide.HOST
+        //                 ? lobby.getHost().isReady()
+        //                 : lobby.getGuest().map(LobbyPlayer::isReady).orElse(false))
+        //         .orElse(false);
+        return mockLocalReady;
+    }
+
+    @Override
+    public boolean isOpponentReady() {
+        // ... lobby.getGuest() / lobby.getHost() ...
+        return mockOpponentReady;
+    }
+
+    @Override
+    public boolean canStartGame() {
+        // return isLocalPlayerHost() && lobbyManager.canStartGame();
+        return gameState == GameState.HOST_LOBBY
+                && mockHasOpponent
+                && mockLocalReady
+                && mockOpponentReady;
     }
 }
