@@ -68,6 +68,12 @@ public final class GameConfig {
     public static final int COLLISION_PASSES = intValue("collisionPasses");
     public static final double COLLISION_MIN_DISTANCE = doubleValue("collisionMinDistance");
 
+    // --- SIEC LAN ---
+    public static final int NETWORK_GAME_PORT = intValue("networkGamePort");
+    public static final int NETWORK_DISCOVERY_PORT = intValue("networkDiscoveryPort");
+    public static final int NETWORK_BROADCAST_INTERVAL_MILLIS = intValue("networkBroadcastIntervalMillis");
+    public static final int NETWORK_HOST_TIMEOUT_MILLIS = intValue("networkHostTimeoutMillis");
+
     // Pozycje pionkow druzyny 1 (lewa strona) jako offsety:
     //   [0] = X liczone od bandy PITCH_LEFT_X w glab boiska
     //   [1] = Y liczone od GOAL_CENTER_Y (ujemne = wyzej, dodatnie = nizej)
