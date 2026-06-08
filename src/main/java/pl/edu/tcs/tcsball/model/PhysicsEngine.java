@@ -5,6 +5,7 @@ import pl.edu.tcs.tcsball.model.physics.GoalDetector;
 import pl.edu.tcs.tcsball.model.physics.MotionUpdater;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class PhysicsEngine {
     private final MotionUpdater motionUpdater;
@@ -32,8 +33,13 @@ public class PhysicsEngine {
         collisionResolver.resolvePawnCollisions(pawns);
     }
 
-    public void update(List<Pawn> pawns, Ball ball, double deltaTime) {
+    public FrameDelta update(List<Pawn> pawns, Ball ball, double deltaTime) {
         lastGoalScoredByTeam = 0;
+
+        List<double[]> pawnSnapshots = snapshotPawnPositions(pawns);
+        double oldBallX = ball.getPosition().getX();
+        double oldBallY = ball.getPosition().getY();
+        double oldBallAngle = ball.getAngle();
 
         update(pawns, deltaTime);
 
@@ -43,13 +49,44 @@ public class PhysicsEngine {
 
         if (lastGoalScoredByTeam != 0) {
             ball.setVelocity(Vector2D.zero());
-            return;
+            return buildFrameDelta(pawns, ball, pawnSnapshots, oldBallX, oldBallY, oldBallAngle);
         }
 
         collisionResolver.resolveWallCollision(ball);
         motionUpdater.applyFriction(ball, deltaTime);
 
         collisionResolver.resolveBallCollisions(pawns, ball);
+
+        return buildFrameDelta(pawns, ball, pawnSnapshots, oldBallX, oldBallY, oldBallAngle);
+    }
+
+    private List<double[]> snapshotPawnPositions(List<Pawn> pawns) {
+        List<double[]> snapshots = new ArrayList<>(pawns.size());
+        for (Pawn pawn : pawns) {
+            snapshots.add(new double[]{pawn.getPosition().getX(), pawn.getPosition().getY()});
+        }
+        return snapshots;
+    }
+
+    private FrameDelta buildFrameDelta(List<Pawn> pawns, Ball ball, List<double[]> pawnSnapshots,
+                                       double oldBallX, double oldBallY, double oldBallAngle) {
+        boolean anyBodyMoved = ball.getPosition().getX() != oldBallX
+                || ball.getPosition().getY() != oldBallY
+                || ball.getAngle() != oldBallAngle;
+
+        if (!anyBodyMoved) {
+            for (int i = 0; i < pawns.size(); i++) {
+                Pawn pawn = pawns.get(i);
+                double[] old = pawnSnapshots.get(i);
+                if (pawn.getPosition().getX() != old[0] || pawn.getPosition().getY() != old[1]) {
+                    anyBodyMoved = true;
+                    break;
+                }
+            }
+        }
+
+        boolean physicsActive = !motionUpdater.isEverythingStopped(pawns, ball);
+        return new FrameDelta(anyBodyMoved, physicsActive);
     }
 
     public int getLastGoalScoredByTeam() {

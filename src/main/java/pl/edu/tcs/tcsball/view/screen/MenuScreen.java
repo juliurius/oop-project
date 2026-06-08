@@ -8,6 +8,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
 public class MenuScreen implements Screen {
@@ -30,7 +31,7 @@ public class MenuScreen implements Screen {
     }
 
     @Override
-    public void render(GameView game) {
+    public void render(GameView game, RenderPlan plan) {
         double mx = game.getActualMouseX();
         double my = game.getActualMouseY();
 

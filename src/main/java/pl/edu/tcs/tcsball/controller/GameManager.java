@@ -6,7 +6,9 @@ import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.MenuScreen;
 import pl.edu.tcs.tcsball.view.screen.SettingsScreen;
 
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public class GameManager implements GameView {
     private final Match match;
@@ -19,19 +21,36 @@ public class GameManager implements GameView {
     private final Vector2D tensionVector = new Vector2D(0, 0);
     private double mouseX = 0, mouseY = 0;
 
+    private final EnumSet<DomainEvent> pendingEvents = EnumSet.noneOf(DomainEvent.class);
+    private final InputDelta inputDelta = new InputDelta();
+
     public GameManager(double width, double height) {
         match = new Match();
         physics = new PhysicsEngine(width, height);
     }
 
-    public void update(double deltaTime) {
-        if (gameState != GameState.PLAYING) return;
+    public FrameDelta update(double deltaTime) {
+        if (gameState != GameState.PLAYING) {
+            return FrameDelta.idle();
+        }
 
-        physics.update(match.getPawns(), match.getBall(), deltaTime);
+        FrameDelta delta = physics.update(match.getPawns(), match.getBall(), deltaTime);
 
         if (physics.wasGoalScored()) {
             scoreGoal(physics.getLastGoalScoredByTeam());
         }
+
+        return delta;
+    }
+
+    public Set<DomainEvent> consumeEvents() {
+        Set<DomainEvent> events = EnumSet.copyOf(pendingEvents);
+        pendingEvents.clear();
+        return events;
+    }
+
+    public InputDelta consumeInputDelta() {
+        return inputDelta.consume();
     }
 
     public void handleMenuClick(double x, double y) {
@@ -66,6 +85,7 @@ public class GameManager implements GameView {
 
     private void startGame() {
         match.resetGame();
+        pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
     }
 
@@ -80,6 +100,8 @@ public class GameManager implements GameView {
         tensionVector.setY(0);
 
         match.changeTurn();
+        pendingEvents.add(DomainEvent.TURN_CHANGED);
+        inputDelta.markAimingChanged();
     }
 
     public void startAiming(double x, double y) {
@@ -96,6 +118,7 @@ public class GameManager implements GameView {
 
             if (pawnR >= distance && pawn.getTeam() == match.getPlayerTurn()) {
                 selectedPawn = pawn;
+                inputDelta.markAimingChanged();
                 break;
             }
         }
@@ -118,6 +141,7 @@ public class GameManager implements GameView {
 
         tensionVector.setX(newTension.getX());
         tensionVector.setY(newTension.getY());
+        inputDelta.markAimingChanged();
     }
 
     public Pawn getAimingPawn() { return selectedPawn; }
@@ -142,12 +166,13 @@ public class GameManager implements GameView {
 
     public void dismissGoal() {
         match.resetPitch();
+        pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
     }
 
     public void scoreGoal(int team) {
         match.updateScore(team);
-
+        pendingEvents.add(DomainEvent.SCORE_CHANGED);
         transitionTo(GameState.GOAL_SCORED);
     }
 
@@ -175,6 +200,7 @@ public class GameManager implements GameView {
     public void updateActualMousePosition(double x, double y) {
         this.mouseX = x;
         this.mouseY = y;
+        inputDelta.markMouseMoved();
     }
 
     @Override

@@ -1,53 +1,70 @@
 package pl.edu.tcs.tcsball.view;
 
-import javafx.scene.canvas.GraphicsContext;
-import pl.edu.tcs.tcsball.model.Ball;
+import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.GameState;
 import pl.edu.tcs.tcsball.model.GameView;
-import pl.edu.tcs.tcsball.model.Pawn;
 import pl.edu.tcs.tcsball.view.element.*;
 import pl.edu.tcs.tcsball.view.screen.*;
 
-import java.util.List;
 import java.util.Map;
 
 public class Renderer {
 
     private final Map<GameState, Screen> screens;
+    private final RenderLayers layers;
     private GameState lastState = null;
 
+    public Renderer(RenderLayers layers) {
+        this.layers = layers;
 
-    public Renderer(GraphicsContext gc) {
-        ButtonRenderer buttonRenderer = new ButtonRenderer(gc);
-        ScoreBoardRenderer scoreBoard = new ScoreBoardRenderer(gc, buttonRenderer);
-        PitchRenderer pitch = new PitchRenderer(gc);
-        BallRenderer ball = new BallRenderer(gc);
-        PawnRenderer pawn = new PawnRenderer(gc);
-        AimingRenderer aiming = new AimingRenderer(gc);
+        ButtonRenderer uiButtonRenderer = new ButtonRenderer(layers.uiGc());
+        ButtonRenderer overlayButtonRenderer = new ButtonRenderer(layers.overlayGc());
+
+        ScoreBoardRenderer scoreBoard = new ScoreBoardRenderer(layers.uiGc(), uiButtonRenderer);
+        PitchRenderer pitch = new PitchRenderer(layers.backgroundGc());
+        BallRenderer ball = new BallRenderer(layers.gameGc());
+        PawnRenderer pawn = new PawnRenderer(layers.gameGc());
+        AimingRenderer aiming = new AimingRenderer(layers.overlayGc());
         ConfettiSystem confetti = new ConfettiSystem();
-        GoalOverlayRenderer overlay = new GoalOverlayRenderer(gc, confetti);
+        GoalOverlayRenderer overlay = new GoalOverlayRenderer(layers.overlayGc(), confetti);
 
-        GameScreen gameScreen = new GameScreen(scoreBoard, pitch, ball, pawn, aiming);
-        MenuScreen menuScreen = new MenuScreen(gc, buttonRenderer);
-        SettingsScreen settingsScreen = new SettingsScreen(gc, buttonRenderer);
+        GameScreen gameScreen = new GameScreen(
+                layers.backgroundGc(), layers.gameGc(), layers.uiGc(), layers.overlayGc(),
+                scoreBoard, pitch, ball, pawn, aiming
+        );
 
         screens = Map.of(
-                GameState.MENU, menuScreen,
-                GameState.SETTINGS, settingsScreen,
+                GameState.MENU, new MenuScreen(layers.overlayGc(), overlayButtonRenderer),
+                GameState.SETTINGS, new SettingsScreen(layers.overlayGc(), overlayButtonRenderer),
                 GameState.PLAYING, gameScreen,
                 GameState.GOAL_SCORED, new GoalScreen(overlay, gameScreen)
         );
     }
 
-    public void render(GameView game) {
+    public void render(GameView game, RenderPlan plan) {
         GameState current = game.getGameState();
 
         if (current != lastState) {
-            if (lastState != null) screens.get(lastState).onExit();
+            if (lastState != null) {
+                screens.get(lastState).onExit();
+            }
+
+            prepareLayersForState(current);
             screens.get(current).onEnter();
             lastState = current;
         }
 
-        screens.get(game.getGameState()).render(game);
+        if (!plan.isSkip()) {
+            screens.get(current).render(game, plan);
+        }
+    }
+
+    private void prepareLayersForState(GameState state) {
+        switch (state) {
+            case MENU, SETTINGS -> layers.clearAll();
+            case PLAYING -> layers.overlayGc().clearRect(0, 0,
+                    GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
+            case GOAL_SCORED -> {}
+        }
     }
 }

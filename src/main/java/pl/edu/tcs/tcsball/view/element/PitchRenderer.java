@@ -12,45 +12,53 @@ public class PitchRenderer {
     
     public PitchRenderer(GraphicsContext graphicsContext) { this.graphicsContext = graphicsContext; }
     
+    public void bakeTo(GraphicsContext target) {
+        drawPitch(target);
+    }
+
     public void drawPitch() {
+        drawPitch(graphicsContext);
+    }
+
+    private void drawPitch(GraphicsContext gc) {
         double pitchHeight = GameConfig.WINDOW_HEIGHT - GameConfig.SCORE_PANEL_HEIGHT;
 
-        graphicsContext.setFill(Color.web("#2e8b57"));
-        graphicsContext.fillRect(0, GameConfig.SCORE_PANEL_HEIGHT, GameConfig.WINDOW_WIDTH, pitchHeight);
+        gc.setFill(Color.web("#2e8b57"));
+        gc.fillRect(0, GameConfig.SCORE_PANEL_HEIGHT, GameConfig.WINDOW_WIDTH, pitchHeight);
 
-        graphicsContext.setStroke(Color.WHITE);
-        graphicsContext.setLineWidth(LINE_WIDTH);
-        graphicsContext.setGlobalAlpha(LINE_ALPHA);
+        gc.setStroke(Color.WHITE);
+        gc.setLineWidth(LINE_WIDTH);
+        gc.setGlobalAlpha(LINE_ALPHA);
 
-        graphicsContext.strokeRect(
+        gc.strokeRect(
                 GameConfig.PITCH_LEFT_X,
                 GameConfig.PITCH_TOP_Y,
                 GameConfig.WINDOW_WIDTH - 2 * GameConfig.MARGIN_X,
                 pitchHeight - 2 * GameConfig.MARGIN_Y
         );
 
-        graphicsContext.strokeLine(GameConfig.WINDOW_WIDTH / 2.0, GameConfig.PITCH_TOP_Y, GameConfig.WINDOW_WIDTH / 2.0, GameConfig.PITCH_BOTTOM_Y);
-        graphicsContext.strokeOval(
+        gc.strokeLine(GameConfig.WINDOW_WIDTH / 2.0, GameConfig.PITCH_TOP_Y, GameConfig.WINDOW_WIDTH / 2.0, GameConfig.PITCH_BOTTOM_Y);
+        gc.strokeOval(
                 GameConfig.WINDOW_WIDTH / 2.0 - GameConfig.PITCH_CENTER_CIRCLE_RADIUS,
                 GameConfig.SCORE_PANEL_HEIGHT + pitchHeight / 2.0 - GameConfig.PITCH_CENTER_CIRCLE_RADIUS,
                 GameConfig.PITCH_CENTER_CIRCLE_RADIUS * 2.0,
                 GameConfig.PITCH_CENTER_CIRCLE_RADIUS * 2.0
         );
 
-        drawGoals();
+        drawGoals(gc);
 
-        graphicsContext.setGlobalAlpha(1.0);
+        gc.setGlobalAlpha(1.0);
     }
 
-    private void drawGoals() {
-        graphicsContext.setStroke(Color.WHITE);
-        graphicsContext.setLineWidth(LINE_WIDTH);
-        graphicsContext.setFill(Color.web("#1c5936"));
+    private void drawGoals(GraphicsContext gc) {
+        gc.setStroke(Color.WHITE);
+        gc.setLineWidth(LINE_WIDTH);
+        gc.setFill(Color.web("#1c5936"));
 
-        graphicsContext.fillRect(GameConfig.PITCH_LEFT_X - GameConfig.GOAL_WIDTH, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
-        graphicsContext.strokeRect(GameConfig.PITCH_LEFT_X - GameConfig.GOAL_WIDTH, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
+        gc.fillRect(GameConfig.PITCH_LEFT_X - GameConfig.GOAL_WIDTH, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
+        gc.strokeRect(GameConfig.PITCH_LEFT_X - GameConfig.GOAL_WIDTH, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
 
-        graphicsContext.fillRect(GameConfig.PITCH_RIGHT_X, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
-        graphicsContext.strokeRect(GameConfig.PITCH_RIGHT_X, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
+        gc.fillRect(GameConfig.PITCH_RIGHT_X, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
+        gc.strokeRect(GameConfig.PITCH_RIGHT_X, GameConfig.GOAL_TOP_Y, GameConfig.GOAL_WIDTH, GameConfig.GOAL_HEIGHT);
     }
 }

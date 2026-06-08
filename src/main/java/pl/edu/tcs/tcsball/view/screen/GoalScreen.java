@@ -1,6 +1,7 @@
 package pl.edu.tcs.tcsball.view.screen;
 
 import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.GoalOverlayRenderer;
 
 public class GoalScreen implements Screen {
@@ -14,14 +15,24 @@ public class GoalScreen implements Screen {
     }
 
     @Override
-    public void onEnter() { goalOverlayRenderer.start(); }
+    public void onEnter() {
+        goalOverlayRenderer.start();
+    }
 
     @Override
-    public void onExit() { goalOverlayRenderer.stop(); }
+    public void onExit() {
+        goalOverlayRenderer.stop();
+    }
 
     @Override
-    public void render(GameView game) {
-        gameScreen.render(game);
-        goalOverlayRenderer.drawGoalOverlay();
+    public void render(GameView game, RenderPlan plan) {
+        if (plan.isGameLayer() || plan.isUiLayer() || plan.isBackground()) {
+            gameScreen.render(game, plan);
+        }
+
+        if (plan.isOverlay()) {
+            goalOverlayRenderer.clearOverlay();
+            goalOverlayRenderer.drawGoalOverlay();
+        }
     }
 }

@@ -1,13 +1,20 @@
 package pl.edu.tcs.tcsball.view.screen;
 
-import pl.edu.tcs.tcsball.model.Ball;
+import javafx.scene.canvas.GraphicsContext;
+import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.GameView;
 import pl.edu.tcs.tcsball.model.Pawn;
+import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.*;
 
 import java.util.List;
 
 public class GameScreen implements Screen {
+
+    private final GraphicsContext backgroundGc;
+    private final GraphicsContext gameGc;
+    private final GraphicsContext uiGc;
+    private final GraphicsContext overlayGc;
 
     private final ScoreBoardRenderer scoreBoardRenderer;
     private final PitchRenderer pitchRenderer;
@@ -15,7 +22,13 @@ public class GameScreen implements Screen {
     private final PawnRenderer pawnRenderer;
     private final AimingRenderer aimingRenderer;
 
-    public GameScreen(ScoreBoardRenderer scoreBoard, PitchRenderer pitch, BallRenderer ball, PawnRenderer pawn, AimingRenderer aimingRenderer) {
+    public GameScreen(GraphicsContext backgroundGc, GraphicsContext gameGc, GraphicsContext uiGc,
+                      GraphicsContext overlayGc, ScoreBoardRenderer scoreBoard, PitchRenderer pitch,
+                      BallRenderer ball, PawnRenderer pawn, AimingRenderer aimingRenderer) {
+        this.backgroundGc = backgroundGc;
+        this.gameGc = gameGc;
+        this.uiGc = uiGc;
+        this.overlayGc = overlayGc;
         this.scoreBoardRenderer = scoreBoard;
         this.pitchRenderer = pitch;
         this.ballRenderer = ball;
@@ -24,29 +37,55 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void render(GameView game) {
-        int score1 = game.getTeamScore(1);
-        int score2 = game.getTeamScore(2);
+    public void render(GameView game, RenderPlan plan) {
+        if (plan.isBackground()) {
+            pitchRenderer.bakeTo(backgroundGc);
+        }
 
-        double ballX = game.getBall().getPosition().getX();
-        double ballY = game.getBall().getPosition().getY();
-        double ballRadius = game.getBall().getRadius();
-        double ballAngle = game.getBall().getAngle();
+        if (plan.isUiLayer()) {
+            uiGc.clearRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.SCORE_PANEL_HEIGHT);
+            scoreBoardRenderer.drawScoreBoard(
+                    game.getTeamScore(1),
+                    game.getTeamScore(2),
+                    game.getCurrentTurn(),
+                    game.getActualMouseX(),
+                    game.getActualMouseY(),
+                    game.isEverythingStopped()
+            );
+        }
 
-        double arrowX = game.getArrowX();
-        double arrowY = game.getArrowY();
+        if (plan.isGameLayer()) {
+            clearPitchArea(gameGc);
+            drawBodies(game);
+        }
 
-        List<Pawn> pawns = game.getPawns();
+        if (plan.isOverlay()) {
+            clearOverlay(overlayGc);
+            if (game.getAimingPawn() != null) {
+                aimingRenderer.drawAimingLine(game.getAimingPawn(), game.getArrowX(), game.getArrowY());
+            }
+        }
+    }
 
-        scoreBoardRenderer.drawScoreBoard(score1, score2, game.getCurrentTurn(), game.getActualMouseX(), game.getActualMouseY(), game.isEverythingStopped());
-        pitchRenderer.drawPitch();
-        ballRenderer.drawBall(ballX, ballY, ballRadius, ballAngle);
-
-        for (Pawn pawn : pawns) {
+    private void drawBodies(GameView game) {
+        for (Pawn pawn : game.getPawns()) {
             pawnRenderer.drawPawn(pawn);
         }
 
-        aimingRenderer.drawAimingLine(game.getAimingPawn(), arrowX, arrowY);
+        ballRenderer.drawBall(
+                game.getBall().getPosition().getX(),
+                game.getBall().getPosition().getY(),
+                game.getBall().getRadius(),
+                game.getBall().getAngle()
+        );
+    }
 
+    private void clearPitchArea(GraphicsContext gc) {
+        gc.clearRect(0, GameConfig.SCORE_PANEL_HEIGHT, GameConfig.WINDOW_WIDTH,
+                GameConfig.WINDOW_HEIGHT - GameConfig.SCORE_PANEL_HEIGHT);
+    }
+
+    private void clearOverlay(GraphicsContext gc) {
+        gc.clearRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
     }
 }

@@ -8,6 +8,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
 public class SettingsScreen implements Screen {
@@ -26,7 +27,7 @@ public class SettingsScreen implements Screen {
     }
 
     @Override
-    public void render(GameView game) {
+    public void render(GameView game, RenderPlan plan) {
         gc.setFill(Color.web("#2f4f4f"));
         gc.fillRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
 

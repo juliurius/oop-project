@@ -3,6 +3,7 @@ package pl.edu.tcs.tcsball.view.element;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
+import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.Pawn;
 
 public class AimingRenderer {
@@ -25,6 +26,12 @@ public class AimingRenderer {
                 double edgeX = centerX + radius * Math.cos(lineAngle);
                 double edgeY = centerY + radius * Math.sin(lineAngle);
 
+                graphicsContext.save();
+                graphicsContext.beginPath();
+                graphicsContext.rect(0, GameConfig.SCORE_PANEL_HEIGHT, GameConfig.WINDOW_WIDTH,
+                        GameConfig.WINDOW_HEIGHT - GameConfig.SCORE_PANEL_HEIGHT);
+                graphicsContext.clip();
+
                 graphicsContext.setStroke(Color.WHITE);
                 graphicsContext.setLineWidth(4.0);
                 graphicsContext.setLineCap(StrokeLineCap.ROUND);
@@ -44,6 +51,7 @@ public class AimingRenderer {
                 graphicsContext.strokeLine(mouseX, mouseY, x2, y2);
 
                 graphicsContext.setLineCap(StrokeLineCap.SQUARE);
+                graphicsContext.restore();
             }
         }
     }

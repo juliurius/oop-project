@@ -29,6 +29,10 @@ public class GoalOverlayRenderer {
          confetti.stop();
     }
 
+    public void clearOverlay() {
+        graphicsContext.clearRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
+    }
+
     public void drawGoalOverlay() {
         long elapsed = System.currentTimeMillis() - goalStartTime;
         double seconds = elapsed / 1000.0;
