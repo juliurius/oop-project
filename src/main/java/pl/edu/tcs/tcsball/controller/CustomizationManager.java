@@ -10,28 +10,19 @@ public class CustomizationManager {
     private List<PlayerFlag> availableFlags;
     private List<String> availableFormationIds;
 
-    public PlayerProfile getCurrentProfile() {
-        // TODO: zwrocic aktualny profil gracza.
-        throw new UnsupportedOperationException("TODO");
+    public CustomizationManager(PlayerProfile currentProfile, List<PlayerFlag> availableFlags, List<String> availableFormationIds) {
+        this.currentProfile = currentProfile;
+        this.availableFlags = availableFlags;
+        this.availableFormationIds = availableFormationIds;
     }
 
-    public void setName(String name) {
-        // TODO: ustawic nazwe gracza.
-        throw new UnsupportedOperationException("TODO");
-    }
+    public PlayerProfile getCurrentProfile() { return currentProfile; }
 
-    public void setPawnFlag(PlayerFlag flag) {
-        // TODO: ustawic flage wyswietlana na pionkach.
-        throw new UnsupportedOperationException("TODO");
-    }
-
-    public void setFormationId(String formationId) {
-        // TODO: ustawic id wybranej formacji.
-        throw new UnsupportedOperationException("TODO");
-    }
+    public void setName(String name)            { currentProfile = currentProfile.withName(name); }
+    public void setPawnFlag(PlayerFlag flag)    { currentProfile = currentProfile.withPawnFlag(flag); }
+    public void setFormationId(String id)       { currentProfile = currentProfile.withFormationId(id); }
 
     public void resetToDefaults() {
-        // TODO: wrocic do wartosci domyslnych z konfiguracji.
-        throw new UnsupportedOperationException("TODO");
+        currentProfile = new PlayerProfile("Gracz", availableFlags.get(0), availableFormationIds.get(0));
     }
 }
