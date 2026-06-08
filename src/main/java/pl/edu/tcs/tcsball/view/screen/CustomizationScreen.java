@@ -80,6 +80,11 @@ public class CustomizationScreen implements Screen {
         return nameFieldFocused;
     }
 
+    /** Kolor kółka flagi po kodzie — używany też przez ekrany lobby (przez GameManager). */
+    public static String flagColor(String code) {
+        return FLAG_COLORS.getOrDefault(code, DEFAULT_FLAG_COLOR);
+    }
+
     @Override
     public void render(GameView game, RenderPlan plan) {
         double mx = game.getActualMouseX();

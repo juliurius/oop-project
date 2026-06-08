@@ -512,20 +512,17 @@ public class GameManager implements LobbyView, CustomizationView {
 
     @Override
     public String getLocalPlayerName() {
-        // return customizationManager.getCurrentProfile().getName();
-        return CustomizationScreen.getMockPlayerName();
+        return customization.getCurrentProfile().name();
     }
 
     @Override
     public String getLocalPlayerFlagName() {
-        // return customizationManager.getCurrentProfile().getPawnFlag().getDisplayName();
-        return CustomizationScreen.getMockFlagDisplayName();
+        return customization.getCurrentProfile().pawnFlag().displayName();
     }
 
     @Override
     public String getLocalPlayerFlagColor() {
-        // return customizationManager.getCurrentProfile().getPawnFlag().getAccentColor();
-        return CustomizationScreen.getMockFlagAccentColor();
+        return CustomizationScreen.flagColor(customization.getCurrentProfile().pawnFlag().code());
     }
 
     @Override
