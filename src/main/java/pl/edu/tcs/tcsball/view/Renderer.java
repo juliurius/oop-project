@@ -26,18 +26,21 @@ public class Renderer {
         PawnRenderer pawn = new PawnRenderer(layers.gameGc());
         AimingRenderer aiming = new AimingRenderer(layers.overlayGc());
         ConfettiSystem confetti = new ConfettiSystem();
-        GoalOverlayRenderer overlay = new GoalOverlayRenderer(layers.overlayGc(), confetti);
+        GoalOverlayRenderer goalOverlay = new GoalOverlayRenderer(layers.overlayGc(), confetti);
 
         GameScreen gameScreen = new GameScreen(
                 layers.backgroundGc(), layers.gameGc(), layers.uiGc(), layers.overlayGc(),
                 scoreBoard, pitch, ball, pawn, aiming
         );
 
-        screens = Map.of(
-                GameState.MENU, new MenuScreen(layers.overlayGc(), overlayButtonRenderer),
-                GameState.SETTINGS, new SettingsScreen(layers.overlayGc(), overlayButtonRenderer),
-                GameState.PLAYING, gameScreen,
-                GameState.GOAL_SCORED, new GoalScreen(overlay, gameScreen)
+        screens = Map.ofEntries(
+                Map.entry(GameState.MENU, new MenuScreen(layers.overlayGc(), overlayButtonRenderer)),
+                Map.entry(GameState.CUSTOMIZATION, new CustomizationScreen(layers.overlayGc(), overlayButtonRenderer)),
+                Map.entry(GameState.HOST_LOBBY, new HostLobbyScreen(layers.overlayGc(), overlayButtonRenderer)),
+                Map.entry(GameState.JOIN_LOBBY, new JoinLobbyScreen(layers.overlayGc(), overlayButtonRenderer)),
+                Map.entry(GameState.CLIENT_LOBBY, new ClientLobbyScreen(layers.overlayGc(), overlayButtonRenderer)),
+                Map.entry(GameState.PLAYING, gameScreen),
+                Map.entry(GameState.GOAL_SCORED, new GoalScreen(goalOverlay, gameScreen))
         );
     }
 
@@ -61,7 +64,7 @@ public class Renderer {
 
     private void prepareLayersForState(GameState state) {
         switch (state) {
-            case MENU, SETTINGS -> layers.clearAll();
+            case MENU, CUSTOMIZATION, HOST_LOBBY, JOIN_LOBBY, CLIENT_LOBBY -> layers.clearAll();
             case PLAYING -> layers.overlayGc().clearRect(0, 0,
                     GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
             case GOAL_SCORED -> {}
