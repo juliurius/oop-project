@@ -1,6 +1,7 @@
 package pl.edu.tcs.tcsball.controller;
 
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import pl.edu.tcs.tcsball.model.GameState;
 
 public class InputHandler {
@@ -48,6 +49,18 @@ public class InputHandler {
 
         scene.setOnMouseMoved(event -> {
             gameManager.updateActualMousePosition(event.getSceneX(), event.getSceneY());
+        });
+
+        scene.addEventHandler(KeyEvent.KEY_TYPED, event -> {
+            if (gameManager.getGameState() == GameState.CUSTOMIZATION) {
+                gameManager.handleCustomizationKey(event);
+            }
+        });
+
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (gameManager.getGameState() == GameState.CUSTOMIZATION) {
+                gameManager.handleCustomizationKey(event);
+            }
         });
     }
 }

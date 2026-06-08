@@ -76,6 +76,17 @@ public class GameManager implements LobbyView {
     public void handleCustomizationClick(double x, double y) {
         if (CustomizationScreen.isBackButtonHit(x, y)) {
             quitToMenu();
+            return;
+        }
+
+        if (CustomizationScreen.handleClick(x, y) || CustomizationScreen.handleArrowClick(x, y)) {
+            inputDelta.markMouseMoved();
+        }
+    }
+
+    public void handleCustomizationKey(javafx.scene.input.KeyEvent event) {
+        if (CustomizationScreen.handleKey(event)) {
+            inputDelta.markMouseMoved();
         }
     }
 
