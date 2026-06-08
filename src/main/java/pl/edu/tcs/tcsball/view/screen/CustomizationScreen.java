@@ -81,6 +81,19 @@ public class CustomizationScreen implements Screen {
         return wasFocused != nameFieldFocused;
     }
 
+    // MOCK: docelowo CustomizationManager.getCurrentProfile()
+    public static String getMockPlayerName() {
+        return playerName.isEmpty() ? "Gracz" : playerName;
+    }
+
+    public static String getMockFlagDisplayName() {
+        return FLAGS.get(flagIndex).displayName();
+    }
+
+    public static String getMockFlagAccentColor() {
+        return FLAGS.get(flagIndex).accentColor();
+    }
+
     public static boolean handleArrowClick(double x, double y) {
         if (isPrevArrowHit(x, y, Field.FLAG)) {
             cycleFlag(-1);

@@ -17,10 +17,18 @@ public class ButtonRenderer {
     public void drawButton(String text, double x, double y, double width, double height,
                            double mouseX, double mouseY,
                            Color baseColor, Color hoverColor) {
+        drawButton(text, x, y, width, height, mouseX, mouseY, baseColor, hoverColor, true);
+    }
 
-        boolean isHovered = mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+    public void drawButton(String text, double x, double y, double width, double height,
+                           double mouseX, double mouseY,
+                           Color baseColor, Color hoverColor, boolean enabled) {
 
-        gc.setFill(isHovered ? hoverColor : baseColor);
+        boolean isHovered = enabled
+                && mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+
+        Color disabledColor = Color.web("#555555");
+        gc.setFill(enabled ? (isHovered ? hoverColor : baseColor) : disabledColor);
         gc.fillRoundRect(x, y, width, height, 15, 15);
 
         if (isHovered) {
@@ -29,7 +37,7 @@ public class ButtonRenderer {
             gc.strokeRoundRect(x - 2, y - 2, width + 4, height + 4, 18, 18);
         }
 
-        gc.setFill(Color.WHITE);
+        gc.setFill(enabled ? Color.WHITE : Color.web("#999999"));
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
 
