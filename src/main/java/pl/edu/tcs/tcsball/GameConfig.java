@@ -73,6 +73,7 @@ public final class GameConfig {
     public static final int NETWORK_DISCOVERY_PORT = intValue("networkDiscoveryPort");
     public static final int NETWORK_BROADCAST_INTERVAL_MILLIS = intValue("networkBroadcastIntervalMillis");
     public static final int NETWORK_HOST_TIMEOUT_MILLIS = intValue("networkHostTimeoutMillis");
+    public static final int NETWORK_STATE_SYNC_INTERVAL_MILLIS = intValue("networkStateSyncIntervalMillis");
 
     // Pozycje pionkow druzyny 1 (lewa strona) jako offsety:
     //   [0] = X liczone od bandy PITCH_LEFT_X w glab boiska

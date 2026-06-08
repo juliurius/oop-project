@@ -11,6 +11,8 @@ import pl.edu.tcs.tcsball.model.player.PlayerFlag;
 import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.model.player.PlayerSide;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
+import pl.edu.tcs.tcsball.net.protocol.MessageType;
+import pl.edu.tcs.tcsball.net.protocol.NetworkMessage;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.*;
 
@@ -21,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 
 public class GameManager implements LobbyView, CustomizationView {
+    private static final int GAME_STATE_HEADER_FIELDS = 10;
+    private static final int BODY_FIELD_COUNT = 4;
+
     private final Match match;
     private final PhysicsEngine physics;
     private final LobbyManager lobbyManager = new LobbyManager();
@@ -39,6 +44,7 @@ public class GameManager implements LobbyView, CustomizationView {
 
     private final List<DiscoveredHost> discoveredHosts = new ArrayList<>();
     private DiscoveredHost joinedHost = null;
+    private long lastGameStateSentMillis = 0;
 
     public GameManager(double width, double height) {
         List<PlayerFlag> flags = List.of(
@@ -54,12 +60,26 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public FrameDelta update(double deltaTime) {
-        updateLobbyNetwork();
+        if (isMultiplayerGame() && (gameState == GameState.PLAYING || gameState == GameState.GOAL_SCORED)) {
+            return updateMultiplayerGame(deltaTime);
+        }
+
+        if (gameState != GameState.PLAYING) {
+            updateLobbyNetwork();
+        }
+
+        if (isMultiplayerGame() && gameState == GameState.PLAYING) {
+            return updateMultiplayerGame(deltaTime);
+        }
 
         if (gameState != GameState.PLAYING) {
             return FrameDelta.idle();
         }
 
+        return updateLocalPhysics(deltaTime);
+    }
+
+    private FrameDelta updateLocalPhysics(double deltaTime) {
         FrameDelta delta = physics.update(match.getPawns(), match.getBall(), deltaTime);
 
         if (physics.wasGoalScored()) {
@@ -67,6 +87,29 @@ public class GameManager implements LobbyView, CustomizationView {
         }
 
         return delta;
+    }
+
+    private FrameDelta updateMultiplayerGame(double deltaTime) {
+        try {
+            boolean receivedState = handleMultiplayerMessages();
+
+            if (!isLocalPlayerHost()) {
+                return receivedState ? new FrameDelta(true, false) : FrameDelta.idle();
+            }
+
+            if (gameState != GameState.PLAYING) {
+                return FrameDelta.idle();
+            }
+
+            FrameDelta delta = updateLocalPhysics(deltaTime);
+            boolean forceSync = pendingEvents.contains(DomainEvent.SCORE_CHANGED)
+                    || pendingEvents.contains(DomainEvent.TURN_CHANGED);
+            syncGameState(delta, forceSync);
+            return delta;
+        } catch (IOException exception) {
+            leaveLobby();
+            return FrameDelta.idle();
+        }
     }
 
     private void updateLobbyNetwork() {
@@ -85,6 +128,48 @@ public class GameManager implements LobbyView, CustomizationView {
         } catch (IOException exception) {
             leaveLobby();
         }
+    }
+
+    private boolean handleMultiplayerMessages() throws IOException {
+        boolean changed = false;
+
+        for (NetworkMessage message : lobbyManager.drainNetworkMessages()) {
+            try {
+                changed |= handleMultiplayerMessage(message);
+            } catch (IllegalArgumentException ignored) {
+                // Uszkodzony komunikat meczu ignorujemy, zeby nie wywracac gry.
+            }
+        }
+
+        return changed;
+    }
+
+    private boolean handleMultiplayerMessage(NetworkMessage message) throws IOException {
+        return switch (message.type()) {
+            case SHOT -> handleRemoteShot(message);
+            case GAME_STATE -> applyGameState(message);
+            case QUIT -> {
+                leaveLobby();
+                yield true;
+            }
+            default -> false;
+        };
+    }
+
+    private boolean handleRemoteShot(NetworkMessage message) throws IOException {
+        if (!isLocalPlayerHost() || message.fields().size() < 3) {
+            return false;
+        }
+
+        int pawnIndex = Integer.parseInt(message.fields().get(0));
+        double forceX = Double.parseDouble(message.fields().get(1));
+        double forceY = Double.parseDouble(message.fields().get(2));
+
+        boolean applied = applyShot(pawnIndex, new Vector2D(forceX, forceY));
+        if (applied) {
+            syncGameState(FrameDelta.idle(), true);
+        }
+        return applied;
     }
 
     public Set<DomainEvent> consumeEvents() {
@@ -333,7 +418,7 @@ public class GameManager implements LobbyView, CustomizationView {
         lobbyManager.leaveLobby();
         joinedHost = null;
         discoveredHosts.clear();
-        quitToMenu();
+        transitionTo(GameState.MENU);
     }
 
     private void toggleLocalReady() {
@@ -370,8 +455,10 @@ public class GameManager implements LobbyView, CustomizationView {
 
         match.setProfiles(lobby.getHost().getProfile(), lobby.getGuest().get().getProfile());
         match.resetGame();
+        lastGameStateSentMillis = 0;
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
+        sendGameStateQuietly();
     }
 
     private void syncDiscoveredHosts() {
@@ -385,23 +472,168 @@ public class GameManager implements LobbyView, CustomizationView {
         inputDelta.markMouseMoved();
     }
 
+    private void syncGameState(FrameDelta delta, boolean force) throws IOException {
+        if (!isMultiplayerGame() || !isLocalPlayerHost()) {
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        if (!force && now - lastGameStateSentMillis < GameConfig.NETWORK_STATE_SYNC_INTERVAL_MILLIS) {
+            return;
+        }
+        if (!force && !delta.anyBodyMoved() && !delta.physicsActive()) {
+            return;
+        }
+
+        lobbyManager.sendToPeer(createGameStateMessage());
+        lastGameStateSentMillis = now;
+    }
+
+    private NetworkMessage createGameStateMessage() {
+        List<String> fields = new ArrayList<>();
+        fields.add(gameState.name());
+        fields.add(Integer.toString(match.getPlayerTurn()));
+        fields.add(Integer.toString(match.getTeamScore(1)));
+        fields.add(Integer.toString(match.getTeamScore(2)));
+
+        Ball ball = match.getBall();
+        addBodyFields(fields, ball);
+        fields.add(Double.toString(ball.getSpin()));
+        fields.add(Double.toString(ball.getAngle()));
+
+        for (Pawn pawn : match.getPawns()) {
+            addBodyFields(fields, pawn);
+        }
+
+        return new NetworkMessage(MessageType.GAME_STATE, fields);
+    }
+
+    private boolean applyGameState(NetworkMessage message) {
+        List<String> fields = message.fields();
+        int expectedFields = GAME_STATE_HEADER_FIELDS + match.getPawns().size() * BODY_FIELD_COUNT;
+        if (fields.size() < expectedFields) {
+            throw new IllegalArgumentException("Invalid game state message");
+        }
+
+        GameState receivedState = GameState.valueOf(fields.get(0));
+        int oldTurn = match.getPlayerTurn();
+        int oldScore1 = match.getTeamScore(1);
+        int oldScore2 = match.getTeamScore(2);
+
+        match.setPlayerTurn(Integer.parseInt(fields.get(1)));
+        match.setScores(Integer.parseInt(fields.get(2)), Integer.parseInt(fields.get(3)));
+
+        int index = applyBodyFields(match.getBall(), fields, 4);
+        match.getBall().setSpin(Double.parseDouble(fields.get(index++)));
+        match.getBall().setAngle(Double.parseDouble(fields.get(index++)));
+
+        for (Pawn pawn : match.getPawns()) {
+            index = applyBodyFields(pawn, fields, index);
+        }
+
+        selectedPawn = null;
+        tensionVector.setX(0);
+        tensionVector.setY(0);
+        if (oldTurn != match.getPlayerTurn()) {
+            pendingEvents.add(DomainEvent.TURN_CHANGED);
+        }
+        if (oldScore1 != match.getTeamScore(1) || oldScore2 != match.getTeamScore(2)) {
+            pendingEvents.add(DomainEvent.SCORE_CHANGED);
+        }
+        transitionTo(receivedState);
+        inputDelta.markAimingChanged();
+        return true;
+    }
+
+    private void addBodyFields(List<String> fields, PhysicsBody body) {
+        fields.add(Double.toString(body.getPosition().getX()));
+        fields.add(Double.toString(body.getPosition().getY()));
+        fields.add(Double.toString(body.getVelocity().getX()));
+        fields.add(Double.toString(body.getVelocity().getY()));
+    }
+
+    private int applyBodyFields(PhysicsBody body, List<String> fields, int index) {
+        body.setPosition(new Vector2D(
+                Double.parseDouble(fields.get(index)),
+                Double.parseDouble(fields.get(index + 1))
+        ));
+        body.setVelocity(new Vector2D(
+                Double.parseDouble(fields.get(index + 2)),
+                Double.parseDouble(fields.get(index + 3))
+        ));
+        return index + BODY_FIELD_COUNT;
+    }
+
+    private void sendGameStateQuietly() {
+        if (!isMultiplayerGame() || !isLocalPlayerHost()) {
+            return;
+        }
+
+        try {
+            syncGameState(FrameDelta.idle(), true);
+        } catch (IOException exception) {
+            leaveLobby();
+        }
+    }
+
     public Ball getBall() { return match.getBall(); }
 
     public void shootPawn() {
         if (selectedPawn == null) return;
 
-        selectedPawn.applyForce(tensionVector);
+        int pawnIndex = match.getPawns().indexOf(selectedPawn);
+        Vector2D shotForce = new Vector2D(tensionVector.getX(), tensionVector.getY());
+
+        if (isMultiplayerGame() && !isLocalPlayerHost()) {
+            try {
+                lobbyManager.sendToPeer(NetworkMessage.of(MessageType.SHOT,
+                        Integer.toString(pawnIndex),
+                        Double.toString(shotForce.getX()),
+                        Double.toString(shotForce.getY())
+                ));
+            } catch (IOException exception) {
+                leaveLobby();
+            }
+            clearAiming();
+            return;
+        }
+
+        applyShot(pawnIndex, shotForce);
+    }
+
+    private boolean applyShot(int pawnIndex, Vector2D force) {
+        if (pawnIndex < 0 || pawnIndex >= match.getPawns().size()) {
+            return false;
+        }
+        if (!physics.isEverythingStopped(match.getPawns(), match.getBall())) {
+            return false;
+        }
+
+        Pawn pawn = match.getPawns().get(pawnIndex);
+        if (pawn.getTeam() != match.getPlayerTurn()) {
+            return false;
+        }
+
+        pawn.applyForce(force);
+        clearAiming();
+        match.changeTurn();
+        pendingEvents.add(DomainEvent.TURN_CHANGED);
+        inputDelta.markAimingChanged();
+        return true;
+    }
+
+    private void clearAiming() {
         selectedPawn = null;
         tensionVector.setX(0);
         tensionVector.setY(0);
-
-        match.changeTurn();
-        pendingEvents.add(DomainEvent.TURN_CHANGED);
         inputDelta.markAimingChanged();
     }
 
     public void startAiming(double x, double y) {
         if (!physics.isEverythingStopped(match.getPawns(), match.getBall())) {
+            return;
+        }
+        if (isMultiplayerGame() && match.getPlayerTurn() != getLocalTeam()) {
             return;
         }
 
@@ -461,12 +693,21 @@ public class GameManager implements LobbyView, CustomizationView {
     public GameState getGameState() { return gameState; }
 
     public void dismissGoal() {
+        if (isMultiplayerGame() && !isLocalPlayerHost()) {
+            return;
+        }
+
         match.resetPitch();
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
+        sendGameStateQuietly();
     }
 
     public void scoreGoal(int team) {
+        if (isMultiplayerGame() && !isLocalPlayerHost()) {
+            return;
+        }
+
         match.updateScore(team);
         pendingEvents.add(DomainEvent.SCORE_CHANGED);
         transitionTo(GameState.GOAL_SCORED);
@@ -512,6 +753,14 @@ public class GameManager implements LobbyView, CustomizationView {
     @Override
     public DiscoveredHost getJoinedHost() {
         return joinedHost;
+    }
+
+    private boolean isMultiplayerGame() {
+        return lobbyManager.getLocalSide().isPresent();
+    }
+
+    private int getLocalTeam() {
+        return isLocalPlayerHost() ? 1 : 2;
     }
 
     @Override

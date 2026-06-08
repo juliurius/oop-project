@@ -36,6 +36,11 @@ public class Match {
         return team == 1 ? scoreTeam1 : scoreTeam2;
     }
 
+    public void setScores(int scoreTeam1, int scoreTeam2) {
+        this.scoreTeam1 = scoreTeam1;
+        this.scoreTeam2 = scoreTeam2;
+    }
+
     public void updateScore(int team) {
         if (team == 1) scoreTeam1 += 1;
         else scoreTeam2 += 1;
@@ -59,6 +64,13 @@ public class Match {
     }
 
     public int getPlayerTurn() { return playerTurn; }
+
+    public void setPlayerTurn(int playerTurn) {
+        if (playerTurn != 1 && playerTurn != 2) {
+            throw new IllegalArgumentException("Player turn must be 1 or 2");
+        }
+        this.playerTurn = playerTurn;
+    }
 
     public void changeTurn() { playerTurn = 3 - playerTurn; }
 }

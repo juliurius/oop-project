@@ -215,6 +215,18 @@ public class LobbyManager {
         return List.of();
     }
 
+    public void sendToPeer(NetworkMessage message) throws IOException {
+        if (hostServer != null && hostServer.hasClientConnection()) {
+            hostServer.sendToClient(message);
+            return;
+        }
+        if (client != null && client.isConnected()) {
+            client.send(message);
+            return;
+        }
+        throw new IOException("Peer is not connected");
+    }
+
     private boolean handleHostMessage(NetworkMessage message) throws IOException {
         return switch (message.type()) {
             case JOIN_REQUEST -> handleJoinRequest(message);

@@ -33,6 +33,7 @@
   "networkDiscoveryPort": 5556,
   "networkBroadcastIntervalMillis": 1000,
   "networkHostTimeoutMillis": 3000,
+  "networkStateSyncIntervalMillis": 8,
   "teamFormationOffsetX": [35.0, 125.0, 125.0, 245.0, 245.0],
   "teamFormationOffsetY": [0.0, -100.0, 100.0, -80.0, 80.0]
 }
