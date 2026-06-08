@@ -1,6 +1,7 @@
 package pl.edu.tcs.tcsball.controller;
 
 import javafx.scene.Scene;
+import javafx.scene.input.KeyEvent;
 import pl.edu.tcs.tcsball.model.GameState;
 
 public class InputHandler {
@@ -16,16 +17,21 @@ public class InputHandler {
             double mouseX = event.getSceneX();
             double mouseY = event.getSceneY();
 
-            if (state == GameState.MENU) {
-                gameManager.handleMenuClick(mouseX, mouseY);
-            } else if (state == GameState.SETTINGS) {
-                gameManager.handleSettingsClick(mouseX, mouseY);
-            } else if (state == GameState.PLAYING) {
-                boolean backToMenu = gameManager.handleBackToMenuClick(mouseX, mouseY);
+            gameManager.updateActualMousePosition(mouseX, mouseY);
 
-                if (!backToMenu) {
-                    gameManager.startAiming(mouseX, mouseY);
+            switch (state) {
+                case MENU -> gameManager.handleMenuClick(mouseX, mouseY);
+                case CUSTOMIZATION -> gameManager.handleCustomizationClick(mouseX, mouseY);
+                case HOST_LOBBY -> gameManager.handleHostLobbyClick(mouseX, mouseY);
+                case JOIN_LOBBY -> gameManager.handleJoinLobbyClick(mouseX, mouseY);
+                case CLIENT_LOBBY -> gameManager.handleClientLobbyClick(mouseX, mouseY);
+                case PLAYING -> {
+                    boolean backToMenu = gameManager.handleBackToMenuClick(mouseX, mouseY);
+                    if (!backToMenu) {
+                        gameManager.startAiming(mouseX, mouseY);
+                    }
                 }
+                default -> {}
             }
         });
 
@@ -43,6 +49,18 @@ public class InputHandler {
 
         scene.setOnMouseMoved(event -> {
             gameManager.updateActualMousePosition(event.getSceneX(), event.getSceneY());
+        });
+
+        scene.addEventHandler(KeyEvent.KEY_TYPED, event -> {
+            if (gameManager.getGameState() == GameState.CUSTOMIZATION) {
+                gameManager.handleCustomizationKey(event);
+            }
+        });
+
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, event -> {
+            if (gameManager.getGameState() == GameState.CUSTOMIZATION) {
+                gameManager.handleCustomizationKey(event);
+            }
         });
     }
 }

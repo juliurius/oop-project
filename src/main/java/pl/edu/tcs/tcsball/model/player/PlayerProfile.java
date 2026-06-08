@@ -5,10 +5,6 @@ public class PlayerProfile {
     private PlayerFlag pawnFlag;
     private String formationId;
 
-    // TODO: dodac nazwe gracza widoczna w lobby.
-    // TODO: dodac flage wyswietlana na pionkach.
-    // TODO: dodac id wybranej formacji.
-
     public String getName() {
         // TODO: zwrocic nazwe gracza.
         throw new UnsupportedOperationException("TODO");

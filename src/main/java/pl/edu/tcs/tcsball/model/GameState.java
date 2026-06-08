@@ -7,6 +7,5 @@ public enum GameState {
     JOIN_LOBBY,
     CLIENT_LOBBY,
     PLAYING,
-    GOAL_SCORED,
-    SETTINGS
+    GOAL_SCORED
 }

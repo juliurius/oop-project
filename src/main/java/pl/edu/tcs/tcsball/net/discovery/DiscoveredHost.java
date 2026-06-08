@@ -24,6 +24,50 @@ public record DiscoveredHost(
         lobbyState = Objects.requireNonNull(lobbyState, "lobbyState");
     }
 
+    public DiscoveredHost(String lobbyId, String hostName, String hostAddress,
+                          int gamePort, int playersCount, LobbyState lobbyState) {
+        this(lobbyId, hostName, hostAddress, gamePort, playersCount, lobbyState, System.currentTimeMillis());
+    }
+
+    public String getLobbyId() {
+        return lobbyId;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public String getHostAddress() {
+        return hostAddress;
+    }
+
+    public int getGamePort() {
+        return gamePort;
+    }
+
+    public int getPlayersCount() {
+        return playersCount;
+    }
+
+    public LobbyState getLobbyState() {
+        return lobbyState;
+    }
+
+    public String getStatusLabel() {
+        return switch (lobbyState) {
+            case WAITING_FOR_PLAYER -> "czeka na gracza";
+            case WAITING_FOR_READY -> playersCount + "/2 graczy";
+            case READY_TO_START -> "gotowe do startu";
+            case IN_GAME -> "w trakcie gry";
+            case CLOSED -> "zamkniete";
+        };
+    }
+
+    public boolean isJoinable() {
+        return lobbyState == LobbyState.WAITING_FOR_PLAYER
+                || lobbyState == LobbyState.WAITING_FOR_READY;
+    }
+
     public boolean isExpired(long nowMillis, long timeoutMillis) {
         if (timeoutMillis < 0) {
             throw new IllegalArgumentException("timeoutMillis cannot be negative");

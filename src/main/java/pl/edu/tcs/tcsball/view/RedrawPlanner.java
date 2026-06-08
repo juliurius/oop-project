@@ -25,7 +25,7 @@ public class RedrawPlanner {
         }
 
         return switch (state) {
-            case MENU, CUSTOMIZATION, HOST_LOBBY, JOIN_LOBBY, CLIENT_LOBBY, SETTINGS ->
+            case MENU, CUSTOMIZATION, HOST_LOBBY, JOIN_LOBBY, CLIENT_LOBBY ->
                     input.hadMouseMove() ? RenderPlan.fullScreen() : RenderPlan.SKIP;
             case PLAYING -> planPlaying(game, delta, events, input);
             case GOAL_SCORED -> RenderPlan.goalCelebration();
@@ -43,7 +43,7 @@ public class RedrawPlanner {
 
     private RenderPlan planForStateEntry(GameState state) {
         return switch (state) {
-            case MENU, CUSTOMIZATION, HOST_LOBBY, JOIN_LOBBY, CLIENT_LOBBY, SETTINGS -> RenderPlan.fullScreen();
+            case MENU, CUSTOMIZATION, HOST_LOBBY, JOIN_LOBBY, CLIENT_LOBBY -> RenderPlan.fullScreen();
             case PLAYING -> RenderPlan.enteringPlaying();
             case GOAL_SCORED -> RenderPlan.goalCelebration();
         };
