@@ -48,6 +48,8 @@ public class GameScreen implements Screen {
                     game.getTeamScore(1),
                     game.getTeamScore(2),
                     game.getCurrentTurn(),
+                    game.getTeamPawnColor(1),
+                    game.getTeamPawnColor(2),
                     game.getActualMouseX(),
                     game.getActualMouseY(),
                     game.isEverythingStopped()
@@ -69,7 +71,8 @@ public class GameScreen implements Screen {
 
     private void drawBodies(GameView game) {
         for (Pawn pawn : game.getPawns()) {
-            pawnRenderer.drawPawn(pawn);
+            int team = pawn.getTeam();
+            pawnRenderer.drawPawn(pawn, game.getTeamPawnColor(team), game.getTeamPawnInnerColor(team));
         }
 
         ballRenderer.drawBall(

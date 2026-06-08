@@ -12,8 +12,7 @@ import pl.edu.tcs.tcsball.model.CustomizationView;
 import pl.edu.tcs.tcsball.model.GameView;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
-
-import java.util.Map;
+import pl.edu.tcs.tcsball.view.element.FlagColors;
 
 public class CustomizationScreen implements Screen {
 
@@ -21,16 +20,6 @@ public class CustomizationScreen implements Screen {
         FLAG,
         FORMATION
     }
-
-    // Kolor kółka flagi po kodzie — czysto widokowa mapa (PlayerFlag trzyma tylko dane).
-    private static final Map<String, String> FLAG_COLORS = Map.of(
-            "PL", "#dc143c",
-            "UA", "#005bbb",
-            "DE", "#000000",
-            "FR", "#0055a4",
-            "ES", "#c60b1e"
-    );
-    private static final String DEFAULT_FLAG_COLOR = "#888888";
 
     public static final int NAME_MAX_LENGTH = 10;
     private static final String NAME_PLACEHOLDER = "wpisz imię";
@@ -82,7 +71,7 @@ public class CustomizationScreen implements Screen {
 
     /** Kolor kółka flagi po kodzie — używany też przez ekrany lobby (przez GameManager). */
     public static String flagColor(String code) {
-        return FLAG_COLORS.getOrDefault(code, DEFAULT_FLAG_COLOR);
+        return FlagColors.forCode(code);
     }
 
     @Override
@@ -115,7 +104,7 @@ public class CustomizationScreen implements Screen {
         gc.fillText("Profil zapisywany przed meczem — zmiany tylko tutaj", ROW_CENTER_X, 118);
 
         drawNameInputRow(playerName, mx, my);
-        drawSelectorRow(Field.FLAG, "FLAGA", flagName, FLAG_COLORS.getOrDefault(flagCode, DEFAULT_FLAG_COLOR), mx, my);
+        drawSelectorRow(Field.FLAG, "FLAGA", flagName, FlagColors.forCode(flagCode), mx, my);
         drawSelectorRow(Field.FORMATION, "FORMACJA", formationName, null, mx, my);
 
         buttonRenderer.drawButton("POWRÓT", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,

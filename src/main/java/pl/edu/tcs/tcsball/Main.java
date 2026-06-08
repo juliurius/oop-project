@@ -26,8 +26,8 @@ public class Main {
 
             if (!modulePath.isBlank()) command.addAll(List.of("-p", modulePath, "--add-modules=javafx.controls"));
             if (!classPath.isBlank()) command.addAll(List.of("-cp", classPath));
-            if (modular) command.addAll(List.of("-m", "pl.edu.tcs.tcsball/" + Main.class.getName()));
-            else command.add(Main.class.getName());
+            // Aplikacja nie ma module-info.java — zawsze classpath, tak jak w IDEA.
+            command.add(Main.class.getName());
 
             command.addAll(List.of(args));
 

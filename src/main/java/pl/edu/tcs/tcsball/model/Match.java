@@ -28,6 +28,14 @@ public class Match {
         this.rightProfile = rightProfile;
     }
 
+    public PlayerProfile getLeftProfile() {
+        return leftProfile;
+    }
+
+    public PlayerProfile getRightProfile() {
+        return rightProfile;
+    }
+
     public List<Pawn> getPawns() { return pawns; }
 
     public Ball getBall() { return ball; }
