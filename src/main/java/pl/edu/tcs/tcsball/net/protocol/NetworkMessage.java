@@ -1,7 +1,16 @@
 package pl.edu.tcs.tcsball.net.protocol;
 
-public abstract class NetworkMessage {
-    private MessageType type;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
-    public abstract MessageType getType();
+public record NetworkMessage(MessageType type, List<String> fields) {
+    public NetworkMessage {
+        type = Objects.requireNonNull(type, "type");
+        fields = List.copyOf(Objects.requireNonNull(fields, "fields"));
+    }
+
+    public static NetworkMessage of(MessageType type, String... fields) {
+        return new NetworkMessage(type, Arrays.asList(fields));
+    }
 }
