@@ -3,6 +3,7 @@ package pl.edu.tcs.tcsball.model.lobby;
 import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.model.player.PlayerSide;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class Lobby {
@@ -10,61 +11,87 @@ public class Lobby {
     private LobbyPlayer guest;
     private LobbyState state;
 
-    // TODO: trzymac hosta lobby.
-    // TODO: trzymac opcjonalnego goscia.
-    // TODO: trzymac aktualny stan lobby.
-
     public Lobby(PlayerProfile hostProfile) {
-        // TODO: utworzyc lobby dla hosta.
+        host = new LobbyPlayer(PlayerSide.LEFT, hostProfile);
+        state = LobbyState.WAITING_FOR_PLAYER;
     }
 
     public LobbyPlayer getHost() {
-        // TODO: zwrocic hosta lobby.
-        throw new UnsupportedOperationException("TODO");
+        return host;
     }
 
     public Optional<LobbyPlayer> getGuest() {
-        // TODO: zwrocic goscia, jesli dolaczyl.
-        throw new UnsupportedOperationException("TODO");
+        return Optional.ofNullable(guest);
     }
 
     public LobbyState getState() {
-        // TODO: zwrocic stan lobby.
-        throw new UnsupportedOperationException("TODO");
+        return state;
     }
 
     public void addGuest(PlayerProfile guestProfile) {
-        // TODO: dodac drugiego gracza do lobby.
-        throw new UnsupportedOperationException("TODO");
+        if (guest != null) {
+            throw new IllegalStateException("Guest already joined");
+        }
+        if (state == LobbyState.CLOSED || state == LobbyState.IN_GAME) {
+            throw new IllegalStateException("Lobby is not joinable");
+        }
+
+        guest = new LobbyPlayer(PlayerSide.RIGHT, guestProfile);
+        updateWaitingState();
     }
 
     public void removeGuest() {
-        // TODO: usunac goscia z lobby.
-        throw new UnsupportedOperationException("TODO");
+        guest = null;
+        host.setReady(false);
+        updateWaitingState();
     }
 
     public void updateProfile(PlayerSide side, PlayerProfile profile) {
-        // TODO: zaktualizowac profil gracza i cofnac jego gotowosc.
-        throw new UnsupportedOperationException("TODO");
+        LobbyPlayer player = getPlayer(side);
+        player.setProfile(profile);
+        player.setReady(false);
+        updateWaitingState();
     }
 
     public void setReady(PlayerSide side, boolean ready) {
-        // TODO: ustawic gotowosc gracza.
-        throw new UnsupportedOperationException("TODO");
+        getPlayer(side).setReady(ready);
+        updateWaitingState();
     }
 
     public boolean canStart() {
-        // TODO: sprawdzic, czy mozna zaczac mecz.
-        throw new UnsupportedOperationException("TODO");
+        return guest != null && host.isReady() && guest.isReady();
     }
 
     public void startGame() {
-        // TODO: przejsc ze stanu lobby do meczu.
-        throw new UnsupportedOperationException("TODO");
+        if (!canStart()) {
+            throw new IllegalStateException("Both players must be ready");
+        }
+        state = LobbyState.IN_GAME;
     }
 
     public void close() {
-        // TODO: zamknac lobby.
-        throw new UnsupportedOperationException("TODO");
+        state = LobbyState.CLOSED;
+    }
+
+    private LobbyPlayer getPlayer(PlayerSide side) {
+        Objects.requireNonNull(side, "side");
+        if (side == PlayerSide.LEFT) {
+            return host;
+        }
+        return getGuest().orElseThrow(() -> new IllegalStateException("Guest has not joined"));
+    }
+
+    private void updateWaitingState() {
+        if (state == LobbyState.CLOSED || state == LobbyState.IN_GAME) {
+            return;
+        }
+
+        if (guest == null) {
+            state = LobbyState.WAITING_FOR_PLAYER;
+        } else if (canStart()) {
+            state = LobbyState.READY_TO_START;
+        } else {
+            state = LobbyState.WAITING_FOR_READY;
+        }
     }
 }

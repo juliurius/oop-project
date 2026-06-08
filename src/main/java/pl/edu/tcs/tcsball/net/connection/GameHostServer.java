@@ -53,6 +53,10 @@ public class GameHostServer implements AutoCloseable {
         return running;
     }
 
+    public boolean hasClientConnection() {
+        return clientConnection != null && clientConnection.isOpen();
+    }
+
     public void stop() {
         running = false;
 

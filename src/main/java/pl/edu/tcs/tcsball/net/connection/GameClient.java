@@ -1,8 +1,6 @@
 package pl.edu.tcs.tcsball.net.connection;
 
-import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
-import pl.edu.tcs.tcsball.net.protocol.MessageType;
 import pl.edu.tcs.tcsball.net.protocol.NetworkMessage;
 
 import java.io.IOException;
@@ -12,20 +10,15 @@ import java.util.List;
 import java.util.Objects;
 
 public class GameClient implements AutoCloseable {
-    private DiscoveredHost host;
-    private PlayerProfile profile;
     private NetworkConnection connection;
     private volatile boolean connected;
 
-    public void connect(DiscoveredHost host, PlayerProfile profile) throws IOException {
-        this.host = Objects.requireNonNull(host, "host");
-        this.profile = Objects.requireNonNull(profile, "profile");
+    public void connect(DiscoveredHost host) throws IOException {
+        Objects.requireNonNull(host, "host");
 
         Socket socket = new Socket(host.hostAddress(), host.gamePort());
         connection = new NetworkConnection(socket);
         connected = true;
-
-        send(NetworkMessage.of(MessageType.JOIN_REQUEST));
     }
 
     public void send(NetworkMessage message) throws IOException {

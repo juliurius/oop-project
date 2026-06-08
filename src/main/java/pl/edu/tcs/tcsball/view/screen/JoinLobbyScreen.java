@@ -15,7 +15,6 @@ import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
 import java.util.List;
 
-// MOCK: lista hostów pochodzi z GameManager.createMockHosts(); docelowo LanHostScanner
 public class JoinLobbyScreen implements Screen {
 
     private final GraphicsContext gc;
@@ -64,7 +63,7 @@ public class JoinLobbyScreen implements Screen {
             if (hosts.isEmpty()) {
                 gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
                 gc.setFill(Color.web("#aaaaaa"));
-                gc.fillText("Brak hostów — kliknij ODŚWIEŻ [MOCK]", GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y + 40);
+                gc.fillText("Brak hostów — kliknij ODŚWIEŻ", GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y + 40);
             } else {
                 for (int i = 0; i < hosts.size(); i++) {
                     drawHostRow(hosts.get(i), i, mx, my);
