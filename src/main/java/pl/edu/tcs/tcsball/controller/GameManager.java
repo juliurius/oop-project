@@ -1,8 +1,13 @@
 package pl.edu.tcs.tcsball.controller;
 
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.*;
+import pl.edu.tcs.tcsball.model.formation.FormationFactory;
 import pl.edu.tcs.tcsball.model.lobby.LobbyState;
+import pl.edu.tcs.tcsball.model.player.PlayerFlag;
+import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.*;
@@ -12,9 +17,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-public class GameManager implements LobbyView {
+public class GameManager implements LobbyView, CustomizationView {
     private final Match match;
     private final PhysicsEngine physics;
+
+    private final FormationFactory formationFactory = new FormationFactory();
+    private final CustomizationManager customization;
 
     private GameState gameState = GameState.MENU;
 
@@ -33,7 +41,15 @@ public class GameManager implements LobbyView {
     private int mockHostVariant = 0;
 
     public GameManager(double width, double height) {
-        match = new Match();
+        List<PlayerFlag> flags = List.of(
+                new PlayerFlag("PL", "Polska"), new PlayerFlag("UA", "Ukraina"),
+                new PlayerFlag("DE", "Niemcy"), new PlayerFlag("FR", "Francja"),
+                new PlayerFlag("ES", "Hiszpania"));
+        PlayerProfile defaultProfile =
+                new PlayerProfile("Gracz", flags.get(0), formationFactory.getAvailableIds().get(0));
+
+        customization = new CustomizationManager(defaultProfile, flags, formationFactory.getAvailableIds());
+        match = new Match(formationFactory, defaultProfile, defaultProfile);
         physics = new PhysicsEngine(width, height);
     }
 
@@ -79,15 +95,104 @@ public class GameManager implements LobbyView {
             return;
         }
 
-        if (CustomizationScreen.handleClick(x, y) || CustomizationScreen.handleArrowClick(x, y)) {
+        boolean changed = CustomizationScreen.handleClick(x, y);   // ustawia fokus pola nazwy
+
+        if (CustomizationScreen.isPrevArrowHit(x, y, CustomizationScreen.Field.FLAG)) {
+            cycleFlag(-1);
+            changed = true;
+        } else if (CustomizationScreen.isNextArrowHit(x, y, CustomizationScreen.Field.FLAG)) {
+            cycleFlag(1);
+            changed = true;
+        } else if (CustomizationScreen.isPrevArrowHit(x, y, CustomizationScreen.Field.FORMATION)) {
+            cycleFormation(-1);
+            changed = true;
+        } else if (CustomizationScreen.isNextArrowHit(x, y, CustomizationScreen.Field.FORMATION)) {
+            cycleFormation(1);
+            changed = true;
+        }
+
+        if (changed) {
             inputDelta.markMouseMoved();
         }
     }
 
-    public void handleCustomizationKey(javafx.scene.input.KeyEvent event) {
-        if (CustomizationScreen.handleKey(event)) {
-            inputDelta.markMouseMoved();
+    public void handleCustomizationKey(KeyEvent event) {
+        if (!CustomizationScreen.isNameFieldFocused()) {
+            return;
         }
+
+        if (event.getCode() == KeyCode.BACK_SPACE) {
+            backspaceName();
+            inputDelta.markMouseMoved();
+            return;
+        }
+
+        if (event.getEventType() != KeyEvent.KEY_TYPED) {
+            return;
+        }
+
+        String text = event.getCharacter();
+        if (text == null || text.isEmpty() || text.charAt(0) < ' ') {
+            return;
+        }
+
+        char ch = text.charAt(0);
+        if (!Character.isLetterOrDigit(ch) && ch != ' ' && ch != '-' && ch != '_') {
+            return;
+        }
+
+        typeNameChar(ch);
+        inputDelta.markMouseMoved();
+    }
+
+    // --- Akcje customizacji: cyklowanie i edycja nazwy delegują do CustomizationManager ---
+
+    public void cycleFlag(int direction) {
+        List<PlayerFlag> flags = customization.getAvailableFlags();
+        int index = flags.indexOf(customization.getCurrentProfile().pawnFlag());
+        customization.setPawnFlag(flags.get(Math.floorMod(index + direction, flags.size())));
+    }
+
+    public void cycleFormation(int direction) {
+        List<String> ids = customization.getAvailableFormationIds();
+        int index = ids.indexOf(customization.getCurrentProfile().formationId());
+        customization.setFormationId(ids.get(Math.floorMod(index + direction, ids.size())));
+    }
+
+    public void typeNameChar(char ch) {
+        String name = customization.getCurrentProfile().name();
+        if (name.length() < CustomizationScreen.NAME_MAX_LENGTH) {
+            customization.setName(name + ch);
+        }
+    }
+
+    public void backspaceName() {
+        String name = customization.getCurrentProfile().name();
+        if (!name.isEmpty()) {
+            customization.setName(name.substring(0, name.length() - 1));
+        }
+    }
+
+    // --- CustomizationView: odczyt dla ekranu customizacji ---
+
+    @Override
+    public String getPlayerName() {
+        return customization.getCurrentProfile().name();
+    }
+
+    @Override
+    public String getCurrentFlagCode() {
+        return customization.getCurrentProfile().pawnFlag().code();
+    }
+
+    @Override
+    public String getCurrentFlagName() {
+        return customization.getCurrentProfile().pawnFlag().displayName();
+    }
+
+    @Override
+    public String getCurrentFormationName() {
+        return formationFactory.getDefinition(customization.getCurrentProfile().formationId()).displayName();
     }
 
     public void handleHostLobbyClick(double x, double y) {
@@ -130,6 +235,8 @@ public class GameManager implements LobbyView {
     }
 
     public void startLocalGame() {
+        PlayerProfile me = customization.getCurrentProfile();
+        match.setProfiles(me, me);
         match.resetGame();
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);

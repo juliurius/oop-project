@@ -18,6 +18,9 @@ public class CustomizationManager {
 
     public PlayerProfile getCurrentProfile() { return currentProfile; }
 
+    public List<PlayerFlag> getAvailableFlags() { return availableFlags; }
+    public List<String> getAvailableFormationIds() { return availableFormationIds; }
+
     public void setName(String name)            { currentProfile = currentProfile.withName(name); }
     public void setPawnFlag(PlayerFlag flag)    { currentProfile = currentProfile.withPawnFlag(flag); }
     public void setFormationId(String id)       { currentProfile = currentProfile.withFormationId(id); }

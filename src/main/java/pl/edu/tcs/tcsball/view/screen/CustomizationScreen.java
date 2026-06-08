@@ -2,21 +2,19 @@ package pl.edu.tcs.tcsball.view.screen;
 
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
+import pl.edu.tcs.tcsball.model.CustomizationView;
 import pl.edu.tcs.tcsball.model.GameView;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 
-import java.util.List;
+import java.util.Map;
 
-// MOCK: dane i logika tylko do UI — docelowo CustomizationManager + PlayerProfile
 public class CustomizationScreen implements Screen {
 
     public enum Field {
@@ -24,24 +22,21 @@ public class CustomizationScreen implements Screen {
         FORMATION
     }
 
-    private record MockFlag(String displayName, String accentColor) {}
-
-    private static final List<MockFlag> FLAGS = List.of(
-            new MockFlag("Polska", "#dc143c"),
-            new MockFlag("Ukraina", "#005bbb"),
-            new MockFlag("Niemcy", "#000000"),
-            new MockFlag("Francja", "#0055a4"),
-            new MockFlag("Hiszpania", "#c60b1e")
+    // Kolor kółka flagi po kodzie — czysto widokowa mapa (PlayerFlag trzyma tylko dane).
+    private static final Map<String, String> FLAG_COLORS = Map.of(
+            "PL", "#dc143c",
+            "UA", "#005bbb",
+            "DE", "#000000",
+            "FR", "#0055a4",
+            "ES", "#c60b1e"
     );
-    private static final List<String> FORMATIONS = List.of("Klasyczna", "Szeroka");
+    private static final String DEFAULT_FLAG_COLOR = "#888888";
 
     public static final int NAME_MAX_LENGTH = 10;
     private static final String NAME_PLACEHOLDER = "wpisz imię";
 
-    private static String playerName = "";
+    // Jedyny stan UI, który zostaje w ekranie (czysty fokus pola tekstowego).
     private static boolean nameFieldFocused = true;
-    private static int flagIndex = 0;
-    private static int formationIndex = 0;
 
     private static final double ROW_CENTER_X = GameConfig.WINDOW_WIDTH / 2.0;
     private static final double ARROW_WIDTH = 48.0;
@@ -81,65 +76,25 @@ public class CustomizationScreen implements Screen {
         return wasFocused != nameFieldFocused;
     }
 
-    public static boolean handleArrowClick(double x, double y) {
-        if (isPrevArrowHit(x, y, Field.FLAG)) {
-            cycleFlag(-1);
-            return true;
-        }
-        if (isNextArrowHit(x, y, Field.FLAG)) {
-            cycleFlag(1);
-            return true;
-        }
-        if (isPrevArrowHit(x, y, Field.FORMATION)) {
-            cycleFormation(-1);
-            return true;
-        }
-        if (isNextArrowHit(x, y, Field.FORMATION)) {
-            cycleFormation(1);
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean handleKey(KeyEvent event) {
-        if (!nameFieldFocused) {
-            return false;
-        }
-
-        if (event.getCode() == KeyCode.BACK_SPACE) {
-            if (playerName.isEmpty()) {
-                return false;
-            }
-            playerName = playerName.substring(0, playerName.length() - 1);
-            return true;
-        }
-
-        if (event.getEventType() != KeyEvent.KEY_TYPED) {
-            return false;
-        }
-
-        String text = event.getCharacter();
-        if (text == null || text.isEmpty() || text.charAt(0) < ' ') {
-            return false;
-        }
-
-        if (playerName.length() >= NAME_MAX_LENGTH) {
-            return false;
-        }
-
-        char ch = text.charAt(0);
-        if (!Character.isLetterOrDigit(ch) && ch != ' ' && ch != '-' && ch != '_') {
-            return false;
-        }
-
-        playerName += ch;
-        return true;
+    public static boolean isNameFieldFocused() {
+        return nameFieldFocused;
     }
 
     @Override
     public void render(GameView game, RenderPlan plan) {
         double mx = game.getActualMouseX();
         double my = game.getActualMouseY();
+
+        String playerName = "";
+        String flagName = "";
+        String flagCode = "";
+        String formationName = "";
+        if (game instanceof CustomizationView view) {
+            playerName = view.getPlayerName();
+            flagName = view.getCurrentFlagName();
+            flagCode = view.getCurrentFlagCode();
+            formationName = view.getCurrentFormationName();
+        }
 
         gc.setFill(Color.web("#2f4f4f"));
         gc.fillRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
@@ -154,15 +109,15 @@ public class CustomizationScreen implements Screen {
         gc.setFill(Color.web("#cccccc"));
         gc.fillText("Profil zapisywany przed meczem — zmiany tylko tutaj", ROW_CENTER_X, 118);
 
-        drawNameInputRow(mx, my);
-        drawSelectorRow(Field.FLAG, "FLAGA", FLAGS.get(flagIndex).displayName(), FLAGS.get(flagIndex), mx, my);
-        drawSelectorRow(Field.FORMATION, "FORMACJA", FORMATIONS.get(formationIndex), null, mx, my);
+        drawNameInputRow(playerName, mx, my);
+        drawSelectorRow(Field.FLAG, "FLAGA", flagName, FLAG_COLORS.getOrDefault(flagCode, DEFAULT_FLAG_COLOR), mx, my);
+        drawSelectorRow(Field.FORMATION, "FORMACJA", formationName, null, mx, my);
 
         buttonRenderer.drawButton("POWRÓT", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
                 mx, my, Color.web("#d9534f"), Color.web("#c9302c"));
     }
 
-    private void drawNameInputRow(double mouseX, double mouseY) {
+    private void drawNameInputRow(String playerName, double mouseX, double mouseY) {
         double rowY = NAME_ROW_Y;
         double fieldTop = rowY - NAME_FIELD_HEIGHT / 2.0;
         boolean hovered = isNameFieldHit(mouseX, mouseY);
@@ -214,7 +169,7 @@ public class CustomizationScreen implements Screen {
         return measure.getLayoutBounds().getWidth();
     }
 
-    private void drawSelectorRow(Field field, String label, String value, MockFlag flagPreview,
+    private void drawSelectorRow(Field field, String label, String value, String flagColor,
                                  double mouseX, double mouseY) {
         double rowY = rowY(field);
 
@@ -230,15 +185,15 @@ public class CustomizationScreen implements Screen {
         gc.fillRoundRect(ROW_CENTER_X - VALUE_WIDTH / 2.0, rowY - ARROW_HEIGHT / 2.0,
                 VALUE_WIDTH, ARROW_HEIGHT, 10, 10);
 
-        if (flagPreview != null) {
-            gc.setFill(Color.web(flagPreview.accentColor()));
+        if (flagColor != null) {
+            gc.setFill(Color.web(flagColor));
             gc.fillOval(ROW_CENTER_X - VALUE_WIDTH / 2.0 + 16, rowY - 14, 28, 28);
         }
 
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 22));
-        double textX = flagPreview != null ? ROW_CENTER_X + 16 : ROW_CENTER_X;
+        double textX = flagColor != null ? ROW_CENTER_X + 16 : ROW_CENTER_X;
         gc.fillText(value, textX, rowY);
     }
 
@@ -255,22 +210,6 @@ public class CustomizationScreen implements Screen {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         gc.fillText(prev ? "‹" : "›", x + ARROW_WIDTH / 2.0, rowY);
-    }
-
-    private static void cycleFlag(int direction) {
-        flagIndex = wrapIndex(flagIndex + direction, FLAGS.size());
-    }
-
-    private static void cycleFormation(int direction) {
-        formationIndex = wrapIndex(formationIndex + direction, FORMATIONS.size());
-    }
-
-    private static int wrapIndex(int index, int size) {
-        if (size == 0) {
-            return 0;
-        }
-        int wrapped = index % size;
-        return wrapped < 0 ? wrapped + size : wrapped;
     }
 
     public static boolean isNameFieldHit(double x, double y) {
