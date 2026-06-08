@@ -16,14 +16,19 @@ public class MenuScreen implements Screen {
     private final GraphicsContext gc;
     private final ButtonRenderer buttonRenderer;
 
-    private static final double START_BUTTON_OFFSET_Y = -40.0;
-    private static final double SETTINGS_BUTTON_OFFSET_Y = 50.0;
+    private static final double TITLE_Y = 95.0;
+    private static final double TITLE_FONT_SIZE = 64.0;
+    private static final double BUTTON_GAP = 16.0;
+    private static final double BUTTON_BLOCK_TOP = 220.0;
 
-    public static final double BTN_WIDTH = 200.0;
-    public static final double BTN_HEIGHT = 60.0;
+    public static final double BTN_WIDTH = 240.0;
+    public static final double BTN_HEIGHT = 50.0;
     public static final double BTN_X = (GameConfig.WINDOW_WIDTH - BTN_WIDTH) / 2.0;
-    public static final double START_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 + START_BUTTON_OFFSET_Y;
-    public static final double SETTINGS_BTN_Y = GameConfig.WINDOW_HEIGHT / 2.0 + SETTINGS_BUTTON_OFFSET_Y;
+
+    public static final double LOCAL_PLAY_BTN_Y = BUTTON_BLOCK_TOP;
+    public static final double HOST_BTN_Y = BUTTON_BLOCK_TOP + BTN_HEIGHT + BUTTON_GAP;
+    public static final double JOIN_BTN_Y = HOST_BTN_Y + BTN_HEIGHT + BUTTON_GAP;
+    public static final double CUSTOMIZATION_BTN_Y = JOIN_BTN_Y + BTN_HEIGHT + BUTTON_GAP;
 
     public MenuScreen(GraphicsContext gc, ButtonRenderer buttonRenderer) {
         this.gc = gc;
@@ -41,13 +46,24 @@ public class MenuScreen implements Screen {
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, 80));
-        gc.fillText("TCS BALL", GameConfig.WINDOW_WIDTH / 2.0, GameConfig.WINDOW_HEIGHT / 3.0);
+        gc.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, TITLE_FONT_SIZE));
+        gc.fillText("TCS BALL", GameConfig.WINDOW_WIDTH / 2.0, TITLE_Y);
 
-        buttonRenderer.drawButton("START", BTN_X, START_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
+        buttonRenderer.drawButton("LOCAL PLAY", BTN_X, LOCAL_PLAY_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
                 Color.web("#1e90ff"), Color.web("#157dec"));
 
-        buttonRenderer.drawButton("USTAWIENIA", BTN_X, SETTINGS_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
+        buttonRenderer.drawButton("HOST", BTN_X, HOST_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
+                Color.web("#32cd32"), Color.web("#28a428"));
+
+        buttonRenderer.drawButton("JOIN", BTN_X, JOIN_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
+                Color.web("#ffa500"), Color.web("#e69500"));
+
+        buttonRenderer.drawButton("CUSTOMIZACJA", BTN_X, CUSTOMIZATION_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
                 Color.web("#708090"), Color.web("#5c6b73"));
+    }
+
+    public static boolean isButtonHit(double x, double y, double buttonY) {
+        return x >= BTN_X && x <= BTN_X + BTN_WIDTH
+                && y >= buttonY && y <= buttonY + BTN_HEIGHT;
     }
 }

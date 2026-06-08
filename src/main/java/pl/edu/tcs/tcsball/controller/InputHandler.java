@@ -16,16 +16,19 @@ public class InputHandler {
             double mouseX = event.getSceneX();
             double mouseY = event.getSceneY();
 
-            if (state == GameState.MENU) {
-                gameManager.handleMenuClick(mouseX, mouseY);
-            } else if (state == GameState.SETTINGS) {
-                gameManager.handleSettingsClick(mouseX, mouseY);
-            } else if (state == GameState.PLAYING) {
-                boolean backToMenu = gameManager.handleBackToMenuClick(mouseX, mouseY);
-
-                if (!backToMenu) {
-                    gameManager.startAiming(mouseX, mouseY);
+            switch (state) {
+                case MENU -> gameManager.handleMenuClick(mouseX, mouseY);
+                case CUSTOMIZATION -> gameManager.handleCustomizationClick(mouseX, mouseY);
+                case HOST_LOBBY -> gameManager.handleHostLobbyClick(mouseX, mouseY);
+                case JOIN_LOBBY -> gameManager.handleJoinLobbyClick(mouseX, mouseY);
+                case CLIENT_LOBBY -> gameManager.handleClientLobbyClick(mouseX, mouseY);
+                case PLAYING -> {
+                    boolean backToMenu = gameManager.handleBackToMenuClick(mouseX, mouseY);
+                    if (!backToMenu) {
+                        gameManager.startAiming(mouseX, mouseY);
+                    }
                 }
+                default -> {}
             }
         });
 

@@ -3,8 +3,7 @@ package pl.edu.tcs.tcsball.controller;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
-import pl.edu.tcs.tcsball.view.screen.MenuScreen;
-import pl.edu.tcs.tcsball.view.screen.SettingsScreen;
+import pl.edu.tcs.tcsball.view.screen.*;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -15,7 +14,6 @@ public class GameManager implements GameView {
     private final PhysicsEngine physics;
 
     private GameState gameState = GameState.MENU;
-    private GameState returnAfterSettings = GameState.MENU;
 
     private Pawn selectedPawn = null;
     private final Vector2D tensionVector = new Vector2D(0, 0);
@@ -54,22 +52,38 @@ public class GameManager implements GameView {
     }
 
     public void handleMenuClick(double x, double y) {
-        if (x >= MenuScreen.BTN_X && x <= MenuScreen.BTN_X + MenuScreen.BTN_WIDTH) {
-
-            if (y >= MenuScreen.START_BTN_Y && y <= MenuScreen.START_BTN_Y + MenuScreen.BTN_HEIGHT) {
-                startGame();
-            }
-            else if (y >= MenuScreen.SETTINGS_BTN_Y && y <= MenuScreen.SETTINGS_BTN_Y + MenuScreen.BTN_HEIGHT) {
-                openSettings();
-            }
+        if (MenuScreen.isButtonHit(x, y, MenuScreen.LOCAL_PLAY_BTN_Y)) {
+            startLocalGame();
+        } else if (MenuScreen.isButtonHit(x, y, MenuScreen.HOST_BTN_Y)) {
+            openHostLobby();
+        } else if (MenuScreen.isButtonHit(x, y, MenuScreen.JOIN_BTN_Y)) {
+            openJoinLobby();
+        } else if (MenuScreen.isButtonHit(x, y, MenuScreen.CUSTOMIZATION_BTN_Y)) {
+            openCustomization();
         }
     }
 
-    public void handleSettingsClick(double x, double y) {
-        if (x >= SettingsScreen.BACK_BTN_X && x <= SettingsScreen.BACK_BTN_X + SettingsScreen.BACK_BTN_WIDTH &&
-                y >= SettingsScreen.BACK_BTN_Y && y <= SettingsScreen.BACK_BTN_Y + SettingsScreen.BACK_BTN_HEIGHT) {
+    public void handleCustomizationClick(double x, double y) {
+        if (CustomizationScreen.isBackButtonHit(x, y)) {
+            quitToMenu();
+        }
+    }
 
-            closeSettings();
+    public void handleHostLobbyClick(double x, double y) {
+        if (HostLobbyScreen.isBackButtonHit(x, y)) {
+            quitToMenu();
+        }
+    }
+
+    public void handleJoinLobbyClick(double x, double y) {
+        if (JoinLobbyScreen.isBackButtonHit(x, y)) {
+            quitToMenu();
+        }
+    }
+
+    public void handleClientLobbyClick(double x, double y) {
+        if (ClientLobbyScreen.isBackButtonHit(x, y)) {
+            quitToMenu();
         }
     }
 
@@ -83,10 +97,22 @@ public class GameManager implements GameView {
         return false;
     }
 
-    private void startGame() {
+    public void startLocalGame() {
         match.resetGame();
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
+    }
+
+    public void openHostLobby() {
+        transitionTo(GameState.HOST_LOBBY);
+    }
+
+    public void openJoinLobby() {
+        transitionTo(GameState.JOIN_LOBBY);
+    }
+
+    public void openCustomization() {
+        transitionTo(GameState.CUSTOMIZATION);
     }
 
     public Ball getBall() { return match.getBall(); }
@@ -174,15 +200,6 @@ public class GameManager implements GameView {
         match.updateScore(team);
         pendingEvents.add(DomainEvent.SCORE_CHANGED);
         transitionTo(GameState.GOAL_SCORED);
-    }
-
-    public void openSettings() {
-        returnAfterSettings = gameState;
-        transitionTo(GameState.SETTINGS);
-    }
-
-    public void closeSettings() {
-        transitionTo(returnAfterSettings);
     }
 
     public void quitToMenu () {
