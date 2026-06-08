@@ -2,43 +2,53 @@ package pl.edu.tcs.tcsball.net.discovery;
 
 import pl.edu.tcs.tcsball.model.lobby.LobbyState;
 
-public class DiscoveredHost {
-    private String lobbyId;
-    private String hostName;
-    private String hostAddress;
-    private int gamePort;
-    private int playersCount;
-    private LobbyState lobbyState;
-    private long lastSeenMillis;
+import java.util.Objects;
 
-    // TODO: trzymac id lobby.
-    // TODO: trzymac nazwe hosta.
-    // TODO: trzymac adres hosta.
-    // TODO: trzymac port gry.
-    // TODO: trzymac liczbe graczy i stan lobby.
+public record DiscoveredHost(
+        String lobbyId,
+        String hostName,
+        String hostAddress,
+        int gamePort,
+        int playersCount,
+        LobbyState lobbyState,
+        long lastSeenMillis
+) {
+    private static final int MAX_PORT = 65_535;
 
-    public String getLobbyId() {
-        // TODO: zwrocic id lobby.
-        throw new UnsupportedOperationException("TODO");
+    public DiscoveredHost {
+        lobbyId = requireText(lobbyId, "lobbyId");
+        hostName = requireText(hostName, "hostName");
+        hostAddress = requireText(hostAddress, "hostAddress");
+        gamePort = requirePort(gamePort);
+        playersCount = requirePlayersCount(playersCount);
+        lobbyState = Objects.requireNonNull(lobbyState, "lobbyState");
     }
 
-    public String getHostName() {
-        // TODO: zwrocic nazwe hosta.
-        throw new UnsupportedOperationException("TODO");
+    public boolean isExpired(long nowMillis, long timeoutMillis) {
+        if (timeoutMillis < 0) {
+            throw new IllegalArgumentException("timeoutMillis cannot be negative");
+        }
+        return nowMillis - lastSeenMillis > timeoutMillis;
     }
 
-    public String getHostAddress() {
-        // TODO: zwrocic adres hosta.
-        throw new UnsupportedOperationException("TODO");
+    private static String requireText(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank");
+        }
+        return value;
     }
 
-    public int getGamePort() {
-        // TODO: zwrocic port gry.
-        throw new UnsupportedOperationException("TODO");
+    private static int requirePort(int port) {
+        if (port <= 0 || port > MAX_PORT) {
+            throw new IllegalArgumentException("gamePort must be between 1 and " + MAX_PORT);
+        }
+        return port;
     }
 
-    public LobbyState getLobbyState() {
-        // TODO: zwrocic stan lobby.
-        throw new UnsupportedOperationException("TODO");
+    private static int requirePlayersCount(int playersCount) {
+        if (playersCount < 0) {
+            throw new IllegalArgumentException("playersCount cannot be negative");
+        }
+        return playersCount;
     }
 }
