@@ -6,15 +6,12 @@ import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.model.formation.FormationFactory;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;
-import pl.edu.tcs.tcsball.model.lobby.LobbyPlayer;
 import pl.edu.tcs.tcsball.model.player.FlagCatalog;
 import pl.edu.tcs.tcsball.model.player.PlayerFlag;
 import pl.edu.tcs.tcsball.model.player.PlayerProfile;
-import pl.edu.tcs.tcsball.model.player.PlayerSide;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 import pl.edu.tcs.tcsball.net.protocol.MessageType;
 import pl.edu.tcs.tcsball.net.protocol.NetworkMessage;
-import pl.edu.tcs.tcsball.view.element.FlagColors;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.*;
 
@@ -25,21 +22,18 @@ import java.util.List;
 import java.util.Set;
 
 public class GameManager implements LobbyView, CustomizationView {
-    private static final int GAME_STATE_HEADER_FIELDS = 10;
-    private static final int BODY_FIELD_COUNT = 4;
-
     private final Match match;
     private final PhysicsEngine physics;
     private final LobbyManager lobbyManager = new LobbyManager();
+    private final GameStateCodec gameStateCodec = new GameStateCodec();
 
     private final FormationFactory formationFactory = new FormationFactory();
     private final CustomizationManager customization;
+    private final LobbyPresenter lobbyPresenter;
 
     private GameState gameState = GameState.MENU;
 
-    private Pawn selectedPawn = null;
-    private final Vector2D tensionVector = new Vector2D(0, 0);
-    private double mouseX = 0, mouseY = 0;
+    private final AimController aim = new AimController();
 
     private final EnumSet<DomainEvent> pendingEvents = EnumSet.noneOf(DomainEvent.class);
     private final InputDelta inputDelta = new InputDelta();
@@ -55,6 +49,8 @@ public class GameManager implements LobbyView, CustomizationView {
         customization = new CustomizationManager(defaultProfile, flags.all(), formationFactory.getAvailableIds());
         match = new Match(formationFactory, defaultProfile, defaultProfile);
         physics = new PhysicsEngine(width, height);
+        lobbyPresenter = new LobbyPresenter(lobbyManager, customization, match, discoveredHosts,
+                () -> gameState, () -> joinedHost);
     }
 
     public FrameDelta update(double deltaTime) {
@@ -194,7 +190,7 @@ public class GameManager implements LobbyView, CustomizationView {
             return;
         }
 
-        boolean changed = CustomizationScreen.handleClick(x, y);   // ustawia fokus pola nazwy
+        boolean changed = CustomizationScreen.handleClick(x, y);
 
         if (CustomizationScreen.isPrevArrowHit(x, y, CustomizationScreen.Field.FLAG)) {
             cycleFlag(-1);
@@ -243,8 +239,6 @@ public class GameManager implements LobbyView, CustomizationView {
         typeNameChar(ch);
         inputDelta.markMouseMoved();
     }
-
-    // --- Akcje customizacji: cyklowanie i edycja nazwy delegują do CustomizationManager ---
 
     public void cycleFlag(int direction) {
         List<PlayerFlag> flags = customization.getAvailableFlags();
@@ -479,83 +473,23 @@ public class GameManager implements LobbyView, CustomizationView {
             return;
         }
 
-        lobbyManager.sendToPeer(createGameStateMessage());
+        lobbyManager.sendToPeer(gameStateCodec.encode(gameState, match));
         lastGameStateSentMillis = now;
     }
 
-    private NetworkMessage createGameStateMessage() {
-        List<String> fields = new ArrayList<>();
-        fields.add(gameState.name());
-        fields.add(Integer.toString(match.getPlayerTurn()));
-        fields.add(Integer.toString(match.getTeamScore(1)));
-        fields.add(Integer.toString(match.getTeamScore(2)));
-
-        Ball ball = match.getBall();
-        addBodyFields(fields, ball);
-        fields.add(Double.toString(ball.getSpin()));
-        fields.add(Double.toString(ball.getAngle()));
-
-        for (Pawn pawn : match.getPawns()) {
-            addBodyFields(fields, pawn);
-        }
-
-        return new NetworkMessage(MessageType.GAME_STATE, fields);
-    }
-
     private boolean applyGameState(NetworkMessage message) {
-        List<String> fields = message.fields();
-        int expectedFields = GAME_STATE_HEADER_FIELDS + match.getPawns().size() * BODY_FIELD_COUNT;
-        if (fields.size() < expectedFields) {
-            throw new IllegalArgumentException("Invalid game state message");
-        }
+        GameStateCodec.Decoded decoded = gameStateCodec.decode(message, match);
 
-        GameState receivedState = GameState.valueOf(fields.get(0));
-        int oldTurn = match.getPlayerTurn();
-        int oldScore1 = match.getTeamScore(1);
-        int oldScore2 = match.getTeamScore(2);
-
-        match.setPlayerTurn(Integer.parseInt(fields.get(1)));
-        match.setScores(Integer.parseInt(fields.get(2)), Integer.parseInt(fields.get(3)));
-
-        int index = applyBodyFields(match.getBall(), fields, 4);
-        match.getBall().setSpin(Double.parseDouble(fields.get(index++)));
-        match.getBall().setAngle(Double.parseDouble(fields.get(index++)));
-
-        for (Pawn pawn : match.getPawns()) {
-            index = applyBodyFields(pawn, fields, index);
-        }
-
-        selectedPawn = null;
-        tensionVector.setX(0);
-        tensionVector.setY(0);
-        if (oldTurn != match.getPlayerTurn()) {
+        aim.clear();
+        if (decoded.turnChanged()) {
             pendingEvents.add(DomainEvent.TURN_CHANGED);
         }
-        if (oldScore1 != match.getTeamScore(1) || oldScore2 != match.getTeamScore(2)) {
+        if (decoded.scoreChanged()) {
             pendingEvents.add(DomainEvent.SCORE_CHANGED);
         }
-        transitionTo(receivedState);
+        transitionTo(decoded.state());
         inputDelta.markAimingChanged();
         return true;
-    }
-
-    private void addBodyFields(List<String> fields, PhysicsBody body) {
-        fields.add(Double.toString(body.getPosition().getX()));
-        fields.add(Double.toString(body.getPosition().getY()));
-        fields.add(Double.toString(body.getVelocity().getX()));
-        fields.add(Double.toString(body.getVelocity().getY()));
-    }
-
-    private int applyBodyFields(PhysicsBody body, List<String> fields, int index) {
-        body.setPosition(new Vector2D(
-                Double.parseDouble(fields.get(index)),
-                Double.parseDouble(fields.get(index + 1))
-        ));
-        body.setVelocity(new Vector2D(
-                Double.parseDouble(fields.get(index + 2)),
-                Double.parseDouble(fields.get(index + 3))
-        ));
-        return index + BODY_FIELD_COUNT;
     }
 
     private void sendGameStateQuietly() {
@@ -573,10 +507,10 @@ public class GameManager implements LobbyView, CustomizationView {
     public Ball getBall() { return match.getBall(); }
 
     public void shootPawn() {
-        if (selectedPawn == null) return;
+        if (!aim.hasSelection()) return;
 
-        int pawnIndex = match.getPawns().indexOf(selectedPawn);
-        Vector2D shotForce = new Vector2D(tensionVector.getX(), tensionVector.getY());
+        int pawnIndex = match.getPawns().indexOf(aim.getSelectedPawn());
+        Vector2D shotForce = aim.getTension();
 
         if (isMultiplayerGame() && !isLocalPlayerHost()) {
             try {
@@ -617,9 +551,7 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     private void clearAiming() {
-        selectedPawn = null;
-        tensionVector.setX(0);
-        tensionVector.setY(0);
+        aim.clear();
         inputDelta.markAimingChanged();
     }
 
@@ -631,54 +563,22 @@ public class GameManager implements LobbyView, CustomizationView {
             return;
         }
 
-        List<Pawn> pawns = match.getPawns();
-
-        for (Pawn pawn : pawns) {
-            Vector2D position = pawn.getPosition();
-            double pawnX = position.getX(), pawnY = position.getY(), pawnR = pawn.getRadius();
-            double distance = Math.sqrt(Math.pow((pawnX - x), 2) + Math.pow((pawnY - y), 2));
-
-            if (pawnR >= distance && pawn.getTeam() == match.getPlayerTurn()) {
-                selectedPawn = pawn;
-                inputDelta.markAimingChanged();
-                break;
-            }
+        if (aim.selectPawnAt(match.getPawns(), x, y, match.getPlayerTurn())) {
+            inputDelta.markAimingChanged();
         }
     }
 
     public void updateMousePosition(double x, double y) {
-        if (selectedPawn == null) return;
-
-        mouseX = x;
-        mouseY = y;
-
-        double newX = selectedPawn.getPosition().getX() - mouseX;
-        double newY = selectedPawn.getPosition().getY() - mouseY;
-
-        Vector2D newTension = new Vector2D(newX, newY);
-
-        if (newTension.length() > GameConfig.MAX_PULL_DISTANCE) {
-            newTension = newTension.normalized().multiply(GameConfig.MAX_PULL_DISTANCE);
+        if (aim.aimTo(x, y)) {
+            inputDelta.markAimingChanged();
         }
-
-        tensionVector.setX(newTension.getX());
-        tensionVector.setY(newTension.getY());
-        inputDelta.markAimingChanged();
     }
 
-    public Pawn getAimingPawn() { return selectedPawn; }
+    public Pawn getAimingPawn() { return aim.getSelectedPawn(); }
 
-    public double getArrowX() {
-        if (selectedPawn != null)
-            return selectedPawn.getPosition().getX() + tensionVector.getX();
-        return 0;
-    }
+    public double getArrowX() { return aim.getArrowX(); }
 
-    public double getArrowY() {
-        if (selectedPawn != null)
-            return selectedPawn.getPosition().getY() + tensionVector.getY();
-        return 0;
-    }
+    public double getArrowY() { return aim.getArrowY(); }
 
     public List<Pawn> getPawns() { return match.getPawns(); }
 
@@ -723,16 +623,15 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public void updateActualMousePosition(double x, double y) {
-        this.mouseX = x;
-        this.mouseY = y;
+        aim.setMousePosition(x, y);
         inputDelta.markMouseMoved();
     }
 
     @Override
-    public double getActualMouseX() { return mouseX; }
+    public double getActualMouseX() { return aim.getMouseX(); }
 
     @Override
-    public double getActualMouseY() { return mouseY; }
+    public double getActualMouseY() { return aim.getMouseY(); }
 
     @Override
     public boolean isEverythingStopped() {
@@ -741,32 +640,22 @@ public class GameManager implements LobbyView, CustomizationView {
 
     @Override
     public String getTeamPawnColor(int team) {
-        PlayerProfile profile = team == 1 ? match.getLeftProfile() : match.getRightProfile();
-        String code = profile.pawnFlag().code();
-
-        if (team == 2 && sameFlag(match.getLeftProfile(), match.getRightProfile())) {
-            return FlagColors.localPlayTeam2Color(code);
-        }
-        return FlagColors.forCode(code);
+        return lobbyPresenter.getTeamPawnColor(team);
     }
 
     @Override
     public String getTeamPawnInnerColor(int team) {
-        return FlagColors.innerForHex(getTeamPawnColor(team));
-    }
-
-    private static boolean sameFlag(PlayerProfile left, PlayerProfile right) {
-        return left.pawnFlag().code().equals(right.pawnFlag().code());
+        return lobbyPresenter.getTeamPawnInnerColor(team);
     }
 
     @Override
     public List<DiscoveredHost> getDiscoveredHosts() {
-        return List.copyOf(discoveredHosts);
+        return lobbyPresenter.getDiscoveredHosts();
     }
 
     @Override
     public DiscoveredHost getJoinedHost() {
-        return joinedHost;
+        return lobbyPresenter.getJoinedHost();
     }
 
     private boolean isMultiplayerGame() {
@@ -779,112 +668,56 @@ public class GameManager implements LobbyView, CustomizationView {
 
     @Override
     public boolean isLocalPlayerHost() {
-        return lobbyManager.getLocalSide()
-                .map(side -> side == PlayerSide.LEFT)
-                .orElse(gameState == GameState.HOST_LOBBY);
+        return lobbyPresenter.isLocalPlayerHost();
     }
 
     @Override
     public String getLocalPlayerName() {
-        return getLocalProfile().name();
+        return lobbyPresenter.getLocalPlayerName();
     }
 
     @Override
     public String getLocalPlayerFlagName() {
-        return getLocalProfile().pawnFlag().displayName();
+        return lobbyPresenter.getLocalPlayerFlagName();
     }
 
     @Override
     public String getLocalPlayerFlagColor() {
-        return CustomizationScreen.flagColor(getLocalProfile().pawnFlag().code());
+        return lobbyPresenter.getLocalPlayerFlagColor();
     }
 
     @Override
     public boolean hasOpponent() {
-        if (isLocalPlayerHost()) {
-            return lobbyManager.getLobby()
-                    .flatMap(Lobby::getGuest)
-                    .isPresent();
-        }
-        return getOpponentPlayer() != null || joinedHost != null;
+        return lobbyPresenter.hasOpponent();
     }
 
     @Override
     public String getOpponentName() {
-        LobbyPlayer opponent = getOpponentPlayer();
-        if (opponent != null) {
-            return opponent.getProfile().name();
-        }
-        if (gameState == GameState.CLIENT_LOBBY && joinedHost != null) {
-            return joinedHost.getHostName();
-        }
-        return null;
+        return lobbyPresenter.getOpponentName();
     }
 
     @Override
     public String getOpponentFlagName() {
-        LobbyPlayer opponent = getOpponentPlayer();
-        if (opponent != null) {
-            return opponent.getProfile().pawnFlag().displayName();
-        }
-        return gameState == GameState.CLIENT_LOBBY ? "?" : "";
+        return lobbyPresenter.getOpponentFlagName();
     }
 
     @Override
     public String getOpponentFlagColor() {
-        LobbyPlayer opponent = getOpponentPlayer();
-        if (opponent != null) {
-            return CustomizationScreen.flagColor(opponent.getProfile().pawnFlag().code());
-        }
-        return gameState == GameState.CLIENT_LOBBY ? "#4682b4" : "#666666";
+        return lobbyPresenter.getOpponentFlagColor();
     }
 
     @Override
     public boolean isLocalPlayerReady() {
-        Lobby lobby = lobbyManager.getLobby().orElse(null);
-        PlayerSide side = lobbyManager.getLocalSide().orElse(null);
-        if (lobby == null || side == null) {
-            return false;
-        }
-        return side == PlayerSide.LEFT
-                ? lobby.getHost().isReady()
-                : lobby.getGuest().map(LobbyPlayer::isReady).orElse(false);
+        return lobbyPresenter.isLocalPlayerReady();
     }
 
     @Override
     public boolean isOpponentReady() {
-        LobbyPlayer opponent = getOpponentPlayer();
-        return opponent != null && opponent.isReady();
+        return lobbyPresenter.isOpponentReady();
     }
 
     @Override
     public boolean canStartGame() {
-        return gameState == GameState.HOST_LOBBY && lobbyManager.canStartGame();
-    }
-
-    private PlayerProfile getLocalProfile() {
-        Lobby lobby = lobbyManager.getLobby().orElse(null);
-        PlayerSide side = lobbyManager.getLocalSide().orElse(null);
-        if (lobby == null || side == null) {
-            return customization.getCurrentProfile();
-        }
-        if (side == PlayerSide.LEFT) {
-            return lobby.getHost().getProfile();
-        }
-        return lobby.getGuest()
-                .map(LobbyPlayer::getProfile)
-                .orElse(customization.getCurrentProfile());
-    }
-
-    private LobbyPlayer getOpponentPlayer() {
-        Lobby lobby = lobbyManager.getLobby().orElse(null);
-        PlayerSide side = lobbyManager.getLocalSide().orElse(null);
-        if (lobby == null || side == null) {
-            return null;
-        }
-        if (side == PlayerSide.LEFT) {
-            return lobby.getGuest().orElse(null);
-        }
-        return lobby.getHost();
+        return lobbyPresenter.canStartGame();
     }
 }
