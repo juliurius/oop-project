@@ -46,6 +46,7 @@ public class GameManager implements LobbyView, CustomizationView {
     private final List<DiscoveredHost> discoveredHosts = new ArrayList<>();
     private DiscoveredHost joinedHost = null;
     private long lastGameStateSentMillis = 0;
+    private boolean lastPhysicsActive = false;
 
     public GameManager(double width, double height) {
         List<PlayerFlag> flags = List.of(
@@ -103,8 +104,11 @@ public class GameManager implements LobbyView, CustomizationView {
             }
 
             FrameDelta delta = updateLocalPhysics(deltaTime);
+            boolean physicsJustSettled = lastPhysicsActive && !delta.physicsActive();
+            lastPhysicsActive = delta.physicsActive();
             boolean forceSync = pendingEvents.contains(DomainEvent.SCORE_CHANGED)
-                    || pendingEvents.contains(DomainEvent.TURN_CHANGED);
+                    || pendingEvents.contains(DomainEvent.TURN_CHANGED)
+                    || physicsJustSettled;
             syncGameState(delta, forceSync);
             return delta;
         } catch (IOException exception) {
@@ -457,6 +461,7 @@ public class GameManager implements LobbyView, CustomizationView {
         match.setProfiles(lobby.getHost().getProfile(), lobby.getGuest().get().getProfile());
         match.resetGame();
         lastGameStateSentMillis = 0;
+        lastPhysicsActive = false;
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
         sendGameStateQuietly();
@@ -520,6 +525,7 @@ public class GameManager implements LobbyView, CustomizationView {
         int oldTurn = match.getPlayerTurn();
         int oldScore1 = match.getTeamScore(1);
         int oldScore2 = match.getTeamScore(2);
+        boolean wasStopped = physics.isEverythingStopped(match.getPawns(), match.getBall());
 
         match.setPlayerTurn(Integer.parseInt(fields.get(1)));
         match.setScores(Integer.parseInt(fields.get(2)), Integer.parseInt(fields.get(3)));
@@ -540,6 +546,9 @@ public class GameManager implements LobbyView, CustomizationView {
         }
         if (oldScore1 != match.getTeamScore(1) || oldScore2 != match.getTeamScore(2)) {
             pendingEvents.add(DomainEvent.SCORE_CHANGED);
+        }
+        if (wasStopped != physics.isEverythingStopped(match.getPawns(), match.getBall())) {
+            inputDelta.markMouseMoved();
         }
         transitionTo(receivedState);
         inputDelta.markAimingChanged();
@@ -699,6 +708,7 @@ public class GameManager implements LobbyView, CustomizationView {
         }
 
         match.resetPitch();
+        lastPhysicsActive = false;
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
         sendGameStateQuietly();
