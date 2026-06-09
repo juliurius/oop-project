@@ -12,6 +12,11 @@ public interface LobbyView extends GameView {
 
     DiscoveredHost getJoinedHost();
 
+    boolean isJoinPending();
+
+    /** Komunikat statusu na ekranie JOIN (np. błąd); null gdy brak. */
+    String getJoinStatusMessage();
+
     // --- aktywne lobby (HOST_LOBBY / CLIENT_LOBBY) ---
     // GameManager implementuje te metody; docelowo dane z LobbyManager + Lobby.
 

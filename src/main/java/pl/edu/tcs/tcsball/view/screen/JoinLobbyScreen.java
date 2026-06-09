@@ -55,18 +55,38 @@ public class JoinLobbyScreen implements Screen {
         gc.setFont(Font.font("Arial", FontWeight.BOLD, 44));
         gc.fillText("WYBIERZ HOSTA", GameConfig.WINDOW_WIDTH / 2.0, 72);
 
-        buttonRenderer.drawButton("ODŚWIEŻ", REFRESH_BTN_X, REFRESH_BTN_Y, REFRESH_BTN_WIDTH, REFRESH_BTN_HEIGHT,
-                mx, my, Color.web("#4682b4"), Color.web("#357abd"));
+        if (!(game instanceof LobbyView lobbyView && lobbyView.isJoinPending())) {
+            buttonRenderer.drawButton("ODŚWIEŻ", REFRESH_BTN_X, REFRESH_BTN_Y, REFRESH_BTN_WIDTH, REFRESH_BTN_HEIGHT,
+                    mx, my, Color.web("#4682b4"), Color.web("#357abd"));
+        }
 
         if (game instanceof LobbyView lobbyView) {
-            List<DiscoveredHost> hosts = lobbyView.getDiscoveredHosts();
-            if (hosts.isEmpty()) {
-                gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-                gc.setFill(Color.web("#aaaaaa"));
-                gc.fillText("Brak hostów — kliknij ODŚWIEŻ", GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y + 40);
-            } else {
+            if (lobbyView.isJoinPending()) {
+                gc.setFont(Font.font("Arial", FontWeight.NORMAL, 22));
+                gc.setFill(Color.web("#cccccc"));
+                String hostName = lobbyView.getJoinedHost() != null
+                        ? lobbyView.getJoinedHost().getHostName()
+                        : "hosta";
+                gc.fillText("Łączenie z " + hostName + "…", GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y + 40);
+            } else if (lobbyView.getJoinStatusMessage() != null) {
+                gc.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
+                gc.setFill(Color.web("#ff9999"));
+                gc.fillText(lobbyView.getJoinStatusMessage(), GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y - 20);
+
+                List<DiscoveredHost> hosts = lobbyView.getDiscoveredHosts();
                 for (int i = 0; i < hosts.size(); i++) {
                     drawHostRow(hosts.get(i), i, mx, my);
+                }
+            } else {
+                List<DiscoveredHost> hosts = lobbyView.getDiscoveredHosts();
+                if (hosts.isEmpty()) {
+                    gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
+                    gc.setFill(Color.web("#aaaaaa"));
+                    gc.fillText("Brak hostów — kliknij ODŚWIEŻ", GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y + 40);
+                } else {
+                    for (int i = 0; i < hosts.size(); i++) {
+                        drawHostRow(hosts.get(i), i, mx, my);
+                    }
                 }
             }
         }

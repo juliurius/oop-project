@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Set;
 
 public class GameManager implements LobbyView, CustomizationView {
+    private static final long JOIN_PENDING_TIMEOUT_MILLIS = 3_000;
+
     private final Match match;
     private final PhysicsEngine physics;
     private final LobbyManager lobbyManager = new LobbyManager();
@@ -42,6 +44,10 @@ public class GameManager implements LobbyView, CustomizationView {
     private DiscoveredHost joinedHost = null;
     private long lastGameStateSentMillis = 0;
     private boolean lastPhysicsActive = false;
+
+    private boolean pendingJoin = false;
+    private long pendingJoinStartedMillis = 0;
+    private String joinStatusMessage = null;
 
     public GameManager(double width, double height) {
         FlagCatalog flags = new FlagCatalog();
@@ -111,6 +117,7 @@ public class GameManager implements LobbyView, CustomizationView {
             boolean lobbyChanged = lobbyManager.updateNetwork();
             if (gameState == GameState.JOIN_LOBBY) {
                 syncDiscoveredHosts();
+                updatePendingJoin();
             }
             if (lobbyManager.consumeStartRequested()) {
                 beginMultiplayerMatch();
@@ -310,11 +317,20 @@ public class GameManager implements LobbyView, CustomizationView {
 
     public void handleJoinLobbyClick(double x, double y) {
         if (JoinLobbyScreen.isBackButtonHit(x, y)) {
-            quitToMenu();
+            if (pendingJoin) {
+                cancelPendingJoin(null);
+            } else {
+                quitToMenu();
+            }
+            return;
+        }
+
+        if (pendingJoin) {
             return;
         }
 
         if (JoinLobbyScreen.isRefreshButtonHit(x, y)) {
+            joinStatusMessage = null;
             refreshDiscoveredHosts();
             return;
         }
@@ -366,6 +382,9 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public void openJoinLobby() {
+        pendingJoin = false;
+        pendingJoinStartedMillis = 0;
+        joinStatusMessage = null;
         joinedHost = null;
         discoveredHosts.clear();
         try {
@@ -394,12 +413,52 @@ public class GameManager implements LobbyView, CustomizationView {
         }
 
         joinedHost = host;
+        joinStatusMessage = null;
         try {
             lobbyManager.joinLobby(host, customization.getCurrentProfile());
-            transitionTo(GameState.CLIENT_LOBBY);
+            pendingJoin = true;
+            pendingJoinStartedMillis = System.currentTimeMillis();
+            inputDelta.markMouseMoved();
         } catch (IOException exception) {
             joinedHost = null;
+            joinStatusMessage = "Nie udało się połączyć z hostem";
+            inputDelta.markMouseMoved();
         }
+    }
+
+    private void updatePendingJoin() {
+        if (!pendingJoin) {
+            return;
+        }
+
+        if (lobbyManager.isGuestLobbyConfirmed()) {
+            confirmJoinSuccess();
+        } else if (System.currentTimeMillis() - pendingJoinStartedMillis > JOIN_PENDING_TIMEOUT_MILLIS) {
+            cancelPendingJoin("Host nie odpowiedział — spróbuj ponownie");
+        }
+    }
+
+    private void confirmJoinSuccess() {
+        pendingJoin = false;
+        pendingJoinStartedMillis = 0;
+        joinStatusMessage = null;
+        transitionTo(GameState.CLIENT_LOBBY);
+        inputDelta.markMouseMoved();
+    }
+
+    private void cancelPendingJoin(String message) {
+        pendingJoin = false;
+        pendingJoinStartedMillis = 0;
+        joinedHost = null;
+        joinStatusMessage = message;
+        lobbyManager.leaveLobby();
+        try {
+            lobbyManager.startScanningHosts();
+            syncDiscoveredHosts();
+        } catch (IOException ignored) {
+            // Skanowanie moze sie nie udac; ekran pokaze pusta liste.
+        }
+        inputDelta.markMouseMoved();
     }
 
     public void leaveClientLobby() {
@@ -618,6 +677,9 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public void quitToMenu () {
+        pendingJoin = false;
+        pendingJoinStartedMillis = 0;
+        joinStatusMessage = null;
         lobbyManager.leaveLobby();
         joinedHost = null;
         discoveredHosts.clear();
@@ -666,6 +728,16 @@ public class GameManager implements LobbyView, CustomizationView {
     @Override
     public DiscoveredHost getJoinedHost() {
         return lobbyPresenter.getJoinedHost();
+    }
+
+    @Override
+    public boolean isJoinPending() {
+        return pendingJoin;
+    }
+
+    @Override
+    public String getJoinStatusMessage() {
+        return joinStatusMessage;
     }
 
     private boolean isMultiplayerGame() {

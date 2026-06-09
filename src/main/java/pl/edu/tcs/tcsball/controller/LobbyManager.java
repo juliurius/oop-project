@@ -45,6 +45,12 @@ public class LobbyManager {
         return Optional.ofNullable(localSide);
     }
 
+    public boolean isGuestLobbyConfirmed() {
+        return localSide == PlayerSide.RIGHT
+                && lobby != null
+                && lobby.getGuest().isPresent();
+    }
+
     public void hostLobby(PlayerProfile hostProfile) throws IOException {
         leaveLobby();
 
