@@ -14,7 +14,7 @@ import java.util.Objects;
 public class GameHostServer implements AutoCloseable {
     private int gamePort = GameConfig.NETWORK_GAME_PORT;
     private Lobby lobby;
-    private NetworkConnection clientConnection;
+    private volatile NetworkConnection clientConnection;
     private ServerSocket serverSocket;
     private Thread acceptThread;
     private volatile boolean running;
@@ -74,16 +74,21 @@ public class GameHostServer implements AutoCloseable {
     }
 
     private void acceptClient() {
-        try {
-            Socket clientSocket = serverSocket.accept();
-            if (running) {
-                clientConnection = new NetworkConnection(clientSocket);
-            } else {
-                clientSocket.close();
-            }
-        } catch (IOException exception) {
-            if (running) {
-                running = false;
+        while (running) {
+            try {
+                Socket clientSocket = serverSocket.accept();
+                if (!running) { clientSocket.close(); return; }
+
+                if (hasClientConnection()) {
+                    clientSocket.close();
+                } else {
+                    closeClientConnection();
+                    clientConnection = new NetworkConnection(clientSocket);
+                }
+            } catch (IOException exception) {
+                if (running) {
+                    running = false;
+                }
             }
         }
     }
