@@ -13,6 +13,7 @@ import pl.edu.tcs.tcsball.model.player.PlayerSide;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 import pl.edu.tcs.tcsball.net.protocol.MessageType;
 import pl.edu.tcs.tcsball.net.protocol.NetworkMessage;
+import pl.edu.tcs.tcsball.view.element.FlagColors;
 import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
 import pl.edu.tcs.tcsball.view.screen.*;
 
@@ -743,6 +744,26 @@ public class GameManager implements LobbyView, CustomizationView {
     @Override
     public boolean isEverythingStopped() {
         return physics.isEverythingStopped(match.getPawns(), match.getBall());
+    }
+
+    @Override
+    public String getTeamPawnColor(int team) {
+        PlayerProfile profile = team == 1 ? match.getLeftProfile() : match.getRightProfile();
+        String code = profile.pawnFlag().code();
+
+        if (team == 2 && sameFlag(match.getLeftProfile(), match.getRightProfile())) {
+            return FlagColors.localPlayTeam2Color(code);
+        }
+        return FlagColors.forCode(code);
+    }
+
+    @Override
+    public String getTeamPawnInnerColor(int team) {
+        return FlagColors.innerForHex(getTeamPawnColor(team));
+    }
+
+    private static boolean sameFlag(PlayerProfile left, PlayerProfile right) {
+        return left.pawnFlag().code().equals(right.pawnFlag().code());
     }
 
     @Override

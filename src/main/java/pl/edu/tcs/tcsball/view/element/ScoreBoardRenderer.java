@@ -25,7 +25,9 @@ public class ScoreBoardRenderer {
         this.buttonRenderer = buttonRenderer;
     }
 
-    public void drawScoreBoard(int score1, int score2, int currentTurn, double mouseX, double mouseY, boolean everythingStopped) {
+    public void drawScoreBoard(int score1, int score2, int currentTurn,
+                               String team1Color, String team2Color,
+                               double mouseX, double mouseY, boolean everythingStopped) {
         graphicsContext.setFill(Color.web("#1a1a1a"));
         graphicsContext.fillRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.SCORE_PANEL_HEIGHT);
 
@@ -46,19 +48,9 @@ public class ScoreBoardRenderer {
         graphicsContext.setFill(Color.color(0, 0, 0, 0.5));
         graphicsContext.fillOval(dotX - dotRadius + 2, dotY - dotRadius + 2, dotRadius * 2, dotRadius * 2);
 
-        if (currentTurn == 1) {
-            if(everythingStopped) {
-                graphicsContext.setFill(Color.web("#1e90ff"));
-            } else {
-                graphicsContext.setFill(Color.web("#1e90ff", 0.4));
-            }
-        } else {
-            if(everythingStopped) {
-                graphicsContext.setFill(Color.web("#ff4c4c"));
-            } else {
-                graphicsContext.setFill(Color.web("#ff4c4c", 0.4));
-            }
-        }
+        String turnColor = currentTurn == 1 ? team1Color : team2Color;
+        double turnOpacity = everythingStopped ? 1.0 : 0.4;
+        graphicsContext.setFill(Color.web(turnColor, turnOpacity));
 
         graphicsContext.fillOval(dotX - dotRadius, dotY - dotRadius, dotRadius * 2, dotRadius * 2);
 

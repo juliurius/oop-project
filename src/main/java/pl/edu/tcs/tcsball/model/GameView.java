@@ -24,4 +24,8 @@ public interface GameView {
     double getActualMouseY();
 
     boolean isEverythingStopped();
+
+    String getTeamPawnColor(int team);
+
+    String getTeamPawnInnerColor(int team);
 }
