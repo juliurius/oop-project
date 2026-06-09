@@ -41,6 +41,7 @@ public class GameManager implements LobbyView, CustomizationView {
     private final List<DiscoveredHost> discoveredHosts = new ArrayList<>();
     private DiscoveredHost joinedHost = null;
     private long lastGameStateSentMillis = 0;
+    private boolean lastPhysicsActive = false;
 
     public GameManager(double width, double height) {
         FlagCatalog flags = new FlagCatalog();
@@ -92,8 +93,11 @@ public class GameManager implements LobbyView, CustomizationView {
             }
 
             FrameDelta delta = updateLocalPhysics(deltaTime);
+            boolean physicsJustSettled = lastPhysicsActive && !delta.physicsActive();
+            lastPhysicsActive = delta.physicsActive();
             boolean forceSync = pendingEvents.contains(DomainEvent.SCORE_CHANGED)
-                    || pendingEvents.contains(DomainEvent.TURN_CHANGED);
+                    || pendingEvents.contains(DomainEvent.TURN_CHANGED)
+                    || physicsJustSettled;
             syncGameState(delta, forceSync);
             return delta;
         } catch (IOException exception) {
@@ -444,6 +448,7 @@ public class GameManager implements LobbyView, CustomizationView {
         match.setProfiles(lobby.getHost().getProfile(), lobby.getGuest().get().getProfile());
         match.resetGame();
         lastGameStateSentMillis = 0;
+        lastPhysicsActive = false;
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
         sendGameStateQuietly();
@@ -478,6 +483,7 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     private boolean applyGameState(NetworkMessage message) {
+        boolean wasStopped = physics.isEverythingStopped(match.getPawns(), match.getBall());
         GameStateCodec.Decoded decoded = gameStateCodec.decode(message, match);
 
         aim.clear();
@@ -486,6 +492,9 @@ public class GameManager implements LobbyView, CustomizationView {
         }
         if (decoded.scoreChanged()) {
             pendingEvents.add(DomainEvent.SCORE_CHANGED);
+        }
+        if (wasStopped != physics.isEverythingStopped(match.getPawns(), match.getBall())) {
+            inputDelta.markMouseMoved();
         }
         transitionTo(decoded.state());
         inputDelta.markAimingChanged();
@@ -592,6 +601,7 @@ public class GameManager implements LobbyView, CustomizationView {
         }
 
         match.resetPitch();
+        lastPhysicsActive = false;
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
         sendGameStateQuietly();
