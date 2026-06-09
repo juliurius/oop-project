@@ -7,6 +7,7 @@ import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.model.formation.FormationFactory;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;
 import pl.edu.tcs.tcsball.model.lobby.LobbyPlayer;
+import pl.edu.tcs.tcsball.model.player.FlagCatalog;
 import pl.edu.tcs.tcsball.model.player.PlayerFlag;
 import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.model.player.PlayerSide;
@@ -48,36 +49,28 @@ public class GameManager implements LobbyView, CustomizationView {
     private long lastGameStateSentMillis = 0;
 
     public GameManager(double width, double height) {
-        List<PlayerFlag> flags = List.of(
-                new PlayerFlag("PL", "Polska"), new PlayerFlag("UA", "Ukraina"),
-                new PlayerFlag("DE", "Niemcy"), new PlayerFlag("FR", "Francja"),
-                new PlayerFlag("ES", "Hiszpania"));
-        PlayerProfile defaultProfile =
-                new PlayerProfile("Gracz", flags.get(0), formationFactory.getAvailableIds().get(0));
+        FlagCatalog flags = new FlagCatalog();
+        PlayerProfile defaultProfile = CustomizationManager.defaultProfile(flags, formationFactory);
 
-        customization = new CustomizationManager(defaultProfile, flags, formationFactory.getAvailableIds());
+        customization = new CustomizationManager(defaultProfile, flags.all(), formationFactory.getAvailableIds());
         match = new Match(formationFactory, defaultProfile, defaultProfile);
         physics = new PhysicsEngine(width, height);
     }
 
     public FrameDelta update(double deltaTime) {
+        if (gameState != GameState.PLAYING && gameState != GameState.GOAL_SCORED) {
+            updateLobbyNetwork();
+        }
+
         if (isMultiplayerGame() && (gameState == GameState.PLAYING || gameState == GameState.GOAL_SCORED)) {
             return updateMultiplayerGame(deltaTime);
         }
 
-        if (gameState != GameState.PLAYING) {
-            updateLobbyNetwork();
+        if (gameState == GameState.PLAYING) {
+            return updateLocalPhysics(deltaTime);
         }
 
-        if (isMultiplayerGame() && gameState == GameState.PLAYING) {
-            return updateMultiplayerGame(deltaTime);
-        }
-
-        if (gameState != GameState.PLAYING) {
-            return FrameDelta.idle();
-        }
-
-        return updateLocalPhysics(deltaTime);
+        return FrameDelta.idle();
     }
 
     private FrameDelta updateLocalPhysics(double deltaTime) {
