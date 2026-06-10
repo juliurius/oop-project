@@ -1,30 +1,35 @@
 package pl.edu.tcs.tcsball;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.regex.Pattern;
 
 public final class GameConfig {
-    // Wartosci sa ladowane z pliku src/main/resources/game-config.json.
-    private static final String CONFIG = readConfig();
+    // Wartosci sa ladowane z pliku src/main/resources/game-config.json przez Gson.
+    private static final ConfigData DATA = readConfig();
 
     // Calkowita szerokosc i wysokosc okna aplikacji
-    public static final int WINDOW_WIDTH = intValue("windowWidth");
-    public static final int WINDOW_HEIGHT = intValue("windowHeight");
+    public static final int WINDOW_WIDTH = DATA.windowWidth();
+    public static final int WINDOW_HEIGHT = DATA.windowHeight();
 
     // --- STEROWANIE ---
-    public static final double MAX_PULL_DISTANCE = doubleValue("maxPullDistance");
+    public static final double MAX_PULL_DISTANCE = DATA.maxPullDistance();
 
     // Wysokosc gornego paska na wynik (boisko zaczyna sie ponizej)
-    public static final double SCORE_PANEL_HEIGHT = doubleValue("scorePanelHeight");
+    public static final double SCORE_PANEL_HEIGHT = DATA.scorePanelHeight();
 
     // Odleglosc linii boiska od krawedzi okna (zostawia miejsce na bramki)
-    public static final double MARGIN_X = doubleValue("marginX");
-    public static final double MARGIN_Y = doubleValue("marginY");
+    public static final double MARGIN_X = DATA.marginX();
+    public static final double MARGIN_Y = DATA.marginY();
 
     // Glebokosc bramki (ile wystaje za aut) i jej wysokosc (swiatlo bramki)
-    public static final double GOAL_WIDTH = doubleValue("goalWidth");
-    public static final double GOAL_HEIGHT = doubleValue("goalHeight");
+    public static final double GOAL_WIDTH = DATA.goalWidth();
+    public static final double GOAL_HEIGHT = DATA.goalHeight();
 
     // --- GRANICE FIZYCZNE (BANDY) ---
     // Wspolrzedne scian boiska dla silnika fizyki (do odbijania pionkow)
@@ -32,7 +37,7 @@ public final class GameConfig {
     public static final double PITCH_BOTTOM_Y = WINDOW_HEIGHT - MARGIN_Y;
     public static final double PITCH_LEFT_X = MARGIN_X;
     public static final double PITCH_RIGHT_X = WINDOW_WIDTH - MARGIN_X;
-    public static final double PITCH_CENTER_CIRCLE_RADIUS = doubleValue("pitchCenterCircleRadius");
+    public static final double PITCH_CENTER_CIRCLE_RADIUS = DATA.pitchCenterCircleRadius();
 
     // --- KOORDYNATY BRAMKI ---
     // Wspolrzedne ulatwiajace fizyce sprawdzenie, czy padl gol (pomiedzy slupkami)
@@ -42,37 +47,38 @@ public final class GameConfig {
 
     // --- PIONKI ---
     // Promien kazdego pionka (do rysowania i kolizji)
-    public static final double PAWN_RADIUS = doubleValue("pawnRadius");
-    public static final double PAWN_MASS = doubleValue("pawnMass");
-    public static final double PAWN_RESTITUTION = doubleValue("pawnRestitution");
-    public static final double PAWN_SHOT_POWER = doubleValue("pawnShotPower");
+    public static final double PAWN_RADIUS = DATA.pawnRadius();
+    public static final double PAWN_MASS = DATA.pawnMass();
+    public static final double PAWN_RESTITUTION = DATA.pawnRestitution();
+    public static final double PAWN_SHOT_POWER = DATA.pawnShotPower();
 
     // --- PILKA ---
-    public static final double BALL_RADIUS = doubleValue("ballRadius");
-    public static final double BALL_MASS = doubleValue("ballMass");
-    public static final double BALL_RESTITUTION = doubleValue("ballRestitution");
-    public static final double BALL_MAX_SPIN = doubleValue("ballMaxSpin");
-    public static final double BALL_FULL_ROTATION_DEGREES = doubleValue("ballFullRotationDegrees");
-    public static final double BALL_SPIN_ROTATION_SPEED = doubleValue("ballSpinRotationSpeed");
+    public static final double BALL_RADIUS = DATA.ballRadius();
+    public static final double BALL_MASS = DATA.ballMass();
+    public static final double BALL_RESTITUTION = DATA.ballRestitution();
+    public static final double BALL_MAX_SPIN = DATA.ballMaxSpin();
+    public static final double BALL_FULL_ROTATION_DEGREES = DATA.ballFullRotationDegrees();
+    public static final double BALL_SPIN_ROTATION_SPEED = DATA.ballSpinRotationSpeed();
 
     // --- FIZYKA ---
-    public static final double REFERENCE_FPS = doubleValue("referenceFps");
-    public static final double FRICTION = doubleValue("friction");             // Tarcie na klatke przy 120 FPS
-    public static final double PAWN_STOP_SPEED = doubleValue("pawnStopSpeed"); // px/s
-    public static final double BALL_STOP_SPEED = doubleValue("ballStopSpeed"); // px/s
-    public static final double SPIN_TURN_POWER = doubleValue("spinTurnPower");
-    public static final double SPIN_FRICTION = doubleValue("spinFriction");
-    public static final double MIN_SPEED_FOR_SPIN = doubleValue("minSpeedForSpin");
-    public static final double SPIN_FROM_HIT = doubleValue("spinFromHit");
-    public static final double FULL_SPIN_HIT_SPEED = doubleValue("fullSpinHitSpeed");
-    public static final int COLLISION_PASSES = intValue("collisionPasses");
-    public static final double COLLISION_MIN_DISTANCE = doubleValue("collisionMinDistance");
+    public static final double REFERENCE_FPS = DATA.referenceFps();
+    public static final double FRICTION = DATA.friction();             // Tarcie na klatke przy 120 FPS
+    public static final double PAWN_STOP_SPEED = DATA.pawnStopSpeed(); // px/s
+    public static final double BALL_STOP_SPEED = DATA.ballStopSpeed(); // px/s
+    public static final double SPIN_TURN_POWER = DATA.spinTurnPower();
+    public static final double SPIN_FRICTION = DATA.spinFriction();
+    public static final double MIN_SPEED_FOR_SPIN = DATA.minSpeedForSpin();
+    public static final double SPIN_FROM_HIT = DATA.spinFromHit();
+    public static final double FULL_SPIN_HIT_SPEED = DATA.fullSpinHitSpeed();
+    public static final int COLLISION_PASSES = DATA.collisionPasses();
+    public static final double COLLISION_MIN_DISTANCE = DATA.collisionMinDistance();
 
     // --- SIEC LAN ---
-    public static final int NETWORK_GAME_PORT = intValue("networkGamePort");
-    public static final int NETWORK_DISCOVERY_PORT = intValue("networkDiscoveryPort");
-    public static final int NETWORK_BROADCAST_INTERVAL_MILLIS = intValue("networkBroadcastIntervalMillis");
-    public static final int NETWORK_HOST_TIMEOUT_MILLIS = intValue("networkHostTimeoutMillis");
+    public static final int NETWORK_GAME_PORT = DATA.networkGamePort();
+    public static final int NETWORK_DISCOVERY_PORT = DATA.networkDiscoveryPort();
+    public static final int NETWORK_BROADCAST_INTERVAL_MILLIS = DATA.networkBroadcastIntervalMillis();
+    public static final int NETWORK_HOST_TIMEOUT_MILLIS = DATA.networkHostTimeoutMillis();
+    public static final int NETWORK_STATE_SYNC_INTERVAL_MILLIS = DATA.networkStateSyncIntervalMillis();
 
     // Pozycje pionkow druzyny 1 (lewa strona) jako offsety:
     //   [0] = X liczone od bandy PITCH_LEFT_X w glab boiska
@@ -83,47 +89,26 @@ public final class GameConfig {
     private GameConfig() {
     }
 
-    private static String readConfig() {
-        try (var input = GameConfig.class.getResourceAsStream("/game-config.json")) {
+    private static ConfigData readConfig() {
+        try (InputStream input = GameConfig.class.getResourceAsStream("/game-config.json")) {
             if (input == null) {
                 throw new IllegalStateException("Missing game-config.json");
             }
-            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException exception) {
+            Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
+            ConfigData data = new Gson().fromJson(reader, ConfigData.class);
+            if (data == null) {
+                throw new IllegalStateException("Empty game-config.json");
+            }
+            data.validate();
+            return data;
+        } catch (IOException | JsonParseException exception) {
             throw new ExceptionInInitializerError(exception);
         }
     }
 
-    private static int intValue(String key) {
-        return (int) doubleValue(key);
-    }
-
-    private static double doubleValue(String key) {
-        return Double.parseDouble(value(key));
-    }
-
-    private static String value(String key) {
-        var matcher = Pattern.compile("\"" + key + "\"\\s*:\\s*(-?\\d+(?:\\.\\d+)?|\\[[^]]*])").matcher(CONFIG);
-        if (!matcher.find()) {
-            throw new IllegalStateException("Missing config value: " + key);
-        }
-        return matcher.group(1);
-    }
-
-    private static double[] array(String key) {
-        return Pattern.compile("-?\\d+(?:\\.\\d+)?")
-                .matcher(value(key))
-                .results()
-                .mapToDouble(match -> Double.parseDouble(match.group()))
-                .toArray();
-    }
-
     private static double[][] formation() {
-        double[] x = array("teamFormationOffsetX");
-        double[] y = array("teamFormationOffsetY");
-        if (x.length != y.length) {
-            throw new IllegalStateException("Formation arrays must have the same length");
-        }
+        double[] x = DATA.teamFormationOffsetX();
+        double[] y = DATA.teamFormationOffsetY();
 
         double[][] offsets = new double[x.length][2];
         for (int i = 0; i < x.length; i++) {
@@ -131,5 +116,55 @@ public final class GameConfig {
             offsets[i][1] = y[i];
         }
         return offsets;
+    }
+
+    // Nazwy pol musza odpowiadac kluczom w game-config.json (Gson mapuje je 1:1).
+    private record ConfigData(
+            int windowWidth,
+            int windowHeight,
+            double maxPullDistance,
+            double scorePanelHeight,
+            double marginX,
+            double marginY,
+            double goalWidth,
+            double goalHeight,
+            double pitchCenterCircleRadius,
+            double pawnRadius,
+            double pawnMass,
+            double pawnRestitution,
+            double pawnShotPower,
+            double ballRadius,
+            double ballMass,
+            double ballRestitution,
+            double ballMaxSpin,
+            double ballFullRotationDegrees,
+            double ballSpinRotationSpeed,
+            double referenceFps,
+            double friction,
+            double pawnStopSpeed,
+            double ballStopSpeed,
+            double spinTurnPower,
+            double spinFriction,
+            double minSpeedForSpin,
+            double spinFromHit,
+            double fullSpinHitSpeed,
+            int collisionPasses,
+            double collisionMinDistance,
+            int networkGamePort,
+            int networkDiscoveryPort,
+            int networkBroadcastIntervalMillis,
+            int networkHostTimeoutMillis,
+            int networkStateSyncIntervalMillis,
+            double[] teamFormationOffsetX,
+            double[] teamFormationOffsetY
+    ) {
+        private void validate() {
+            if (teamFormationOffsetX == null || teamFormationOffsetY == null) {
+                throw new IllegalStateException("Missing formation offsets in game-config.json");
+            }
+            if (teamFormationOffsetX.length != teamFormationOffsetY.length) {
+                throw new IllegalStateException("Formation arrays must have the same length");
+            }
+        }
     }
 }

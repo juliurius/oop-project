@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ public class LanHostScanner implements AutoCloseable {
         }
 
         socket = new DatagramSocket(discoveryPort);
+        socket.setSoTimeout((int) hostTimeoutMillis);
         running = true;
 
         scannerThread = new Thread(this::scanLoop, "tcsball-lan-scanner");
@@ -78,6 +80,8 @@ public class LanHostScanner implements AutoCloseable {
                 if (running) {
                     running = false;
                 }
+            } catch (SocketTimeoutException ignored) {
+                clearExpiredHosts();
             } catch (IOException | IllegalArgumentException ignored) {
                 // Obce albo uszkodzone pakiety w LAN ignorujemy
             }

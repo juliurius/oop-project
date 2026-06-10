@@ -3,27 +3,35 @@ package pl.edu.tcs.tcsball.model.lobby;
 import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.model.player.PlayerSide;
 
+import java.util.Objects;
+
 public class LobbyPlayer {
-    private PlayerSide side;
+    private final PlayerSide side;
     private PlayerProfile profile;
     private boolean ready;
 
-    // TODO: trzymac strone gracza w lobby.
-    // TODO: trzymac profil gracza.
-    // TODO: trzymac informacje, czy gracz jest gotowy.
+    public LobbyPlayer(PlayerSide side, PlayerProfile profile) {
+        this.side = Objects.requireNonNull(side, "side");
+        this.profile = Objects.requireNonNull(profile, "profile");
+    }
 
     public PlayerSide getSide() {
-        // TODO: zwrocic strone gracza.
-        throw new UnsupportedOperationException("TODO");
+        return side;
     }
 
     public PlayerProfile getProfile() {
-        // TODO: zwrocic profil gracza.
-        throw new UnsupportedOperationException("TODO");
+        return profile;
     }
 
     public boolean isReady() {
-        // TODO: zwrocic gotowosc gracza.
-        throw new UnsupportedOperationException("TODO");
+        return ready;
+    }
+
+    public void setProfile(PlayerProfile profile) {
+        this.profile = Objects.requireNonNull(profile, "profile");
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
     }
 }
