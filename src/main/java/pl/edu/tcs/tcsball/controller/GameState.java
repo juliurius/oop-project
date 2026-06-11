@@ -1,4 +1,4 @@
-package pl.edu.tcs.tcsball.model;
+package pl.edu.tcs.tcsball.controller;
 
 public enum GameState {
     MENU,

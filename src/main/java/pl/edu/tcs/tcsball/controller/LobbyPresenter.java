@@ -1,6 +1,5 @@
 package pl.edu.tcs.tcsball.controller;
 
-import pl.edu.tcs.tcsball.model.GameState;
 import pl.edu.tcs.tcsball.model.Match;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;
 import pl.edu.tcs.tcsball.model.lobby.LobbyPlayer;

@@ -1,4 +1,4 @@
-package pl.edu.tcs.tcsball.model;
+package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 
@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface LobbyView extends GameView {
 
-    // --- wybór hosta (JOIN_LOBBY) ---
+    // --- wybor hosta (JOIN_LOBBY) ---
 
     List<DiscoveredHost> getDiscoveredHosts();
 
@@ -14,11 +14,10 @@ public interface LobbyView extends GameView {
 
     boolean isJoinPending();
 
-    /** Komunikat statusu na ekranie JOIN (np. błąd); null gdy brak. */
+    /** Komunikat statusu na ekranie JOIN (np. blad); null gdy brak. */
     String getJoinStatusMessage();
 
     // --- aktywne lobby (HOST_LOBBY / CLIENT_LOBBY) ---
-    // GameManager implementuje te metody; docelowo dane z LobbyManager + Lobby.
 
     boolean isLocalPlayerHost();
 

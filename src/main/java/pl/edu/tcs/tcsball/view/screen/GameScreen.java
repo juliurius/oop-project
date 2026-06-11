@@ -2,7 +2,7 @@ package pl.edu.tcs.tcsball.view.screen;
 
 import javafx.scene.canvas.GraphicsContext;
 import pl.edu.tcs.tcsball.GameConfig;
-import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.controller.GameView;
 import pl.edu.tcs.tcsball.model.Pawn;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.*;

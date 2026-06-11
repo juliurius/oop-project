@@ -2,7 +2,6 @@ package pl.edu.tcs.tcsball.controller;
 
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
-import pl.edu.tcs.tcsball.model.GameState;
 
 public class InputHandler {
     public InputHandler(GameManager gameManager, Scene scene) {

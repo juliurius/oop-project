@@ -51,12 +51,15 @@ src/main/java/pl/edu/tcs/tcsball/
 │   │   ├── MotionUpdater.java       Movement, friction, spin
 │   │   ├── CollisionResolver.java   Walls and body collisions
 │   │   └── GoalDetector.java        Goal-mouth detection
-│   ├── GameState.java         enum: MENU, PLAYING, GOAL_SCORED, SETTINGS
-│   └── GameView.java          Read-only interface exposed to the view layer
+│   └── lobby/                 Lobby domain objects and ready-state rules
 │
 ├── controller/                ── DECISIONS + FLOW
 │   ├── GameManager.java       State machine + game commands (startGame, scoreGoal…)
-│   └── InputHandler.java      Translates mouse events into state-aware actions
+│   ├── InputHandler.java      Translates mouse events into state-aware actions
+│   ├── GameState.java         Application/screen state enum owned by the controller
+│   ├── GameView.java          Read-only game data exposed to the view layer
+│   ├── LobbyView.java         Read-only lobby data exposed to lobby screens
+│   └── CustomizationView.java Read-only customization data
 │
 └── view/                      ── RENDERING (read-only access to the model)
     ├── Renderer.java          Picks the right screen based on GameState
@@ -95,13 +98,13 @@ This includes window and pitch dimensions, goal size, pawn and ball physics, sto
 |---|---|---|
 | **Model** | Domain data + physics rules | Itself only |
 | **Controller** | State transitions + input handling | Model |
-| **View** | Drawing on Canvas | Model (read-only, via `GameView`) |
+| **View** | Drawing on Canvas | Controller read-only interfaces |
 
-The **view never mutates** the model. Reading happens through `GameView` — a read-only interface that `GameManager` implements. The compiler enforces the boundary: no setters are visible to renderers.
+The **view never mutates** the model. Reading happens through read-only interfaces such as `GameView`, `LobbyView`, and `CustomizationView`, implemented by `GameManager`.
 
 ### Finite State Machine
 
-Game flow is driven by a single `GameState` enum stored privately in `GameManager`. All transitions go through one chokepoint:
+Game flow is driven by a single controller-owned `GameState` enum stored privately in `GameManager`. It describes application/screen state, not the core domain model. All transitions go through one chokepoint:
 
 ```java
 private void transitionTo(GameState next) {
@@ -216,7 +219,7 @@ For an OOP course, this codebase showcases:
 - **Inheritance** — `PhysicsBody` → `Pawn` / `Ball`
 - **Polymorphism** — `Screen` interface implemented by each game-state screen, dispatched via `Map<GameState, Screen>`
 - **Composition over inheritance** — `GoalScreen` reuses `GameScreen` as a field rather than extending it
-- **Interface segregation** — `GameView` exposes only what renderers need; no mutators leak through
+- **Interface segregation** — read-only controller interfaces expose only the data each renderer needs
 - **Encapsulation** — private state with named transition methods (`scoreGoal`, `dismissGoal`…) rather than public setters
 - **Single responsibility** — each element renderer draws exactly one type of thing
 - **Open/closed principle** — adding a new screen means a new `Screen` implementation; `Renderer` doesn't change
