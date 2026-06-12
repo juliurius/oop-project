@@ -3,8 +3,8 @@ package pl.edu.tcs.tcsball.view;
 import pl.edu.tcs.tcsball.controller.InputDelta;
 import pl.edu.tcs.tcsball.model.DomainEvent;
 import pl.edu.tcs.tcsball.model.FrameDelta;
-import pl.edu.tcs.tcsball.model.GameState;
-import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.controller.GameState;
+import pl.edu.tcs.tcsball.controller.GameView;
 
 import java.util.Set;
 

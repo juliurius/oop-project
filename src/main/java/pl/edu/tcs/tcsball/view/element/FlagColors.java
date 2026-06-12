@@ -1,10 +1,8 @@
 package pl.edu.tcs.tcsball.view.element;
 
-import javafx.scene.paint.Color;
-
 import java.util.Map;
 
-/** Mapowanie kodu flagi na kolor — wspólne dla customizacji, lobby i pionków. */
+/** Mapowanie kodu flagi na kolor uzywany przez renderery. */
 public final class FlagColors {
 
     private static final Map<String, String> COLORS = Map.of(
@@ -15,13 +13,13 @@ public final class FlagColors {
             "ES", "#c60b1e"
     );
 
-    /** Local play: drużyna 2 dostaje kontrastowy kolor zamiast tego samego co drużyna 1. */
+    /** Local play: druzyna 2 dostaje kontrastowy kolor zamiast tego samego co druzyna 1. */
     private static final Map<String, String> LOCAL_PLAY_TEAM2 = Map.of(
-            "PL", "#1e90ff",   // czerwony → niebieski
-            "UA", "#c9a000",   // niebieski → ciemny złoty
-            "DE", "#d4a017",   // czarny → złoty
-            "FR", "#c60b1e",   // niebieski → czerwony
-            "ES", "#0055a4"    // czerwony → niebieski
+            "PL", "#1e90ff",
+            "UA", "#c9a000",
+            "DE", "#d4a017",
+            "FR", "#c60b1e",
+            "ES", "#0055a4"
     );
 
     private static final String DEFAULT = "#888888";
@@ -37,34 +35,40 @@ public final class FlagColors {
         return innerForHex(forCode(code));
     }
 
-    /** Local play — ten sam kraj na obu stronach, drużyna 2 w kontrastowym kolorze. */
     public static String localPlayTeam2Color(String code) {
         return LOCAL_PLAY_TEAM2.getOrDefault(code, DEFAULT_LOCAL_TEAM2);
     }
 
     public static String innerForHex(String hex) {
-        Color color = Color.web(hex);
-        if (color.getBrightness() < 0.12) {
+        int[] rgb = parseRgb(hex);
+        double brightness = Math.max(rgb[0], Math.max(rgb[1], rgb[2])) / 255.0;
+
+        if (brightness < 0.12) {
             return "#4a4a4a";
         }
-        if (color.getBrightness() > 0.7) {
-            return shade(hex, 0.65);
+        if (brightness > 0.7) {
+            return shade(rgb, 0.65);
         }
-        return shade(hex, 0.72);
+        return shade(rgb, 0.72);
     }
 
-    private static String shade(String hex, double factor) {
-        Color color = Color.web(hex);
-        double r = clamp(color.getRed() * factor);
-        double g = clamp(color.getGreen() * factor);
-        double b = clamp(color.getBlue() * factor);
-        return String.format("#%02x%02x%02x",
-                (int) Math.round(r * 255),
-                (int) Math.round(g * 255),
-                (int) Math.round(b * 255));
+    private static String shade(int[] rgb, double factor) {
+        int r = clamp((int) Math.round(rgb[0] * factor));
+        int g = clamp((int) Math.round(rgb[1] * factor));
+        int b = clamp((int) Math.round(rgb[2] * factor));
+        return String.format("#%02x%02x%02x", r, g, b);
     }
 
-    private static double clamp(double value) {
-        return Math.max(0, Math.min(1, value));
+    private static int[] parseRgb(String hex) {
+        String value = hex.startsWith("#") ? hex.substring(1) : hex;
+        return new int[] {
+                Integer.parseInt(value.substring(0, 2), 16),
+                Integer.parseInt(value.substring(2, 4), 16),
+                Integer.parseInt(value.substring(4, 6), 16)
+        };
+    }
+
+    private static int clamp(int value) {
+        return Math.max(0, Math.min(255, value));
     }
 }

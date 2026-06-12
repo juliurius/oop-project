@@ -8,8 +8,9 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
-import pl.edu.tcs.tcsball.model.CustomizationView;
-import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.controller.CustomizationView;
+import pl.edu.tcs.tcsball.controller.GameView;
+import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
 import pl.edu.tcs.tcsball.view.element.FlagColors;
@@ -21,7 +22,6 @@ public class CustomizationScreen implements Screen {
         FORMATION
     }
 
-    public static final int NAME_MAX_LENGTH = 10;
     private static final String NAME_PLACEHOLDER = "wpisz imię";
 
     // Jedyny stan UI, który zostaje w ekranie (czysty fokus pola tekstowego).
@@ -69,7 +69,7 @@ public class CustomizationScreen implements Screen {
         return nameFieldFocused;
     }
 
-    /** Kolor kółka flagi po kodzie — używany też przez ekrany lobby (przez GameManager). */
+    /** Kolor kółka flagi po kodzie. */
     public static String flagColor(String code) {
         return FlagColors.forCode(code);
     }
@@ -154,7 +154,8 @@ public class CustomizationScreen implements Screen {
         gc.setTextAlign(TextAlignment.RIGHT);
         gc.setFill(Color.web("#888888"));
         gc.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
-        gc.fillText(playerName.length() + "/" + NAME_MAX_LENGTH, NAME_FIELD_X + NAME_FIELD_WIDTH - 12, rowY + 28);
+        gc.fillText(playerName.length() + "/" + PlayerProfile.MAX_NAME_LENGTH,
+                NAME_FIELD_X + NAME_FIELD_WIDTH - 12, rowY + 28);
     }
 
     private static double textWidth(String text) {

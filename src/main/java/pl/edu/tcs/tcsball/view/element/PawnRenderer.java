@@ -6,16 +6,16 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
-import pl.edu.tcs.tcsball.model.Pawn;
+import pl.edu.tcs.tcsball.model.ReadOnlyPawn;
 
 public class PawnRenderer {
     GraphicsContext graphicsContext;
 
     public PawnRenderer(GraphicsContext graphicsContext) { this.graphicsContext = graphicsContext; }
 
-    public void drawPawn(Pawn pawn, String outerColor, String innerColor) {
-        double x = pawn.getPosition().getX();
-        double y = pawn.getPosition().getY();
+    public void drawPawn(ReadOnlyPawn pawn, String outerColor, String innerColor) {
+        double x = pawn.getX();
+        double y = pawn.getY();
         double radius = pawn.getRadius();
 
         graphicsContext.setFill(Color.color(0, 0, 0, 0.4));

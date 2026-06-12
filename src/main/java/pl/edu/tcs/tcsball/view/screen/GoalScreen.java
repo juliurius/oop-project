@@ -1,6 +1,6 @@
 package pl.edu.tcs.tcsball.view.screen;
 
-import pl.edu.tcs.tcsball.model.GameView;
+import pl.edu.tcs.tcsball.controller.GameView;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.GoalOverlayRenderer;
 

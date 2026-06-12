@@ -1,7 +1,6 @@
 package pl.edu.tcs.tcsball.controller;
 
 import pl.edu.tcs.tcsball.model.Ball;
-import pl.edu.tcs.tcsball.model.GameState;
 import pl.edu.tcs.tcsball.model.Match;
 import pl.edu.tcs.tcsball.model.Pawn;
 import pl.edu.tcs.tcsball.model.PhysicsBody;

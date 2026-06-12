@@ -2,12 +2,11 @@ package pl.edu.tcs.tcsball.view.screen;
 
 import javafx.scene.canvas.GraphicsContext;
 import pl.edu.tcs.tcsball.GameConfig;
-import pl.edu.tcs.tcsball.model.GameView;
-import pl.edu.tcs.tcsball.model.Pawn;
+import pl.edu.tcs.tcsball.controller.GameView;
+import pl.edu.tcs.tcsball.model.ReadOnlyBall;
+import pl.edu.tcs.tcsball.model.ReadOnlyPawn;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.*;
-
-import java.util.List;
 
 public class GameScreen implements Screen {
 
@@ -44,12 +43,14 @@ public class GameScreen implements Screen {
 
         if (plan.isUiLayer()) {
             uiGc.clearRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.SCORE_PANEL_HEIGHT);
+            String team1Color = teamOuterColor(game, 1);
+            String team2Color = teamOuterColor(game, 2);
             scoreBoardRenderer.drawScoreBoard(
                     game.getTeamScore(1),
                     game.getTeamScore(2),
                     game.getCurrentTurn(),
-                    game.getTeamPawnColor(1),
-                    game.getTeamPawnColor(2),
+                    team1Color,
+                    team2Color,
                     game.getActualMouseX(),
                     game.getActualMouseY(),
                     game.isEverythingStopped()
@@ -70,16 +71,18 @@ public class GameScreen implements Screen {
     }
 
     private void drawBodies(GameView game) {
-        for (Pawn pawn : game.getPawns()) {
+        for (ReadOnlyPawn pawn : game.getPawns()) {
             int team = pawn.getTeam();
-            pawnRenderer.drawPawn(pawn, game.getTeamPawnColor(team), game.getTeamPawnInnerColor(team));
+            String outerColor = teamOuterColor(game, team);
+            pawnRenderer.drawPawn(pawn, outerColor, FlagColors.innerForHex(outerColor));
         }
 
+        ReadOnlyBall ball = game.getBall();
         ballRenderer.drawBall(
-                game.getBall().getPosition().getX(),
-                game.getBall().getPosition().getY(),
-                game.getBall().getRadius(),
-                game.getBall().getAngle()
+                ball.getX(),
+                ball.getY(),
+                ball.getRadius(),
+                ball.getAngle()
         );
     }
 
@@ -90,5 +93,13 @@ public class GameScreen implements Screen {
 
     private void clearOverlay(GraphicsContext gc) {
         gc.clearRect(0, 0, GameConfig.WINDOW_WIDTH, GameConfig.WINDOW_HEIGHT);
+    }
+
+    private String teamOuterColor(GameView game, int team) {
+        String code = game.getTeamPawnFlagCode(team);
+        if (team == 2 && game.getTeamPawnFlagCode(1).equals(code)) {
+            return FlagColors.localPlayTeam2Color(code);
+        }
+        return FlagColors.forCode(code);
     }
 }

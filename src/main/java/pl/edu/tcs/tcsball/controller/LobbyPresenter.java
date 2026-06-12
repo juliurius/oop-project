@@ -1,14 +1,11 @@
 package pl.edu.tcs.tcsball.controller;
 
-import pl.edu.tcs.tcsball.model.GameState;
 import pl.edu.tcs.tcsball.model.Match;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;
 import pl.edu.tcs.tcsball.model.lobby.LobbyPlayer;
 import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.model.player.PlayerSide;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
-import pl.edu.tcs.tcsball.view.element.FlagColors;
-import pl.edu.tcs.tcsball.view.screen.CustomizationScreen;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -37,18 +34,9 @@ public class LobbyPresenter {
         this.joinedHost = joinedHost;
     }
 
-    public String getTeamPawnColor(int team) {
+    public String getTeamPawnFlagCode(int team) {
         PlayerProfile profile = team == 1 ? match.getLeftProfile() : match.getRightProfile();
-        String code = profile.pawnFlag().code();
-
-        if (team == 2 && sameFlag(match.getLeftProfile(), match.getRightProfile())) {
-            return FlagColors.localPlayTeam2Color(code);
-        }
-        return FlagColors.forCode(code);
-    }
-
-    public String getTeamPawnInnerColor(int team) {
-        return FlagColors.innerForHex(getTeamPawnColor(team));
+        return profile.pawnFlag().code();
     }
 
     public List<DiscoveredHost> getDiscoveredHosts() {
@@ -73,8 +61,8 @@ public class LobbyPresenter {
         return getLocalProfile().pawnFlag().displayName();
     }
 
-    public String getLocalPlayerFlagColor() {
-        return CustomizationScreen.flagColor(getLocalProfile().pawnFlag().code());
+    public String getLocalPlayerFlagCode() {
+        return getLocalProfile().pawnFlag().code();
     }
 
     public boolean hasOpponent() {
@@ -105,12 +93,12 @@ public class LobbyPresenter {
         return gameState.get() == GameState.CLIENT_LOBBY ? "?" : "";
     }
 
-    public String getOpponentFlagColor() {
+    public String getOpponentFlagCode() {
         LobbyPlayer opponent = getOpponentPlayer();
         if (opponent != null) {
-            return CustomizationScreen.flagColor(opponent.getProfile().pawnFlag().code());
+            return opponent.getProfile().pawnFlag().code();
         }
-        return gameState.get() == GameState.CLIENT_LOBBY ? "#4682b4" : "#666666";
+        return "";
     }
 
     public boolean isLocalPlayerReady() {
@@ -159,7 +147,4 @@ public class LobbyPresenter {
         return lobby.getHost();
     }
 
-    private static boolean sameFlag(PlayerProfile left, PlayerProfile right) {
-        return left.pawnFlag().code().equals(right.pawnFlag().code());
-    }
 }
