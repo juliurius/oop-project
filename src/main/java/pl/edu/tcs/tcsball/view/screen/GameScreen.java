@@ -3,7 +3,8 @@ package pl.edu.tcs.tcsball.view.screen;
 import javafx.scene.canvas.GraphicsContext;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.controller.GameView;
-import pl.edu.tcs.tcsball.model.Pawn;
+import pl.edu.tcs.tcsball.model.ReadOnlyBall;
+import pl.edu.tcs.tcsball.model.ReadOnlyPawn;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.*;
 
@@ -70,17 +71,18 @@ public class GameScreen implements Screen {
     }
 
     private void drawBodies(GameView game) {
-        for (Pawn pawn : game.getPawns()) {
+        for (ReadOnlyPawn pawn : game.getPawns()) {
             int team = pawn.getTeam();
             String outerColor = teamOuterColor(game, team);
             pawnRenderer.drawPawn(pawn, outerColor, FlagColors.innerForHex(outerColor));
         }
 
+        ReadOnlyBall ball = game.getBall();
         ballRenderer.drawBall(
-                game.getBall().getPosition().getX(),
-                game.getBall().getPosition().getY(),
-                game.getBall().getRadius(),
-                game.getBall().getAngle()
+                ball.getX(),
+                ball.getY(),
+                ball.getRadius(),
+                ball.getAngle()
         );
     }
 

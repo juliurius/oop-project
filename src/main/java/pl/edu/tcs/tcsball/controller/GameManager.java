@@ -473,7 +473,7 @@ public class GameManager implements LobbyView, CustomizationView {
         }
     }
 
-    public Ball getBall() { return match.getBall(); }
+    public ReadOnlyBall getBall() { return match.getBall(); }
 
     public void shootPawn() {
         if (!aim.hasSelection()) return;
@@ -543,13 +543,13 @@ public class GameManager implements LobbyView, CustomizationView {
         }
     }
 
-    public Pawn getAimingPawn() { return aim.getSelectedPawn(); }
+    public ReadOnlyPawn getAimingPawn() { return aim.getSelectedPawn(); }
 
     public double getArrowX() { return aim.getArrowX(); }
 
     public double getArrowY() { return aim.getArrowY(); }
 
-    public List<Pawn> getPawns() { return match.getPawns(); }
+    public List<? extends ReadOnlyPawn> getPawns() { return List.copyOf(match.getPawns()); }
 
     public int getTeamScore(int team) { return match.getTeamScore(team); }
 

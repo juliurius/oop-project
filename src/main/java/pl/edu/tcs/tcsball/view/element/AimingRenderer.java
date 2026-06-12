@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import pl.edu.tcs.tcsball.GameConfig;
-import pl.edu.tcs.tcsball.model.Pawn;
+import pl.edu.tcs.tcsball.model.ReadOnlyPawn;
 
 public class AimingRenderer {
     private static final double ARROW_LENGTH = 15.0;
@@ -13,10 +13,10 @@ public class AimingRenderer {
 
     public AimingRenderer(GraphicsContext graphicsContext) { this.graphicsContext = graphicsContext; }
 
-    public void drawAimingLine(Pawn aimingPawn, double mouseX, double mouseY) {
+    public void drawAimingLine(ReadOnlyPawn aimingPawn, double mouseX, double mouseY) {
         if (aimingPawn != null) {
-            double centerX = aimingPawn.getPosition().getX();
-            double centerY = aimingPawn.getPosition().getY();
+            double centerX = aimingPawn.getX();
+            double centerY = aimingPawn.getY();
             double radius = aimingPawn.getRadius();
 
             double distance = Math.hypot(mouseX - centerX, mouseY - centerY);

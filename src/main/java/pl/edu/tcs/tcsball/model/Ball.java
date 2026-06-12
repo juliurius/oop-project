@@ -2,7 +2,7 @@ package pl.edu.tcs.tcsball.model;
 
 import pl.edu.tcs.tcsball.GameConfig;
 
-public class Ball extends PhysicsBody {
+public class Ball extends PhysicsBody implements ReadOnlyBall {
     private static final double DEFAULT_MASS = GameConfig.BALL_MASS;
     private static final double DEFAULT_RESTITUTION = GameConfig.BALL_RESTITUTION;
     private static final double MAX_SPIN = GameConfig.BALL_MAX_SPIN;
@@ -20,6 +20,16 @@ public class Ball extends PhysicsBody {
 
     public double getSpin() {
         return spin;
+    }
+
+    @Override
+    public double getX() {
+        return getPosition().getX();
+    }
+
+    @Override
+    public double getY() {
+        return getPosition().getY();
     }
 
     public void setSpin(double spin) {

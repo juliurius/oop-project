@@ -1,22 +1,22 @@
 package pl.edu.tcs.tcsball.controller;
 
-import pl.edu.tcs.tcsball.model.Ball;
-import pl.edu.tcs.tcsball.model.Pawn;
+import pl.edu.tcs.tcsball.model.ReadOnlyBall;
+import pl.edu.tcs.tcsball.model.ReadOnlyPawn;
 
 import java.util.List;
 
 public interface GameView {
     GameState getGameState();
 
-    List<Pawn> getPawns();
+    List<? extends ReadOnlyPawn> getPawns();
 
-    Ball getBall();
+    ReadOnlyBall getBall();
 
     int getTeamScore(int team);
 
     int getCurrentTurn();
 
-    Pawn getAimingPawn();
+    ReadOnlyPawn getAimingPawn();
 
     double getArrowX();
 
