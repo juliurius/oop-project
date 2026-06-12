@@ -6,12 +6,12 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import pl.edu.tcs.tcsball.controller.GameManager;
-import pl.edu.tcs.tcsball.controller.InputHandler;
 import pl.edu.tcs.tcsball.model.FrameDelta;
 import pl.edu.tcs.tcsball.view.RedrawPlanner;
 import pl.edu.tcs.tcsball.view.RenderLayers;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.Renderer;
+import pl.edu.tcs.tcsball.view.input.InputHandler;
 
 public class GameApp extends Application {
 

@@ -12,8 +12,6 @@ import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 import pl.edu.tcs.tcsball.net.protocol.MessageType;
 import pl.edu.tcs.tcsball.net.protocol.NetworkMessage;
-import pl.edu.tcs.tcsball.view.element.ScoreBoardRenderer;
-import pl.edu.tcs.tcsball.view.screen.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -183,50 +181,7 @@ public class GameManager implements LobbyView, CustomizationView {
         return inputDelta.consume();
     }
 
-    public void handleMenuClick(double x, double y) {
-        if (MenuScreen.isButtonHit(x, y, MenuScreen.LOCAL_PLAY_BTN_Y)) {
-            startLocalGame();
-        } else if (MenuScreen.isButtonHit(x, y, MenuScreen.HOST_BTN_Y)) {
-            openHostLobby();
-        } else if (MenuScreen.isButtonHit(x, y, MenuScreen.JOIN_BTN_Y)) {
-            openJoinLobby();
-        } else if (MenuScreen.isButtonHit(x, y, MenuScreen.CUSTOMIZATION_BTN_Y)) {
-            openCustomization();
-        }
-    }
-
-    public void handleCustomizationClick(double x, double y) {
-        if (CustomizationScreen.isBackButtonHit(x, y)) {
-            quitToMenu();
-            return;
-        }
-
-        boolean changed = CustomizationScreen.handleClick(x, y);
-
-        if (CustomizationScreen.isPrevArrowHit(x, y, CustomizationScreen.Field.FLAG)) {
-            cycleFlag(-1);
-            changed = true;
-        } else if (CustomizationScreen.isNextArrowHit(x, y, CustomizationScreen.Field.FLAG)) {
-            cycleFlag(1);
-            changed = true;
-        } else if (CustomizationScreen.isPrevArrowHit(x, y, CustomizationScreen.Field.FORMATION)) {
-            cycleFormation(-1);
-            changed = true;
-        } else if (CustomizationScreen.isNextArrowHit(x, y, CustomizationScreen.Field.FORMATION)) {
-            cycleFormation(1);
-            changed = true;
-        }
-
-        if (changed) {
-            inputDelta.markMouseMoved();
-        }
-    }
-
     public void handleCustomizationKey(KeyEvent event) {
-        if (!CustomizationScreen.isNameFieldFocused()) {
-            return;
-        }
-
         if (event.getCode() == KeyCode.BACK_SPACE) {
             backspaceName();
             inputDelta.markMouseMoved();
@@ -265,7 +220,7 @@ public class GameManager implements LobbyView, CustomizationView {
 
     public void typeNameChar(char ch) {
         String name = customization.getCurrentProfile().name();
-        if (name.length() < CustomizationScreen.NAME_MAX_LENGTH) {
+        if (name.length() < PlayerProfile.MAX_NAME_LENGTH) {
             customization.setName(name + ch);
         }
     }
@@ -297,69 +252,6 @@ public class GameManager implements LobbyView, CustomizationView {
     @Override
     public String getCurrentFormationName() {
         return formationFactory.getDefinition(customization.getCurrentProfile().formationId()).displayName();
-    }
-
-    public void handleHostLobbyClick(double x, double y) {
-        if (HostLobbyScreen.isBackButtonHit(x, y)) {
-            leaveLobby();
-            return;
-        }
-
-        if (HostLobbyScreen.isReadyButtonHit(x, y)) {
-            toggleLocalReady();
-            return;
-        }
-
-        if (HostLobbyScreen.isStartButtonHit(x, y, canStartGame())) {
-            startMultiplayerFromLobby();
-        }
-    }
-
-    public void handleJoinLobbyClick(double x, double y) {
-        if (JoinLobbyScreen.isBackButtonHit(x, y)) {
-            if (pendingJoin) {
-                cancelPendingJoin(null);
-            } else {
-                quitToMenu();
-            }
-            return;
-        }
-
-        if (pendingJoin) {
-            return;
-        }
-
-        if (JoinLobbyScreen.isRefreshButtonHit(x, y)) {
-            joinStatusMessage = null;
-            refreshDiscoveredHosts();
-            return;
-        }
-
-        int index = JoinLobbyScreen.hostIndexAt(x, y, discoveredHosts.size());
-        if (index >= 0) {
-            joinHost(index);
-        }
-    }
-
-    public void handleClientLobbyClick(double x, double y) {
-        if (ClientLobbyScreen.isBackButtonHit(x, y)) {
-            leaveClientLobby();
-            return;
-        }
-
-        if (ClientLobbyScreen.isReadyButtonHit(x, y)) {
-            toggleLocalReady();
-        }
-    }
-
-    public boolean handleBackToMenuClick(double x, double y) {
-        if (x >= ScoreBoardRenderer.BACK_BTN_X && x <= ScoreBoardRenderer.BACK_BTN_X + ScoreBoardRenderer.BACK_BTN_WIDTH &&
-                y >= ScoreBoardRenderer.BACK_BTN_Y && y <= ScoreBoardRenderer.BACK_BTN_Y + ScoreBoardRenderer.BACK_BTN_HEIGHT) {
-
-            quitToMenu();
-            return true;
-        }
-        return false;
     }
 
     public void startLocalGame() {
@@ -398,6 +290,7 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public void refreshDiscoveredHosts() {
+        joinStatusMessage = null;
         syncDiscoveredHosts();
         inputDelta.markMouseMoved();
     }
@@ -423,6 +316,14 @@ public class GameManager implements LobbyView, CustomizationView {
             joinedHost = null;
             joinStatusMessage = "Nie udało się połączyć z hostem";
             inputDelta.markMouseMoved();
+        }
+    }
+
+    public void backFromJoinLobby() {
+        if (pendingJoin) {
+            cancelPendingJoin(null);
+        } else {
+            quitToMenu();
         }
     }
 
@@ -465,14 +366,14 @@ public class GameManager implements LobbyView, CustomizationView {
         leaveLobby();
     }
 
-    private void leaveLobby() {
+    public void leaveLobby() {
         lobbyManager.leaveLobby();
         joinedHost = null;
         discoveredHosts.clear();
         transitionTo(GameState.MENU);
     }
 
-    private void toggleLocalReady() {
+    public void toggleLocalReady() {
         try {
             lobbyManager.setLocalReady(!isLocalPlayerReady());
             inputDelta.markMouseMoved();
@@ -481,7 +382,7 @@ public class GameManager implements LobbyView, CustomizationView {
         }
     }
 
-    private void startMultiplayerFromLobby() {
+    public void startMultiplayerFromLobby() {
         if (!lobbyManager.canStartGame()) {
             return;
         }
