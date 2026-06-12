@@ -28,7 +28,5 @@ public interface GameView {
 
     boolean isEverythingStopped();
 
-    String getTeamPawnColor(int team);
-
-    String getTeamPawnInnerColor(int team);
+    String getTeamPawnFlagCode(int team);
 }

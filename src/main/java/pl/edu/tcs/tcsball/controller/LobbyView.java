@@ -25,7 +25,7 @@ public interface LobbyView extends GameView {
 
     String getLocalPlayerFlagName();
 
-    String getLocalPlayerFlagColor();
+    String getLocalPlayerFlagCode();
 
     boolean hasOpponent();
 
@@ -34,7 +34,7 @@ public interface LobbyView extends GameView {
 
     String getOpponentFlagName();
 
-    String getOpponentFlagColor();
+    String getOpponentFlagCode();
 
     boolean isLocalPlayerReady();
 

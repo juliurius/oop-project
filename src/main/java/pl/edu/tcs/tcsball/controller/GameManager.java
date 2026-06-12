@@ -711,13 +711,8 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     @Override
-    public String getTeamPawnColor(int team) {
-        return lobbyPresenter.getTeamPawnColor(team);
-    }
-
-    @Override
-    public String getTeamPawnInnerColor(int team) {
-        return lobbyPresenter.getTeamPawnInnerColor(team);
+    public String getTeamPawnFlagCode(int team) {
+        return lobbyPresenter.getTeamPawnFlagCode(team);
     }
 
     @Override
@@ -764,8 +759,8 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     @Override
-    public String getLocalPlayerFlagColor() {
-        return lobbyPresenter.getLocalPlayerFlagColor();
+    public String getLocalPlayerFlagCode() {
+        return lobbyPresenter.getLocalPlayerFlagCode();
     }
 
     @Override
@@ -784,8 +779,8 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     @Override
-    public String getOpponentFlagColor() {
-        return lobbyPresenter.getOpponentFlagColor();
+    public String getOpponentFlagCode() {
+        return lobbyPresenter.getOpponentFlagCode();
     }
 
     @Override

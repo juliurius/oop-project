@@ -11,6 +11,7 @@ import pl.edu.tcs.tcsball.controller.GameView;
 import pl.edu.tcs.tcsball.controller.LobbyView;
 import pl.edu.tcs.tcsball.view.RenderPlan;
 import pl.edu.tcs.tcsball.view.element.ButtonRenderer;
+import pl.edu.tcs.tcsball.view.element.FlagColors;
 import pl.edu.tcs.tcsball.view.element.LobbyPlayerPanelRenderer;
 
 public class ClientLobbyScreen implements Screen {
@@ -65,12 +66,12 @@ public class ClientLobbyScreen implements Screen {
         panelRenderer.drawPanel(leftX, PANEL_TOP_Y, PANEL_WIDTH, PANEL_HEIGHT,
                 "HOST",
                 lobby.getOpponentName() != null ? lobby.getOpponentName() : "nieznany",
-                lobby.getOpponentFlagName(), lobby.getOpponentFlagColor(),
+                lobby.getOpponentFlagName(), FlagColors.forCode(lobby.getOpponentFlagCode()),
                 true, lobby.isOpponentReady());
 
         panelRenderer.drawPanel(rightX, PANEL_TOP_Y, PANEL_WIDTH, PANEL_HEIGHT,
                 "TY (GOŚĆ)", lobby.getLocalPlayerName(),
-                lobby.getLocalPlayerFlagName(), lobby.getLocalPlayerFlagColor(),
+                lobby.getLocalPlayerFlagName(), FlagColors.forCode(lobby.getLocalPlayerFlagCode()),
                 true, lobby.isLocalPlayerReady());
 
         drawStatusMessage(lobby);
