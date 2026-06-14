@@ -74,10 +74,10 @@ public class GameStateCodec {
     }
 
     private void addBodyFields(List<String> fields, PhysicsBody body) {
-        fields.add(Double.toString(body.getPosition().getX()));
-        fields.add(Double.toString(body.getPosition().getY()));
-        fields.add(Double.toString(body.getVelocity().getX()));
-        fields.add(Double.toString(body.getVelocity().getY()));
+        fields.add(Double.toString(body.getPosition().x()));
+        fields.add(Double.toString(body.getPosition().y()));
+        fields.add(Double.toString(body.getVelocity().x()));
+        fields.add(Double.toString(body.getVelocity().y()));
     }
 
     private int applyBodyFields(PhysicsBody body, List<String> fields, int index) {

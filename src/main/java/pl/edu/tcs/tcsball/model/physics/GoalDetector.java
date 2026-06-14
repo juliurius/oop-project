@@ -5,8 +5,8 @@ import pl.edu.tcs.tcsball.model.Ball;
 
 public class GoalDetector {
     public int detectGoal(Ball ball) {
-        double x = ball.getPosition().getX();
-        double y = ball.getPosition().getY();
+        double x = ball.getPosition().x();
+        double y = ball.getPosition().y();
         double radius = ball.getRadius();
 
         if (!isInsideGoalHeight(y)) {

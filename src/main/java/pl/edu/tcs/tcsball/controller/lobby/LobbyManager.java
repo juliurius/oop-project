@@ -1,4 +1,4 @@
-package pl.edu.tcs.tcsball.controller;
+package pl.edu.tcs.tcsball.controller.lobby;
 
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;

@@ -24,12 +24,12 @@ public class Ball extends PhysicsBody implements ReadOnlyBall {
 
     @Override
     public double getX() {
-        return getPosition().getX();
+        return getPosition().x();
     }
 
     @Override
     public double getY() {
-        return getPosition().getY();
+        return getPosition().y();
     }
 
     public void setSpin(double spin) {

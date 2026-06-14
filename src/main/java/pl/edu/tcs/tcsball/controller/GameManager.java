@@ -1,27 +1,27 @@
 package pl.edu.tcs.tcsball.controller;
 
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.model.*;
 import pl.edu.tcs.tcsball.model.formation.FormationFactory;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;
 import pl.edu.tcs.tcsball.model.player.FlagCatalog;
-import pl.edu.tcs.tcsball.model.player.PlayerFlag;
 import pl.edu.tcs.tcsball.model.player.PlayerProfile;
 import pl.edu.tcs.tcsball.net.discovery.DiscoveredHost;
 import pl.edu.tcs.tcsball.net.protocol.MessageType;
 import pl.edu.tcs.tcsball.net.protocol.NetworkMessage;
+import pl.edu.tcs.tcsball.controller.customization.CustomizationController;
+import pl.edu.tcs.tcsball.controller.customization.CustomizationManager;
+import pl.edu.tcs.tcsball.controller.lobby.LobbyFlowController;
+import pl.edu.tcs.tcsball.controller.lobby.LobbyManager;
+import pl.edu.tcs.tcsball.controller.lobby.LobbyPresenter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 public class GameManager implements LobbyView, CustomizationView {
-    private static final long JOIN_PENDING_TIMEOUT_MILLIS = 3_000;
-
     private final Match match;
     private final PhysicsEngine physics;
     private final LobbyManager lobbyManager = new LobbyManager();
@@ -29,7 +29,9 @@ public class GameManager implements LobbyView, CustomizationView {
 
     private final FormationFactory formationFactory = new FormationFactory();
     private final CustomizationManager customization;
+    private final CustomizationController customizationController;
     private final LobbyPresenter lobbyPresenter;
+    private final LobbyFlowController lobbyFlow;
 
     private GameState gameState = GameState.MENU;
 
@@ -38,24 +40,21 @@ public class GameManager implements LobbyView, CustomizationView {
     private final EnumSet<DomainEvent> pendingEvents = EnumSet.noneOf(DomainEvent.class);
     private final InputDelta inputDelta = new InputDelta();
 
-    private final List<DiscoveredHost> discoveredHosts = new ArrayList<>();
-    private DiscoveredHost joinedHost = null;
     private long lastGameStateSentMillis = 0;
     private boolean lastPhysicsActive = false;
-
-    private boolean pendingJoin = false;
-    private long pendingJoinStartedMillis = 0;
-    private String joinStatusMessage = null;
 
     public GameManager(double width, double height) {
         FlagCatalog flags = new FlagCatalog();
         PlayerProfile defaultProfile = CustomizationManager.defaultProfile(flags, formationFactory);
 
         customization = new CustomizationManager(defaultProfile, flags.all(), formationFactory.getAvailableIds());
+        customizationController = new CustomizationController(customization, formationFactory, inputDelta);
         match = new Match(formationFactory, defaultProfile, defaultProfile);
         physics = new PhysicsEngine(width, height);
-        lobbyPresenter = new LobbyPresenter(lobbyManager, customization, match, discoveredHosts,
-                () -> gameState, () -> joinedHost);
+        lobbyFlow = new LobbyFlowController(lobbyManager, customization, inputDelta,
+                this::transitionTo, this::beginMultiplayerMatch, this::isLocalPlayerReady);
+        lobbyPresenter = new LobbyPresenter(lobbyManager, customization, match,
+                lobbyFlow::getDiscoveredHosts, () -> gameState, lobbyFlow::getJoinedHost);
     }
 
     public FrameDelta update(double deltaTime) {
@@ -114,8 +113,8 @@ public class GameManager implements LobbyView, CustomizationView {
         try {
             boolean lobbyChanged = lobbyManager.updateNetwork();
             if (gameState == GameState.JOIN_LOBBY) {
-                syncDiscoveredHosts();
-                updatePendingJoin();
+                lobbyFlow.syncDiscoveredHosts();
+                lobbyFlow.updatePendingJoin();
             }
             if (lobbyManager.consumeStartRequested()) {
                 beginMultiplayerMatch();
@@ -182,76 +181,37 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public void handleCustomizationKey(KeyEvent event) {
-        if (event.getCode() == KeyCode.BACK_SPACE) {
-            backspaceName();
-            inputDelta.markMouseMoved();
-            return;
-        }
-
-        if (event.getEventType() != KeyEvent.KEY_TYPED) {
-            return;
-        }
-
-        String text = event.getCharacter();
-        if (text == null || text.isEmpty() || text.charAt(0) < ' ') {
-            return;
-        }
-
-        char ch = text.charAt(0);
-        if (!Character.isLetterOrDigit(ch) && ch != ' ' && ch != '-' && ch != '_') {
-            return;
-        }
-
-        typeNameChar(ch);
-        inputDelta.markMouseMoved();
+        customizationController.handleKey(event);
     }
 
     public void cycleFlag(int direction) {
-        List<PlayerFlag> flags = customization.getAvailableFlags();
-        int index = flags.indexOf(customization.getCurrentProfile().pawnFlag());
-        customization.setPawnFlag(flags.get(Math.floorMod(index + direction, flags.size())));
+        customizationController.cycleFlag(direction);
     }
 
     public void cycleFormation(int direction) {
-        List<String> ids = customization.getAvailableFormationIds();
-        int index = ids.indexOf(customization.getCurrentProfile().formationId());
-        customization.setFormationId(ids.get(Math.floorMod(index + direction, ids.size())));
-    }
-
-    public void typeNameChar(char ch) {
-        String name = customization.getCurrentProfile().name();
-        if (name.length() < PlayerProfile.MAX_NAME_LENGTH) {
-            customization.setName(name + ch);
-        }
-    }
-
-    public void backspaceName() {
-        String name = customization.getCurrentProfile().name();
-        if (!name.isEmpty()) {
-            customization.setName(name.substring(0, name.length() - 1));
-        }
+        customizationController.cycleFormation(direction);
     }
 
     // --- CustomizationView: odczyt dla ekranu customizacji ---
 
     @Override
     public String getPlayerName() {
-        return customization.getCurrentProfile().name();
+        return customizationController.getPlayerName();
     }
 
     @Override
     public String getCurrentFlagCode() {
-        return customization.getCurrentProfile().pawnFlag().code();
+        return customizationController.getCurrentFlagCode();
     }
 
     @Override
     public String getCurrentFlagName() {
-        return customization.getCurrentProfile().pawnFlag().displayName();
+        return customizationController.getCurrentFlagName();
     }
 
     @Override
     public String getCurrentFormationName() {
-        return formationFactory.getDefinition(customization.getCurrentProfile().formationId()).displayName();
+        return customizationController.getCurrentFormationName();
     }
 
     public void startLocalGame() {
@@ -263,136 +223,39 @@ public class GameManager implements LobbyView, CustomizationView {
     }
 
     public void openHostLobby() {
-        try {
-            joinedHost = null;
-            discoveredHosts.clear();
-            lobbyManager.hostLobby(customization.getCurrentProfile());
-            transitionTo(GameState.HOST_LOBBY);
-        } catch (IOException exception) {
-            quitToMenu();
-        }
+        lobbyFlow.openHostLobby();
     }
 
     public void openJoinLobby() {
-        pendingJoin = false;
-        pendingJoinStartedMillis = 0;
-        joinStatusMessage = null;
-        joinedHost = null;
-        discoveredHosts.clear();
-        try {
-            lobbyManager.leaveLobby();
-            lobbyManager.startScanningHosts();
-            syncDiscoveredHosts();
-        } catch (IOException ignored) {
-            // Gdy skanowanie LAN sie nie uda, ekran pokaze pusta liste.
-        }
-        transitionTo(GameState.JOIN_LOBBY);
+        lobbyFlow.openJoinLobby();
     }
 
     public void refreshDiscoveredHosts() {
-        joinStatusMessage = null;
-        syncDiscoveredHosts();
-        inputDelta.markMouseMoved();
+        lobbyFlow.refreshDiscoveredHosts();
     }
 
     public void joinHost(int index) {
-        if (index < 0 || index >= discoveredHosts.size()) {
-            return;
-        }
-
-        DiscoveredHost host = discoveredHosts.get(index);
-        if (!host.isJoinable()) {
-            return;
-        }
-
-        joinedHost = host;
-        joinStatusMessage = null;
-        try {
-            lobbyManager.joinLobby(host, customization.getCurrentProfile());
-            pendingJoin = true;
-            pendingJoinStartedMillis = System.currentTimeMillis();
-            inputDelta.markMouseMoved();
-        } catch (IOException exception) {
-            joinedHost = null;
-            joinStatusMessage = "Nie udało się połączyć z hostem";
-            inputDelta.markMouseMoved();
-        }
+        lobbyFlow.joinHost(index);
     }
 
     public void backFromJoinLobby() {
-        if (pendingJoin) {
-            cancelPendingJoin(null);
-        } else {
-            quitToMenu();
-        }
-    }
-
-    private void updatePendingJoin() {
-        if (!pendingJoin) {
-            return;
-        }
-
-        if (lobbyManager.isGuestLobbyConfirmed()) {
-            confirmJoinSuccess();
-        } else if (System.currentTimeMillis() - pendingJoinStartedMillis > JOIN_PENDING_TIMEOUT_MILLIS) {
-            cancelPendingJoin("Host nie odpowiedział — spróbuj ponownie");
-        }
-    }
-
-    private void confirmJoinSuccess() {
-        pendingJoin = false;
-        pendingJoinStartedMillis = 0;
-        joinStatusMessage = null;
-        transitionTo(GameState.CLIENT_LOBBY);
-        inputDelta.markMouseMoved();
-    }
-
-    private void cancelPendingJoin(String message) {
-        pendingJoin = false;
-        pendingJoinStartedMillis = 0;
-        joinedHost = null;
-        joinStatusMessage = message;
-        lobbyManager.leaveLobby();
-        try {
-            lobbyManager.startScanningHosts();
-            syncDiscoveredHosts();
-        } catch (IOException ignored) {
-            // Skanowanie moze sie nie udac; ekran pokaze pusta liste.
-        }
-        inputDelta.markMouseMoved();
+        lobbyFlow.backFromJoinLobby();
     }
 
     public void leaveClientLobby() {
-        leaveLobby();
+        lobbyFlow.leaveClientLobby();
     }
 
     public void leaveLobby() {
-        lobbyManager.leaveLobby();
-        joinedHost = null;
-        discoveredHosts.clear();
-        transitionTo(GameState.MENU);
+        lobbyFlow.leaveLobby();
     }
 
     public void toggleLocalReady() {
-        try {
-            lobbyManager.setLocalReady(!isLocalPlayerReady());
-            inputDelta.markMouseMoved();
-        } catch (IOException exception) {
-            leaveLobby();
-        }
+        lobbyFlow.toggleLocalReady();
     }
 
     public void startMultiplayerFromLobby() {
-        if (!lobbyManager.canStartGame()) {
-            return;
-        }
-
-        try {
-            lobbyManager.startGame();
-            beginMultiplayerMatch();
-        } catch (IOException exception) {
-            leaveLobby();
-        }
+        lobbyFlow.startMultiplayerFromLobby();
     }
 
     public void openCustomization() {
@@ -412,17 +275,6 @@ public class GameManager implements LobbyView, CustomizationView {
         pendingEvents.add(DomainEvent.MATCH_RESET);
         transitionTo(GameState.PLAYING);
         sendGameStateQuietly();
-    }
-
-    private void syncDiscoveredHosts() {
-        List<DiscoveredHost> currentHosts = lobbyManager.getDiscoveredHosts();
-        if (currentHosts.equals(discoveredHosts)) {
-            return;
-        }
-
-        discoveredHosts.clear();
-        discoveredHosts.addAll(currentHosts);
-        inputDelta.markMouseMoved();
     }
 
     private void syncGameState(FrameDelta delta, boolean force) throws IOException {
@@ -485,8 +337,8 @@ public class GameManager implements LobbyView, CustomizationView {
             try {
                 lobbyManager.sendToPeer(NetworkMessage.of(MessageType.SHOT,
                         Integer.toString(pawnIndex),
-                        Double.toString(shotForce.getX()),
-                        Double.toString(shotForce.getY())
+                        Double.toString(shotForce.x()),
+                        Double.toString(shotForce.y())
                 ));
             } catch (IOException exception) {
                 leaveLobby();
@@ -577,15 +429,10 @@ public class GameManager implements LobbyView, CustomizationView {
         transitionTo(GameState.GOAL_SCORED);
     }
 
-    public void quitToMenu () {
-        pendingJoin = false;
-        pendingJoinStartedMillis = 0;
-        joinStatusMessage = null;
-        lobbyManager.leaveLobby();
-        joinedHost = null;
-        discoveredHosts.clear();
-        transitionTo(GameState.MENU);
+    public void quitToMenu() {
+        lobbyFlow.quitToMenu();
     }
+
     private void transitionTo(GameState nextState) {
         gameState = nextState;
     }
@@ -628,12 +475,12 @@ public class GameManager implements LobbyView, CustomizationView {
 
     @Override
     public boolean isJoinPending() {
-        return pendingJoin;
+        return lobbyFlow.isJoinPending();
     }
 
     @Override
     public String getJoinStatusMessage() {
-        return joinStatusMessage;
+        return lobbyFlow.getJoinStatusMessage();
     }
 
     private boolean isMultiplayerGame() {

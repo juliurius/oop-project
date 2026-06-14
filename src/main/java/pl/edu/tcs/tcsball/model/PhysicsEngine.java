@@ -37,8 +37,8 @@ public class PhysicsEngine {
         lastGoalScoredByTeam = 0;
 
         List<double[]> pawnSnapshots = snapshotPawnPositions(pawns);
-        double oldBallX = ball.getPosition().getX();
-        double oldBallY = ball.getPosition().getY();
+        double oldBallX = ball.getPosition().x();
+        double oldBallY = ball.getPosition().y();
         double oldBallAngle = ball.getAngle();
 
         update(pawns, deltaTime);
@@ -63,22 +63,22 @@ public class PhysicsEngine {
     private List<double[]> snapshotPawnPositions(List<Pawn> pawns) {
         List<double[]> snapshots = new ArrayList<>(pawns.size());
         for (Pawn pawn : pawns) {
-            snapshots.add(new double[]{pawn.getPosition().getX(), pawn.getPosition().getY()});
+            snapshots.add(new double[]{pawn.getPosition().x(), pawn.getPosition().y()});
         }
         return snapshots;
     }
 
     private FrameDelta buildFrameDelta(List<Pawn> pawns, Ball ball, List<double[]> pawnSnapshots,
                                        double oldBallX, double oldBallY, double oldBallAngle) {
-        boolean anyBodyMoved = ball.getPosition().getX() != oldBallX
-                || ball.getPosition().getY() != oldBallY
+        boolean anyBodyMoved = ball.getPosition().x() != oldBallX
+                || ball.getPosition().y() != oldBallY
                 || ball.getAngle() != oldBallAngle;
 
         if (!anyBodyMoved) {
             for (int i = 0; i < pawns.size(); i++) {
                 Pawn pawn = pawns.get(i);
                 double[] old = pawnSnapshots.get(i);
-                if (pawn.getPosition().getX() != old[0] || pawn.getPosition().getY() != old[1]) {
+                if (pawn.getPosition().x() != old[0] || pawn.getPosition().y() != old[1]) {
                     anyBodyMoved = true;
                     break;
                 }

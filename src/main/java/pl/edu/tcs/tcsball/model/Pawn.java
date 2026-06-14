@@ -25,12 +25,12 @@ public class Pawn extends PhysicsBody implements ReadOnlyPawn {
 
     @Override
     public double getX() {
-        return getPosition().getX();
+        return getPosition().x();
     }
 
     @Override
     public double getY() {
-        return getPosition().getY();
+        return getPosition().y();
     }
 
     public void applyForce(Vector2D force) {

@@ -1,4 +1,4 @@
-package pl.edu.tcs.tcsball.controller;
+package pl.edu.tcs.tcsball.controller.customization;
 
 import pl.edu.tcs.tcsball.model.player.FlagCatalog;
 import pl.edu.tcs.tcsball.model.player.PlayerFlag;

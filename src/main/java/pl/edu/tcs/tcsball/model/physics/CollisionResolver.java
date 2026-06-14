@@ -18,33 +18,35 @@ public class CollisionResolver {
         Vector2D position = body.getPosition();
         Vector2D velocity = body.getVelocity();
 
-        double x = position.getX();
-        double y = position.getY();
+        double x = position.x();
+        double y = position.y();
+        double vx = velocity.x();
+        double vy = velocity.y();
         double radius = body.getRadius();
         double restitution = body.getRestitution();
 
         if (x - radius < GameConfig.PITCH_LEFT_X) {
             x = GameConfig.PITCH_LEFT_X + radius;
-            velocity.setX(-velocity.getX() * restitution);
+            vx = -vx * restitution;
         }
 
         if (x + radius > GameConfig.PITCH_RIGHT_X) {
             x = GameConfig.PITCH_RIGHT_X - radius;
-            velocity.setX(-velocity.getX() * restitution);
+            vx = -vx * restitution;
         }
 
         if (y - radius < GameConfig.PITCH_TOP_Y) {
             y = GameConfig.PITCH_TOP_Y + radius;
-            velocity.setY(-velocity.getY() * restitution);
+            vy = -vy * restitution;
         }
 
         if (y + radius > GameConfig.PITCH_BOTTOM_Y) {
             y = GameConfig.PITCH_BOTTOM_Y - radius;
-            velocity.setY(-velocity.getY() * restitution);
+            vy = -vy * restitution;
         }
 
         body.setPosition(new Vector2D(x, y));
-        body.setVelocity(velocity);
+        body.setVelocity(new Vector2D(vx, vy));
     }
 
     public void resolvePawnCollisions(List<Pawn> pawns) {
@@ -88,7 +90,7 @@ public class CollisionResolver {
         double speedTowardEachOther = velocityDifference.dot(normal);
 
         // Tangent jest prostopadly do normalnej, czyli idzie "po boku" zderzenia.
-        Vector2D tangent = new Vector2D(-normal.getY(), normal.getX());
+        Vector2D tangent = new Vector2D(-normal.y(), normal.x());
         // Im wieksza predkosc po tangencie, tym bardziej uderzenie nadaje pilce spin.
         double sideHitSpeed = velocityDifference.dot(tangent);
         double hitSpeed = velocityDifference.length();

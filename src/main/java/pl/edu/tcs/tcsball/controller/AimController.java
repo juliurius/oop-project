@@ -6,22 +6,16 @@ import pl.edu.tcs.tcsball.model.Vector2D;
 
 import java.util.List;
 
-/**
- * Stan wskaznika i procy: wybrany pionek, wektor naciagu oraz ostatnia pozycja myszy.
- * Trzyma tylko geometrie celowania — decyzje (czyja tura, tryb sieciowy) podejmuje
- * {@link GameManager}.
- */
 public class AimController {
     private Pawn selectedPawn;
-    private final Vector2D tension = new Vector2D(0, 0);
+    private Vector2D tension = Vector2D.zero();
     private double mouseX;
     private double mouseY;
 
-    /** Wybiera pionek danej druzyny pod kursorem; zwraca true, gdy cos wybrano. */
     public boolean selectPawnAt(List<Pawn> pawns, double x, double y, int team) {
         for (Pawn pawn : pawns) {
             Vector2D position = pawn.getPosition();
-            double distance = Math.sqrt(Math.pow(position.getX() - x, 2) + Math.pow(position.getY() - y, 2));
+            double distance = Math.sqrt(Math.pow(position.x() - x, 2) + Math.pow(position.y() - y, 2));
 
             if (pawn.getRadius() >= distance && pawn.getTeam() == team) {
                 selectedPawn = pawn;
@@ -31,7 +25,6 @@ public class AimController {
         return false;
     }
 
-    /** Aktualizuje naciag w strone kursora (przyciety do MAX_PULL_DISTANCE). */
     public boolean aimTo(double x, double y) {
         if (selectedPawn == null) {
             return false;
@@ -41,21 +34,21 @@ public class AimController {
         mouseY = y;
 
         Vector2D pulled = new Vector2D(
-                selectedPawn.getPosition().getX() - x,
-                selectedPawn.getPosition().getY() - y
+                selectedPawn.getPosition().x() - x,
+                selectedPawn.getPosition().y() - y
         );
 
         if (pulled.length() > GameConfig.MAX_PULL_DISTANCE) {
             pulled = pulled.normalized().multiply(GameConfig.MAX_PULL_DISTANCE);
         }
 
-        tension.set(pulled.getX(), pulled.getY());
+        tension = pulled;
         return true;
     }
 
     public void clear() {
         selectedPawn = null;
-        tension.set(0, 0);
+        tension = Vector2D.zero();
     }
 
     public boolean hasSelection() {
@@ -66,17 +59,16 @@ public class AimController {
         return selectedPawn;
     }
 
-    /** Kopia wektora naciagu (sila strzalu przed przemnozeniem przez moc pionka). */
     public Vector2D getTension() {
-        return new Vector2D(tension.getX(), tension.getY());
+        return tension;
     }
 
     public double getArrowX() {
-        return selectedPawn != null ? selectedPawn.getPosition().getX() + tension.getX() : 0;
+        return selectedPawn != null ? selectedPawn.getPosition().x() + tension.x() : 0;
     }
 
     public double getArrowY() {
-        return selectedPawn != null ? selectedPawn.getPosition().getY() + tension.getY() : 0;
+        return selectedPawn != null ? selectedPawn.getPosition().y() + tension.y() : 0;
     }
 
     public void setMousePosition(double x, double y) {

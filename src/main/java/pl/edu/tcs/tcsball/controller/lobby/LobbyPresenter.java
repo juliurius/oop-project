@@ -1,4 +1,7 @@
-package pl.edu.tcs.tcsball.controller;
+package pl.edu.tcs.tcsball.controller.lobby;
+
+import pl.edu.tcs.tcsball.controller.GameState;
+import pl.edu.tcs.tcsball.controller.customization.CustomizationManager;
 
 import pl.edu.tcs.tcsball.model.Match;
 import pl.edu.tcs.tcsball.model.lobby.Lobby;
@@ -19,12 +22,12 @@ public class LobbyPresenter {
     private final LobbyManager lobbyManager;
     private final CustomizationManager customization;
     private final Match match;
-    private final List<DiscoveredHost> discoveredHosts;
+    private final Supplier<List<DiscoveredHost>> discoveredHosts;
     private final Supplier<GameState> gameState;
     private final Supplier<DiscoveredHost> joinedHost;
 
     public LobbyPresenter(LobbyManager lobbyManager, CustomizationManager customization, Match match,
-                          List<DiscoveredHost> discoveredHosts,
+                          Supplier<List<DiscoveredHost>> discoveredHosts,
                           Supplier<GameState> gameState, Supplier<DiscoveredHost> joinedHost) {
         this.lobbyManager = lobbyManager;
         this.customization = customization;
@@ -40,7 +43,7 @@ public class LobbyPresenter {
     }
 
     public List<DiscoveredHost> getDiscoveredHosts() {
-        return List.copyOf(discoveredHosts);
+        return discoveredHosts.get();
     }
 
     public DiscoveredHost getJoinedHost() {
