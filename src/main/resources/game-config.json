@@ -2,6 +2,7 @@
   "windowWidth": 800,
   "windowHeight": 600,
   "maxPullDistance": 150.0,
+  "maxPlayerNameLength": 10,
   "scorePanelHeight": 80.0,
   "marginX": 40.0,
   "marginY": 20.0,
@@ -34,6 +35,7 @@
   "networkBroadcastIntervalMillis": 1000,
   "networkHostTimeoutMillis": 3000,
   "networkStateSyncIntervalMillis": 8,
+  "joinPendingTimeoutMillis": 3000,
   "teamFormationOffsetX": [35.0, 125.0, 125.0, 245.0, 245.0],
   "teamFormationOffsetY": [0.0, -100.0, 100.0, -80.0, 80.0]
 }

@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.screen;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
@@ -53,7 +54,7 @@ public class HostLobbyScreen implements Screen {
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 44));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 44));
         gc.fillText("TWOJE LOBBY", GameConfig.WINDOW_WIDTH / 2.0, 72);
 
         if (!(game instanceof LobbyView lobby)) {
@@ -83,20 +84,20 @@ public class HostLobbyScreen implements Screen {
 
         String readyLabel = lobby.isLocalPlayerReady() ? "NIE GOTOWY" : "GOTOWY";
         buttonRenderer.drawButton(readyLabel, readyX, ACTION_BTN_Y, READY_BTN_WIDTH, READY_BTN_HEIGHT,
-                mx, my, Color.web("#4682b4"), Color.web("#357abd"));
+                mx, my, UiTheme.ACCENT, UiTheme.ACCENT_HOVER);
 
         buttonRenderer.drawButton("START", startX, ACTION_BTN_Y, START_BTN_WIDTH, START_BTN_HEIGHT,
-                mx, my, Color.web("#32cd32"), Color.web("#28a428"), canStart);
+                mx, my, UiTheme.SUCCESS, UiTheme.SUCCESS_HOVER, canStart);
 
         buttonRenderer.drawButton("ANULUJ", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
-                mx, my, Color.web("#d9534f"), Color.web("#c9302c"));
+                mx, my, UiTheme.DANGER, UiTheme.DANGER_HOVER);
     }
 
     private void drawStatusMessage(LobbyView lobby) {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
-        gc.setFill(Color.web("#cccccc"));
+        gc.setFont(UiTheme.font(FontWeight.NORMAL, 18));
+        gc.setFill(UiTheme.TEXT_MUTED);
 
         String message;
         if (!lobby.hasOpponent()) {

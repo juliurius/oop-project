@@ -1,9 +1,9 @@
 package pl.edu.tcs.tcsball.view.element;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
@@ -27,7 +27,7 @@ public class ButtonRenderer {
         boolean isHovered = enabled
                 && mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
 
-        Color disabledColor = Color.web("#555555");
+        Color disabledColor = UiTheme.BUTTON_DISABLED;
         gc.setFill(enabled ? (isHovered ? hoverColor : baseColor) : disabledColor);
         gc.fillRoundRect(x, y, width, height, 15, 15);
 
@@ -42,7 +42,7 @@ public class ButtonRenderer {
         gc.setTextBaseline(VPos.CENTER);
 
         double fontSize = Math.min(24, height * 0.4);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, fontSize));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, fontSize));
         gc.fillText(text, x + width / 2.0, y + height / 2.0);
     }
 }

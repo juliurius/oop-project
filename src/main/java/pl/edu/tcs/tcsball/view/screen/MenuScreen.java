@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.screen;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
@@ -46,14 +47,14 @@ public class MenuScreen implements Screen {
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, TITLE_FONT_SIZE));
+        gc.setFont(UiTheme.font(FontWeight.EXTRA_BOLD, TITLE_FONT_SIZE));
         gc.fillText("TCS BALL", GameConfig.WINDOW_WIDTH / 2.0, TITLE_Y);
 
         buttonRenderer.drawButton("LOCAL PLAY", BTN_X, LOCAL_PLAY_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
                 Color.web("#1e90ff"), Color.web("#157dec"));
 
         buttonRenderer.drawButton("HOST", BTN_X, HOST_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
-                Color.web("#32cd32"), Color.web("#28a428"));
+                UiTheme.SUCCESS, UiTheme.SUCCESS_HOVER);
 
         buttonRenderer.drawButton("JOIN", BTN_X, JOIN_BTN_Y, BTN_WIDTH, BTN_HEIGHT, mx, my,
                 Color.web("#ffa500"), Color.web("#e69500"));

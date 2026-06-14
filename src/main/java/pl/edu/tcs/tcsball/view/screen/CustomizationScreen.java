@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.screen;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -96,11 +97,11 @@ public class CustomizationScreen implements Screen {
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 44));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 44));
         gc.fillText("CUSTOMIZACJA", ROW_CENTER_X, 72);
 
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
-        gc.setFill(Color.web("#cccccc"));
+        gc.setFont(UiTheme.font(FontWeight.NORMAL, 18));
+        gc.setFill(UiTheme.TEXT_MUTED);
         gc.fillText("Profil zapisywany przed meczem — zmiany tylko tutaj", ROW_CENTER_X, 118);
 
         drawNameInputRow(playerName, mx, my);
@@ -108,7 +109,7 @@ public class CustomizationScreen implements Screen {
         drawSelectorRow(Field.FORMATION, "FORMACJA", formationName, null, mx, my);
 
         buttonRenderer.drawButton("POWRÓT", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
-                mx, my, Color.web("#d9534f"), Color.web("#c9302c"));
+                mx, my, UiTheme.DANGER, UiTheme.DANGER_HOVER);
     }
 
     private void drawNameInputRow(String playerName, double mouseX, double mouseY) {
@@ -117,16 +118,16 @@ public class CustomizationScreen implements Screen {
         boolean hovered = isNameFieldHit(mouseX, mouseY);
 
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.setFill(Color.web("#aaaaaa"));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        gc.setFill(UiTheme.TEXT_DIM);
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 16));
         gc.fillText("NAZWA", 80, rowY - 34);
 
         Color border = nameFieldFocused
                 ? Color.web("#6a9fd8")
-                : (hovered ? Color.web("#5a7a9a") : Color.web("#4a6a8a"));
+                : (hovered ? UiTheme.SELECTOR : UiTheme.SELECTOR_HOVER);
         gc.setStroke(border);
         gc.setLineWidth(nameFieldFocused ? 2.5 : 1.5);
-        gc.setFill(Color.web("#3a4a5a"));
+        gc.setFill(UiTheme.PANEL);
         gc.fillRoundRect(NAME_FIELD_X, fieldTop, NAME_FIELD_WIDTH, NAME_FIELD_HEIGHT, 10, 10);
         gc.strokeRoundRect(NAME_FIELD_X, fieldTop, NAME_FIELD_WIDTH, NAME_FIELD_HEIGHT, 10, 10);
 
@@ -135,32 +136,32 @@ public class CustomizationScreen implements Screen {
 
         double textX = NAME_FIELD_X + 16;
         if (playerName.isEmpty()) {
-            gc.setFill(Color.web("#888888"));
-            gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
+            gc.setFill(UiTheme.TEXT_DISABLED);
+            gc.setFont(UiTheme.font(FontWeight.NORMAL, 20));
             gc.fillText(NAME_PLACEHOLDER, textX, rowY);
         } else {
             gc.setFill(Color.WHITE);
-            gc.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+            gc.setFont(UiTheme.font(FontWeight.BOLD, 22));
             gc.fillText(playerName, textX, rowY);
         }
 
         if (nameFieldFocused) {
             gc.setFill(Color.WHITE);
-            gc.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+            gc.setFont(UiTheme.font(FontWeight.BOLD, 22));
             double cursorX = textX + textWidth(playerName.isEmpty() ? "" : playerName) + 2;
             gc.fillText("|", cursorX, rowY);
         }
 
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.setFill(Color.web("#888888"));
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+        gc.setFill(UiTheme.TEXT_DISABLED);
+        gc.setFont(UiTheme.font(FontWeight.NORMAL, 14));
         gc.fillText(playerName.length() + "/" + PlayerProfile.MAX_NAME_LENGTH,
                 NAME_FIELD_X + NAME_FIELD_WIDTH - 12, rowY + 28);
     }
 
     private static double textWidth(String text) {
         Text measure = new Text(text);
-        measure.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+        measure.setFont(UiTheme.font(FontWeight.BOLD, 22));
         return measure.getLayoutBounds().getWidth();
     }
 
@@ -169,14 +170,14 @@ public class CustomizationScreen implements Screen {
         double rowY = rowY(field);
 
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.setFill(Color.web("#aaaaaa"));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        gc.setFill(UiTheme.TEXT_DIM);
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 16));
         gc.fillText(label, 80, rowY - 34);
 
         drawArrow(PREV_ARROW_X, rowY, mouseX, mouseY, true);
         drawArrow(NEXT_ARROW_X, rowY, mouseX, mouseY, false);
 
-        gc.setFill(Color.web("#3a4a5a"));
+        gc.setFill(UiTheme.PANEL);
         gc.fillRoundRect(ROW_CENTER_X - VALUE_WIDTH / 2.0, rowY - ARROW_HEIGHT / 2.0,
                 VALUE_WIDTH, ARROW_HEIGHT, 10, 10);
 
@@ -187,7 +188,7 @@ public class CustomizationScreen implements Screen {
 
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 22));
         double textX = flagColor != null ? ROW_CENTER_X + 16 : ROW_CENTER_X;
         gc.fillText(value, textX, rowY);
     }
@@ -197,11 +198,11 @@ public class CustomizationScreen implements Screen {
         boolean hovered = mouseX >= x && mouseX <= x + ARROW_WIDTH
                 && mouseY >= y && mouseY <= y + ARROW_HEIGHT;
 
-        gc.setFill(hovered ? Color.web("#5a7a9a") : Color.web("#4a6a8a"));
+        gc.setFill(hovered ? UiTheme.SELECTOR : UiTheme.SELECTOR_HOVER);
         gc.fillRoundRect(x, y, ARROW_WIDTH, ARROW_HEIGHT, 10, 10);
 
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 28));
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         gc.fillText(prev ? "‹" : "›", x + ARROW_WIDTH / 2.0, rowY);

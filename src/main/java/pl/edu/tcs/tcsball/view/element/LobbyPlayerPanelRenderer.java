@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.element;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
@@ -28,14 +29,14 @@ public class LobbyPlayerPanelRenderer {
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setTextBaseline(VPos.TOP);
         gc.setFill(Color.web("#88aa99"));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 14));
         gc.fillText(roleLabel, x + 16, y + 14);
 
         if (!occupied) {
             gc.setTextAlign(TextAlignment.CENTER);
             gc.setTextBaseline(VPos.CENTER);
-            gc.setFill(Color.web("#888888"));
-            gc.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
+            gc.setFill(UiTheme.TEXT_DISABLED);
+            gc.setFont(UiTheme.font(FontWeight.NORMAL, 18));
             gc.fillText("Czekam na gracza…", x + width / 2.0, y + height / 2.0);
             return;
         }
@@ -46,11 +47,11 @@ public class LobbyPlayerPanelRenderer {
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setTextBaseline(VPos.CENTER);
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 24));
         gc.fillText(playerName, x + 64, y + 58);
 
-        gc.setFill(Color.web("#aaaaaa"));
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+        gc.setFill(UiTheme.TEXT_DIM);
+        gc.setFont(UiTheme.font(FontWeight.NORMAL, 16));
         gc.fillText(flagName, x + 64, y + 84);
 
         drawReadyBadge(x + width - 16, y + height - 16, ready);
@@ -61,7 +62,7 @@ public class LobbyPlayerPanelRenderer {
         Color bg = ready ? Color.web("#2d8a4e") : Color.web("#6a4a2a");
         Color fg = ready ? Color.web("#a8f0c0") : Color.web("#ffcc88");
 
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 13));
         double padX = 10;
         double padY = 5;
         double textW = label.length() * 7.5;

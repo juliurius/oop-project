@@ -1,5 +1,6 @@
 package pl.edu.tcs.tcsball.controller.lobby;
 
+import pl.edu.tcs.tcsball.GameConfig;
 import pl.edu.tcs.tcsball.controller.GameState;
 import pl.edu.tcs.tcsball.controller.InputDelta;
 import pl.edu.tcs.tcsball.controller.customization.CustomizationManager;
@@ -19,8 +20,6 @@ import java.util.function.Consumer;
  * {@link GameManager}, dzieki czemu nie zna rdzenia gry ani synchronizacji sieci.
  */
 public class LobbyFlowController {
-    private static final long JOIN_PENDING_TIMEOUT_MILLIS = 3_000;
-
     private final LobbyManager lobbyManager;
     private final CustomizationManager customization;
     private final InputDelta inputDelta;
@@ -116,7 +115,7 @@ public class LobbyFlowController {
 
         if (lobbyManager.isGuestLobbyConfirmed()) {
             confirmJoinSuccess();
-        } else if (System.currentTimeMillis() - pendingJoinStartedMillis > JOIN_PENDING_TIMEOUT_MILLIS) {
+        } else if (System.currentTimeMillis() - pendingJoinStartedMillis > GameConfig.JOIN_PENDING_TIMEOUT_MILLIS) {
             cancelPendingJoin("Host nie odpowiedział — spróbuj ponownie");
         }
     }

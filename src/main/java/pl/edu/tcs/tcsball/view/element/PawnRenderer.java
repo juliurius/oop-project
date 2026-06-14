@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.element;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.model.ReadOnlyPawn;
@@ -31,7 +32,7 @@ public class PawnRenderer {
         graphicsContext.setTextAlign(TextAlignment.CENTER);
         graphicsContext.setTextBaseline(VPos.CENTER);
         graphicsContext.setFill(Color.WHITE);
-        graphicsContext.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        graphicsContext.setFont(UiTheme.font(FontWeight.BOLD, 18));
         graphicsContext.fillText(String.valueOf(pawn.getTeam()), x, y);
     }
 }

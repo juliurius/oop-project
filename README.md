@@ -102,7 +102,8 @@ src/main/resources/game-config.json
 
 This includes window and pitch dimensions, goal size, pawn and ball physics, stop-speed
 thresholds, collision tuning, spin parameters, formation offsets, and network ports/timeouts.
-Small view-only constants (button sizes, colours) remain local to the renderer classes.
+Shared UI colours and the font family live in `view/UiTheme.java`; only one-off,
+screen-specific decorative colours and layout offsets remain local to the renderers.
 
 ---
 

@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.element;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
@@ -57,7 +58,7 @@ public class GoalOverlayRenderer {
 
         graphicsContext.setTextAlign(TextAlignment.CENTER);
         graphicsContext.setTextBaseline(VPos.CENTER);
-        graphicsContext.setFont(Font.font("Arial", FontWeight.EXTRA_BOLD, 120));
+        graphicsContext.setFont(UiTheme.font(FontWeight.EXTRA_BOLD, 120));
 
         graphicsContext.setStroke(Color.BLACK);
         graphicsContext.setLineWidth(10);

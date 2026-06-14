@@ -20,6 +20,9 @@ public final class GameConfig {
     // --- STEROWANIE ---
     public static final double MAX_PULL_DISTANCE = DATA.maxPullDistance();
 
+    // Maksymalna dlugosc nazwy gracza wpisywanej na ekranie customizacji
+    public static final int MAX_PLAYER_NAME_LENGTH = DATA.maxPlayerNameLength();
+
     // Wysokosc gornego paska na wynik (boisko zaczyna sie ponizej)
     public static final double SCORE_PANEL_HEIGHT = DATA.scorePanelHeight();
 
@@ -79,6 +82,8 @@ public final class GameConfig {
     public static final int NETWORK_BROADCAST_INTERVAL_MILLIS = DATA.networkBroadcastIntervalMillis();
     public static final int NETWORK_HOST_TIMEOUT_MILLIS = DATA.networkHostTimeoutMillis();
     public static final int NETWORK_STATE_SYNC_INTERVAL_MILLIS = DATA.networkStateSyncIntervalMillis();
+    // Czas oczekiwania klienta na potwierdzenie dolaczenia do lobby zanim zrezygnuje
+    public static final int JOIN_PENDING_TIMEOUT_MILLIS = DATA.joinPendingTimeoutMillis();
 
     // Pozycje pionkow druzyny 1 (lewa strona) jako offsety:
     //   [0] = X liczone od bandy PITCH_LEFT_X w glab boiska
@@ -123,6 +128,7 @@ public final class GameConfig {
             int windowWidth,
             int windowHeight,
             double maxPullDistance,
+            int maxPlayerNameLength,
             double scorePanelHeight,
             double marginX,
             double marginY,
@@ -155,6 +161,7 @@ public final class GameConfig {
             int networkBroadcastIntervalMillis,
             int networkHostTimeoutMillis,
             int networkStateSyncIntervalMillis,
+            int joinPendingTimeoutMillis,
             double[] teamFormationOffsetX,
             double[] teamFormationOffsetY
     ) {

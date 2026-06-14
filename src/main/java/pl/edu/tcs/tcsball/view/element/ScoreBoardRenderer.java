@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.element;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
@@ -34,12 +35,12 @@ public class ScoreBoardRenderer {
         graphicsContext.setTextAlign(TextAlignment.CENTER);
         graphicsContext.setTextBaseline(VPos.CENTER);
         graphicsContext.setFill(Color.WHITE);
-        graphicsContext.setFont(Font.font("Arial", FontWeight.BOLD, 36));
+        graphicsContext.setFont(UiTheme.font(FontWeight.BOLD, 36));
         graphicsContext.fillText("WYNIK  " + score1 + " : " + score2, GameConfig.WINDOW_WIDTH / 2.0, GameConfig.SCORE_PANEL_HEIGHT / 2.0);
 
         buttonRenderer.drawButton("MENU", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
                 mouseX, mouseY,
-                Color.web("#d9534f"), Color.web("#c9302c"));
+                UiTheme.DANGER, UiTheme.DANGER_HOVER);
 
         double dotRadius = TURN_DOT_RADIUS;
         double dotX = GameConfig.WINDOW_WIDTH - TURN_DOT_OFFSET_X;

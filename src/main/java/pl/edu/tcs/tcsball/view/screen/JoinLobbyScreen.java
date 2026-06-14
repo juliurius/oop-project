@@ -1,9 +1,10 @@
 package pl.edu.tcs.tcsball.view.screen;
 
+import pl.edu.tcs.tcsball.view.UiTheme;
+
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import pl.edu.tcs.tcsball.GameConfig;
@@ -52,24 +53,24 @@ public class JoinLobbyScreen implements Screen {
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 44));
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 44));
         gc.fillText("WYBIERZ HOSTA", GameConfig.WINDOW_WIDTH / 2.0, 72);
 
         if (!(game instanceof LobbyView lobbyView && lobbyView.isJoinPending())) {
             buttonRenderer.drawButton("ODŚWIEŻ", REFRESH_BTN_X, REFRESH_BTN_Y, REFRESH_BTN_WIDTH, REFRESH_BTN_HEIGHT,
-                    mx, my, Color.web("#4682b4"), Color.web("#357abd"));
+                    mx, my, UiTheme.ACCENT, UiTheme.ACCENT_HOVER);
         }
 
         if (game instanceof LobbyView lobbyView) {
             if (lobbyView.isJoinPending()) {
-                gc.setFont(Font.font("Arial", FontWeight.NORMAL, 22));
-                gc.setFill(Color.web("#cccccc"));
+                gc.setFont(UiTheme.font(FontWeight.NORMAL, 22));
+                gc.setFill(UiTheme.TEXT_MUTED);
                 String hostName = lobbyView.getJoinedHost() != null
                         ? lobbyView.getJoinedHost().getHostName()
                         : "hosta";
                 gc.fillText("Łączenie z " + hostName + "…", GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y + 40);
             } else if (lobbyView.getJoinStatusMessage() != null) {
-                gc.setFont(Font.font("Arial", FontWeight.NORMAL, 18));
+                gc.setFont(UiTheme.font(FontWeight.NORMAL, 18));
                 gc.setFill(Color.web("#ff9999"));
                 gc.fillText(lobbyView.getJoinStatusMessage(), GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y - 20);
 
@@ -80,8 +81,8 @@ public class JoinLobbyScreen implements Screen {
             } else {
                 List<DiscoveredHost> hosts = lobbyView.getDiscoveredHosts();
                 if (hosts.isEmpty()) {
-                    gc.setFont(Font.font("Arial", FontWeight.NORMAL, 20));
-                    gc.setFill(Color.web("#aaaaaa"));
+                    gc.setFont(UiTheme.font(FontWeight.NORMAL, 20));
+                    gc.setFill(UiTheme.TEXT_DIM);
                     gc.fillText("Brak hostów — kliknij ODŚWIEŻ", GameConfig.WINDOW_WIDTH / 2.0, LIST_TOP_Y + 40);
                 } else {
                     for (int i = 0; i < hosts.size(); i++) {
@@ -92,7 +93,7 @@ public class JoinLobbyScreen implements Screen {
         }
 
         buttonRenderer.drawButton("WSTECZ", BACK_BTN_X, BACK_BTN_Y, BACK_BTN_WIDTH, BACK_BTN_HEIGHT,
-                mx, my, Color.web("#d9534f"), Color.web("#c9302c"));
+                mx, my, UiTheme.DANGER, UiTheme.DANGER_HOVER);
     }
 
     private void drawHostRow(DiscoveredHost host, int index, double mouseX, double mouseY) {
@@ -118,12 +119,12 @@ public class JoinLobbyScreen implements Screen {
 
         gc.setTextAlign(TextAlignment.LEFT);
         gc.setTextBaseline(VPos.CENTER);
-        gc.setFill(joinable ? Color.WHITE : Color.web("#888888"));
-        gc.setFont(Font.font("Arial", FontWeight.BOLD, 22));
+        gc.setFill(joinable ? Color.WHITE : UiTheme.TEXT_DISABLED);
+        gc.setFont(UiTheme.font(FontWeight.BOLD, 22));
         gc.fillText(host.getHostName(), ROW_X + 20, rowY + ROW_HEIGHT / 2.0);
 
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+        gc.setFont(UiTheme.font(FontWeight.NORMAL, 16));
         gc.fillText(host.getStatusLabel(), ROW_X + ROW_WIDTH - 20, rowY + ROW_HEIGHT / 2.0);
     }
 
